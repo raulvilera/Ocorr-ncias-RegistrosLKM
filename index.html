@@ -164,6 +164,26 @@
             opacity: 0.9;
         }
         
+        .period-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.85);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 10px;
+        }
+        
+        .period-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .period-value {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
         .card {
             background-color: var(--card-bg);
             border-radius: 16px;
@@ -552,33 +572,6 @@
             gap: 15px;
         }
         
-        /* Novos estilos para estatísticas de período */
-        .period-stats {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        
-        .period-item {
-            text-align: center;
-        }
-        
-        .period-label {
-            font-size: 0.8rem;
-            opacity: 0.9;
-        }
-        
-        .period-value {
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
-        
-        .period-manha { color: #f1c40f; }
-        .period-tarde { color: #e67e22; }
-        .period-noite { color: #9b59b6; }
-        
         @media (max-width: 992px) {
             .dashboard {
                 grid-template-columns: 1fr;
@@ -620,7 +613,7 @@
             
             .period-stats {
                 flex-direction: column;
-                gap: 10px;
+                gap: 8px;
             }
         }
     </style>
@@ -744,6 +737,7 @@
                                                     <option value="3ª SERIE D NOITE">3ª SERIE D NOITE</option>
                                                     <option value="3ª SERIE E NOITE">3ª SERIE E NOITE</option>
                                                     <option value="3ª SERIE F NOITE">3ª SERIE F NOITE</option>
+                                                    <option value="3ª SERIE G NOITE">3ª SERIE G NOITE</option>
                                                     <option value="4050 - ADMINISTRAÇÃO - 2ª SERIE A MANHA">4050 - ADMINISTRAÇÃO - 2ª SERIE A MANHA</option>
                                                 </select>
                                             </div>
@@ -869,33 +863,37 @@
                         <div class="stats-grid">
                             <div class="stat-item">
                                 <div class="stat-value" id="totalOccurrences">0</div>
-                                <div class="stat-label">Ocorrências registradas</div>
+                                <div class="stat-label">OCORRÊNCIAS REGISTRADAS</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-value" id="totalStudents">0</div>
-                                <div class="stat-label">Total de alunos</div>
+                                <div class="stat-value" id="totalSchoolStudents">1,432</div>
+                                <div class="stat-label">TOTAL DE ALUNOS NA ESCOLA</div>
                                 <div class="period-stats">
                                     <div class="period-item">
-                                        <div class="period-value period-manha" id="morningCount">0</div>
-                                        <div class="period-label">Manhã</div>
+                                        <div class="period-value">624</div>
+                                        <div>Manhã</div>
                                     </div>
                                     <div class="period-item">
-                                        <div class="period-value period-tarde" id="afternoonCount">0</div>
-                                        <div class="period-label">Tarde</div>
+                                        <div class="period-value">672</div>
+                                        <div>Tarde</div>
                                     </div>
                                     <div class="period-item">
-                                        <div class="period-value period-noite" id="nightCount">0</div>
-                                        <div class="period-label">Noite</div>
+                                        <div class="period-value">136</div>
+                                        <div>Noite</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="stat-item">
+                                <div class="stat-value" id="totalStudents">0</div>
+                                <div class="stat-label">Nº DE ALUNOS MATRICULADOS NA TURMA</div>
+                            </div>
+                            <div class="stat-item">
                                 <div class="stat-value" id="totalClasses">40</div>
-                                <div class="stat-label">Turmas monitoradas</div>
+                                <div class="stat-label">Nº DE TURMAS MONITORADAS</div>
                             </div>
                             <div class="stat-item">
                                 <div class="stat-value" id="totalTeachers">64</div>
-                                <div class="stat-label">Professores ativos</div>
+                                <div class="stat-label">PROFESSORES CADASTRADOS</div>
                             </div>
                         </div>
                     </div>
@@ -1040,12 +1038,10 @@
             const professorSelect = document.getElementById('professor');
             const totalOccurrencesEl = document.getElementById('totalOccurrences');
             const totalStudentsEl = document.getElementById('totalStudents');
+            const totalSchoolStudentsEl = document.getElementById('totalSchoolStudents');
             const studentOccurrencesCard = document.getElementById('studentOccurrencesCard');
             const studentOccurrencesName = document.getElementById('studentOccurrencesName');
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
-            const morningCountEl = document.getElementById('morningCount');
-            const afternoonCountEl = document.getElementById('afternoonCount');
-            const nightCountEl = document.getElementById('nightCount');
 
             // URL base do Apps Script
             const SCRIPT_BASE_URL = "https://script.google.com/macros/s/AKfycbxc_P27Wl96tqKT9IDte8jvhX-v3zOxFvsDD-QgTAgcyZoV4gqKhRWTojhcE-Y2gzoj/exec";
@@ -1177,6 +1173,9 @@
                                 studentSelect.appendChild(option);
                             });
                             studentSelect.disabled = false;
+                            
+                            // Atualizar estatísticas
+                            totalStudentsEl.textContent = data.students.length;
                         } else {
                             const errorMsg = data?.message || 'Resposta inesperada do servidor';
                             studentSelect.innerHTML = `<option value="">Erro: ${errorMsg}</option>`;
@@ -1340,6 +1339,17 @@
                         // Atualizar estatísticas gerais
                         const currentTotal = parseInt(totalOccurrencesEl.textContent);
                         totalOccurrencesEl.textContent = currentTotal + 1;
+
+                        const currentStudents = parseInt(totalStudentsEl.textContent);
+                        if (currentStudents < 1000) {
+                            totalStudentsEl.textContent = currentStudents + 1;
+                        }
+
+                        // Resetar gráficos
+                        const chartCanvases = document.querySelectorAll('.donut-chart');
+                        chartCanvases.forEach(canvas => {
+                            createDonutChart(canvas, 0);
+                        });
                     } else {
                         throw new Error(response?.message || "Erro desconhecido ao enviar ocorrência");
                     }
@@ -1355,30 +1365,27 @@
                 }
             });
 
+            // Carregar estatísticas iniciais
+            function loadInitialStats() {
+                // Buscar total de ocorrências
+                safeFetch(`${SCRIPT_BASE_URL}?action=getTotalOccurrences`)
+                    .then(data => {
+                        if (data && data.status === "success") {
+                            totalOccurrencesEl.textContent = data.total || "0";
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao carregar estatísticas:', error);
+                    });
+            }
+
             // Inicializar gráficos com valores zero
             document.querySelectorAll('.donut-chart').forEach(canvas => {
                 createDonutChart(canvas, 0);
             });
-            
-            // Carregar estatísticas de alunos por período
-            async function loadStudentPeriodStats() {
-                try {
-                    const url = `${SCRIPT_BASE_URL}?action=getStudentPeriodStats`;
-                    const data = await safeFetch(url);
-                    
-                    if (data && data.status === "success") {
-                        totalStudentsEl.textContent = data.totalStudents;
-                        morningCountEl.textContent = data.morningCount;
-                        afternoonCountEl.textContent = data.afternoonCount;
-                        nightCountEl.textContent = data.nightCount;
-                    }
-                } catch (error) {
-                    console.error('Erro ao carregar estatísticas de alunos:', error);
-                }
-            }
-            
+
             // Carregar estatísticas iniciais
-            loadStudentPeriodStats();
+            loadInitialStats();
         });
     </script>
 </body>
