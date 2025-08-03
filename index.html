@@ -1212,7 +1212,7 @@
                     studentOccurrencesCount.textContent = "Carregando...";
 
                     // Buscar estatísticas do aluno
-                    const url = `${'https://sheetdb.io/api/v1/1pm9gogehjysd'}?action=getStudentStats&student=${encodeURIComponent(this.value)}`;
+                    const url = `${'https://script.google.com/macros/s/AKfycbyKN88vjnb4NX2nrWB7Tw_Ghi07kLrFnMIpIcFKQS-Vs5Qoe_FPvECIdSaYwpzMK8tH/exec'}?action=getStudentStats&student=${encodeURIComponent(this.value)}`;
                     
                     safeFetch(url)
                         .then(data => {
@@ -1389,6 +1389,7 @@
     </script>
 </body>
 </html>
+
 
 
 
