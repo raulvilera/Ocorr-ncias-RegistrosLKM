@@ -727,7 +727,7 @@
                                                     <option value="2ª SERIE H NOITE">2ª SERIE H NOITE</option>
                                                     <option value="3ª SERIE A MANHA">3ª SERIE A MANHA</option>
                                                     <option value="3ª SERIE B MANHA">3ª SERIE B MANHA</option>
-                                                    <option value="3ª SERIE C MANHA">3ª SERie C MANHA</option>
+                                                    <option value="3ª SERIE C MANHA">3ª SERIE C MANHA</option>
                                                     <option value="3ª SERIE D NOITE">3ª SERIE D NOITE</option>
                                                     <option value="3ª SERIE E NOITE">3ª SERIE E NOITE</option>
                                                     <option value="3ª SERIE F NOITE">3ª SERIE F NOITE</option>
@@ -1102,8 +1102,8 @@
                         datasets: [{
                             data: [value, maxValue - value],
                             backgroundColor: [
-                                '#3498db', // Cor da ocorrência
-                                '#e0e0e0' // Cor de fundo
+                                '#3498db',
+                                '#e0e0e0'
                             ],
                             borderWidth: 0
                         }]
@@ -1130,8 +1130,13 @@
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 15000);
                     
+                    // Configuração de cabeçalhos CORS
+                    const headers = new Headers(options.headers || {});
+                    headers.append('Content-Type', 'application/json');
+                    
                     const fetchOptions = {
                         ...options,
+                        headers,
                         signal: controller.signal,
                         mode: 'cors',
                         redirect: 'follow'
@@ -1152,7 +1157,7 @@
                     console.error('Erro na requisição:', error);
                     return {
                         status: "error",
-                        message: error.message || "Erro na requisição"
+                        message: error.message || "Erro na conexão"
                     };
                 }
             }
@@ -1176,7 +1181,7 @@
                 }
 
                 // Buscar alunos reais da planilha
-                const url = `${'https://script.google.com/macros/s/AKfycbyKN88vjnb4NX2nrWB7Tw_Ghi07kLrFnMIpIcFKQS-Vs5Qoe_FPvECIdSaYwpzMK8tH/exec'}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
+                const url = `${SCRIPT_BASE_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
                 
                 safeFetch(url)
                     .then(data => {
@@ -1212,7 +1217,7 @@
                     studentOccurrencesCount.textContent = "Carregando...";
 
                     // Buscar estatísticas do aluno
-                    const url = `${'https://script.google.com/macros/s/AKfycbyKN88vjnb4NX2nrWB7Tw_Ghi07kLrFnMIpIcFKQS-Vs5Qoe_FPvECIdSaYwpzMK8tH/exec'}?action=getStudentStats&student=${encodeURIComponent(this.value)}`;
+                    const url = `${SCRIPT_BASE_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`;
                     
                     safeFetch(url)
                         .then(data => {
@@ -1328,11 +1333,8 @@
                     };
 
                     // Enviar dados para o Google Sheets
-                    const response = await safeFetch('https://script.google.com/macros/s/AKfycbyKN88vjnb4NX2nrWB7Tw_Ghi07kLrFnMIpIcFKQS-Vs5Qoe_FPvECIdSaYwpzMK8tH/exec', {
+                    const response = await safeFetch(SCRIPT_BASE_URL, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
                         body: JSON.stringify({
                             action: 'addOccurrence',
                             ...formData
@@ -1389,14 +1391,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
