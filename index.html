@@ -164,6 +164,25 @@
             opacity: 0.9;
         }
         
+        .stat-periods {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            display: flex;
+            justify-content: space-around;
+            opacity: 0.8;
+        }
+        
+        .stat-period {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .stat-period-value {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
         .card {
             background-color: var(--card-bg);
             border-radius: 16px;
@@ -840,6 +859,24 @@
                                 <div class="stat-label">OCORRÊNCIAS REGISTRADAS</div>
                             </div>
                             <div class="stat-item">
+                                <div class="stat-value" id="totalSchoolStudents">0</div>
+                                <div class="stat-label">TOTAL DE ALUNOS NA ESCOLA</div>
+                                <div class="stat-periods">
+                                    <div class="stat-period">
+                                        <span class="stat-period-value" id="morningStudents">0</span>
+                                        <span>Manhã</span>
+                                    </div>
+                                    <div class="stat-period">
+                                        <span class="stat-period-value" id="afternoonStudents">0</span>
+                                        <span>Tarde</span>
+                                    </div>
+                                    <div class="stat-period">
+                                        <span class="stat-period-value" id="eveningStudents">0</span>
+                                        <span>Noite</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
                                 <div class="stat-value" id="totalStudents">0</div>
                                 <div class="stat-label">Nº DE ALUNOS MATRICULADOS NA TURMA</div>
                             </div>
@@ -994,6 +1031,10 @@
             const professorSelect = document.getElementById('professor');
             const totalOccurrencesEl = document.getElementById('totalOccurrences');
             const totalStudentsEl = document.getElementById('totalStudents');
+            const totalSchoolStudentsEl = document.getElementById('totalSchoolStudents');
+            const morningStudentsEl = document.getElementById('morningStudents');
+            const afternoonStudentsEl = document.getElementById('afternoonStudents');
+            const eveningStudentsEl = document.getElementById('eveningStudents');
             const studentOccurrencesCard = document.getElementById('studentOccurrencesCard');
             const studentOccurrencesName = document.getElementById('studentOccurrencesName');
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
@@ -1024,6 +1065,30 @@
 
             // Armazenar gráficos
             const charts = {};
+
+            // Carregar estatísticas de alunos da escola
+            function loadSchoolStatistics() {
+                const url = `${SCRIPT_BASE_URL}?action=getSchoolStatistics`;
+                
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.status === "success") {
+                            totalSchoolStudentsEl.textContent = data.totalStudents || 0;
+                            morningStudentsEl.textContent = data.morningStudents || 0;
+                            afternoonStudentsEl.textContent = data.afternoonStudents || 0;
+                            eveningStudentsEl.textContent = data.eveningStudents || 0;
+                        } else {
+                            console.error('Erro ao carregar estatísticas da escola:', data?.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao carregar estatísticas da escola:', error);
+                    });
+            }
+
+            // Chamar a função para carregar estatísticas da escola
+            loadSchoolStatistics();
 
             // Função para criar gráficos de rosca
             function createDonutChart(canvas, value, maxValue = 10) {
@@ -1115,7 +1180,7 @@
                 }
 
                 // Buscar alunos reais da planilha
-                const url = `${"https://script.google.com/macros/s/AKfycbxc_P27Wl96tqKT9IDte8jvhX-v3zOxFvsDD-QgTAgcyZoV4gqKhRWTojhcE-Y2gzoj/exec"}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
+                const url = `${SCRIPT_BASE_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
                 
                 safeFetch(url)
                     .then(data => {
