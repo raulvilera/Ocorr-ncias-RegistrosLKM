@@ -937,7 +937,7 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Dados completos dos professores
+            // Dados dos professores
             const teacherEmails = {
                 "ALEX LUTH PEREIRA MARANHAO": "luth@prof.educacao.sp.gov.br",
                 "ALEXSANDRA PAULA VARELLA DE SOUZA": "avarella@prof.educacao.sp.gov.br",
@@ -947,7 +947,7 @@
                 "ANDREIA DOS SANTOS FREITAS": "sanfreitas@prof.educacao.sp.gov.br",
                 "ANDREIA MADUREIRA REIS": "andreiamadureira@prof.educacao.sp.gov.br",
                 "ANTONIO CARLOS DE OLIVEIRA": "antoniocarloso@prof.educacao.sp.gov.br",
-                "ANTONIO RAMOS极 ARAUJO": "antonioramosaraujo@prof.educacao.sp.gov.br",
+                "ANTONIO RAMOS DE ARAUJO": "antonioramosaraujo@prof.educacao.sp.gov.br",
                 "ANTONIO WILTON WANDERLEY CABRAL": "antoniowilton@prof.educacao.sp.gov.br",
                 "AUGUSTO LINO PESSOA NETO": "augustolino@prof.educacao.sp.gov.br",
                 "AUREA MARIA DE JESUS MARQUES": "aureamaria@prof.educacao.sp.gov.br",
@@ -956,8 +956,8 @@
                 "CLAUDINEIA DE AGUIAR LIMA": "aguiarl@prof.educacao.sp.gov.br",
                 "DANIEL DE FREITAS ALMEIDA": "danielalmeida@prof.educacao.sp.gov.br",
                 "DANIEL LOPES BARBOSA": "daniellopesbarbosa@prof.educacao.sp.gov.br",
-                "DANIELA FERREIRA LIMA": "danielafilma@prof.educacao.sp.gov.br",
-                "DANIELLE LUCIA BATISTA DE ALMEIDA": "danieleLucia@prof.educacao.sp.gov.br",
+                "DANIELA FERREIRA LIMA": "danielaflima@prof.educacao.sp.gov.br",
+                "DANIELLE LUCIA BATISTA DE ALMEIDA": "danielelucia@prof.educacao.sp.gov.br",
                 "EDIANE VIEIRA DA SILVA": "ediane@prof.educacao.sp.gov.br",
                 "EDILEUSA NUNES PEREIRA": "edileusa@prof.educacao.sp.gov.br",
                 "EDUARDO HENRIQUE DA FONSECA": "henriquefonseca@prof.educacao.sp.gov.br",
@@ -983,7 +983,7 @@
                 "JOSE APARECIDO DA SILVA": "joseaparecidosilva@prof.educacao.sp.gov.br",
                 "JUAREZ GOMES DE MAGALHAES FILHO": "juarezgomes@prof.educacao.sp.gov.br",
                 "JUREMA SOLEDADE FURINI SANTOS": "juremas@prof.educacao.sp.gov.br",
-                "KATIUSCIA ALVES BOMFIM": "katiusciabornfim@prof.educacao.sp.gov.br",
+                "KATIUSCIA ALVES BOMFIM": "katiusciabomfim@prof.educacao.sp.gov.br",
                 "LUANA CAROLINE ALVES LIMA": "luanalima01@prof.educacao.sp.gov.br",
                 "LUANA DE FREITAS SILVA": "luanafreitas@prof.educacao.sp.gov.br",
                 "LUCIANA NOVAIS CORREIA SANTOS": "novaiscorreia@prof.educacao.sp.gov.br",
@@ -1020,176 +1020,47 @@
                 "VIVIANE LEAL CAMERA DE MORAES": "camera@prof.educacao.sp.gov.br",
                 "WILSON RODRIGUES MOTA": "wmota@prof.educacao.sp.gov.br"
             };
-
-            // Elementos DOM
+            
             const form = document.getElementById('occurrenceForm');
             const clearBtn = document.getElementById('clearBtn');
-            const submitBtn = document.getElementById('submitBtn');
             const successAlert = document.getElementById('successAlert');
             const errorAlert = document.getElementById('errorAlert');
-            const errorMessage = document.getElementById('errorMessage');
             const studentSelect = document.getElementById('student');
             const classSelect = document.getElementById('studentClass');
             const professorSelect = document.getElementById('professor');
-            const totalOccurrencesEl = document.getElementById('totalOccurrences');
-            const totalStudentsEl = document.getElementById('totalStudents');
-            const totalSchoolStudentsEl = document.getElementById('totalSchoolStudents');
-            const morningStudentsEl = document.getElementById('morningStudents');
-            const afternoonStudentsEl = document.getElementById('afternoonStudents');
-            const eveningStudentsEl = document.getElementById('eveningStudents');
-            const studentOccurrencesCard = document.getElementById('studentOccurrencesCard');
-            const studentOccurrencesName = document.getElementById('studentOccurrencesName');
-            const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
-
-            // URL base do Apps Script - ATUALIZE COM SUA URL!
-            const SCRIPT_BASE_URL = "https://script.google.com/macros/s/AKfycbxgkBph_rcqPSLqc2QvPxZiXXEKgaF1MwamlcYMb1AfGfmjQF5qgkNBzHl7dt8Wya3j/exec";
-
+            
+            // URL do Google Apps Script (substitua pelo seu)
+            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyH5KsXTAD10JAtGJhVLUGFh9nk8Gt7sb2rwx9QFX-g8uE0kDrBqDZ7cgZBQf0p3-nF/exec";
+            
             // Preencher dropdown de professores
-            const teacherNames = Object.keys(teacherEmails);
-            teacherNames.forEach(teacherName => {
+            Object.keys(teacherEmails).forEach(teacherName => {
                 const option = document.createElement('option');
                 option.value = teacherName;
                 option.textContent = teacherName;
                 professorSelect.appendChild(option);
             });
-
-            // Atualizar estatísticas de professores
-            document.getElementById('totalTeachers').textContent = teacherNames.length;
-
+            
             // Preencher data atual como padrão
             const today = new Date();
             const formattedDate = today.toISOString().split('T')[0];
             document.getElementById('occurrenceDate').value = formattedDate;
-
-            // Contar turmas disponíveis
-            const turmasCount = document.querySelectorAll('#studentClass option').length - 1;
-            document.getElementById('totalClasses').textContent = turmasCount;
-
-            // Armazenar gráficos
-            const charts = {};
-
-            // Carregar estatísticas de alunos da escola
-            function loadSchoolStatistics() {
-                // Dados de exemplo (substitua por dados reais da API)
-                const stats = {
-                    totalStudents: 1250,
-                    morningStudents: 420,
-                    afternoonStudents: 530,
-                    eveningStudents: 300
-                };
-                
-                // Atualizar elementos DOM com os dados
-                totalSchoolStudentsEl.textContent = stats.totalStudents;
-                morningStudentsEl.textContent = stats.morningStudents;
-                afternoonStudentsEl.textContent = stats.afternoonStudents;
-                eveningStudentsEl.textContent = stats.eveningStudents;
-            }
-
-            // Chamar a função para carregar estatísticas da escola
-            loadSchoolStatistics();
-
-            // Função para criar gráficos de rosca
-            function createDonutChart(canvas, value, maxValue = 10) {
-                const ctx = canvas.getContext('2d');
-                const chartKey = canvas.getAttribute('data-irregularity');
-
-                // Destruir gráfico anterior se existir
-                if (charts[chartKey]) {
-                    charts[chartKey].destroy();
-                }
-
-                charts[chartKey] = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        datasets: [{
-                            data: [value, maxValue - value],
-                            backgroundColor: [
-                                '#3498db',
-                                '#e0e0e0'
-                            ],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        cutout: '70%',
-                        responsive: false,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { enabled: false }
-                        }
-                    }
-                });
-
-                // Atualizar o número de ocorrências
-                const chartValue = canvas.parentElement.querySelector('.chart-value');
-                chartValue.textContent = value;
-            }
-
-            // Função para fazer requisições seguras
-            async function safeFetch(url, options = {}) {
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 15000);
-                    
-                    // Configuração de cabeçalhos CORS
-                    const headers = new Headers(options.headers || {});
-                    headers.append('Content-Type', 'application/json');
-                    
-                    const fetchOptions = {
-                        ...options,
-                        headers,
-                        signal: controller.signal,
-                        mode: 'cors',
-                        redirect: 'follow'
-                    };
-
-                    const response = await fetch(url, fetchOptions);
-                    clearTimeout(timeoutId);
-
-                    // Verificar se a resposta é JSON válido
-                    const contentType = response.headers.get('content-type');
-                    if (!contentType || !contentType.includes('application/json')) {
-                        const text = await response.text();
-                        throw new Error(`Resposta inválida: ${text.substring(0, 100)}`);
-                    }
-
-                    return await response.json();
-                } catch (error) {
-                    console.error('Erro na requisição:', error);
-                    return {
-                        status: "error",
-                        message: error.message || "Erro na conexão"
-                    };
-                }
-            }
-
-            // Carregar alunos quando uma turma for selecionada (CORREÇÃO APLICADA)
+            
+            // Carregar alunos quando uma turma for selecionada
             classSelect.addEventListener('change', function() {
                 const selectedClass = this.value;
-                studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
+                studentSelect.innerHTML = '<option value="">Carregando alunos... <span class="loading"></span></option>';
                 studentSelect.disabled = true;
-                studentOccurrencesCard.style.display = 'none';
-
-                // Resetar gráficos
-                const chartCanvases = document.querySelectorAll('.donut-chart');
-                chartCanvases.forEach(canvas => {
-                    createDonutChart(canvas, 0);
-                });
-
+                
                 if (!selectedClass) {
                     studentSelect.innerHTML = '<option value="">Selecione uma turma</option>';
                     return;
                 }
-
-                // CORREÇÃO: Usar corretamente a constante SCRIPT_BASE_URL
-                const url = `${"https://script.google.com/macros/s/AKfycbxgkBph_rcqPSLqc2QvPxZiXXEKgaF1MwamlcYMb1AfGfmjQF5qgkNBzHl7dt8Wya3j/exec"}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
                 
-                safeFetch(url)
+                // Consultar o Google Apps Script para obter alunos
+                fetch(`${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`)
+                    .then(response => response.json())
                     .then(data => {
-                        console.log("Resposta da API:", data); // Log para depuração
-                        
-                        if (data && data.status === "success" && Array.isArray(data.students)) {
+                        if (data.status === "success") {
                             studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
                             data.students.forEach(student => {
                                 const option = document.createElement('option');
@@ -1198,69 +1069,16 @@
                                 studentSelect.appendChild(option);
                             });
                             studentSelect.disabled = false;
-                            
-                            // Atualizar estatísticas
-                            totalStudentsEl.textContent = data.students.length;
                         } else {
-                            const errorMsg = data?.message || 'Resposta inesperada do servidor';
-                            console.error("Erro no carregamento:", errorMsg);
-                            studentSelect.innerHTML = `<option value="">Erro: ${errorMsg}</option>`;
+                            studentSelect.innerHTML = `<option value="">${data.message || 'Erro ao carregar alunos'}</option>`;
                         }
                     })
                     .catch(error => {
                         console.error('Erro ao carregar alunos:', error);
-                        studentSelect.innerHTML = '<option value="">Erro ao carregar. Tente novamente.</option>';
+                        studentSelect.innerHTML = '<option value="">Erro ao carregar alunos</option>';
                     });
             });
-
-            // Quando um aluno é selecionado
-            studentSelect.addEventListener('change', function() {
-                if (this.value) {
-                    // Mostrar o card de ocorrências do aluno
-                    studentOccurrencesCard.style.display = 'block';
-                    studentOccurrencesName.textContent = this.value;
-                    studentOccurrencesCount.textContent = "Carregando...";
-
-                    // Buscar estatísticas do aluno
-                    const url = `${SCRIPT_BASE_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`;
-                    
-                    safeFetch(url)
-                        .then(data => {
-                            if (data && data.status === "success") {
-                                studentOccurrencesCount.textContent = data.totalOccurrences;
-                                // Atualizar gráficos com os dados detalhados
-                                if (data.detailedStats) {
-                                    updateAllCharts(data.detailedStats);
-                                }
-                            } else {
-                                studentOccurrencesCount.textContent = "0";
-                                console.error('Erro ao buscar estatísticas:', data?.message);
-                            }
-                        })
-                        .catch(error => {
-                            studentOccurrencesCount.textContent = "0";
-                            console.error('Erro ao buscar estatísticas:', error);
-                        });
-                } else {
-                    studentOccurrencesCard.style.display = 'none';
-                    // Resetar gráficos
-                    const chartCanvases = document.querySelectorAll('.donut-chart');
-                    chartCanvases.forEach(canvas => {
-                        createDonutChart(canvas, 0);
-                    });
-                }
-            });
-
-            // Função para atualizar todos os gráficos
-            function updateAllCharts(stats) {
-                const chartCanvases = document.querySelectorAll('.donut-chart');
-                chartCanvases.forEach(canvas => {
-                    const irregularity = canvas.getAttribute('data-irregularity');
-                    const count = stats[irregularity] || 0;
-                    createDonutChart(canvas, count);
-                });
-            }
-
+            
             // Limpar formulário
             clearBtn.addEventListener('click', function() {
                 form.reset();
@@ -1270,131 +1088,99 @@
                 studentSelect.disabled = true;
                 successAlert.style.display = 'none';
                 errorAlert.style.display = 'none';
-                studentOccurrencesCard.style.display = 'none';
+                
+                // Resetar seleção de turma
                 classSelect.selectedIndex = 0;
-
-                // Resetar gráficos
-                const chartCanvases = document.querySelectorAll('.donut-chart');
-                chartCanvases.forEach(canvas => {
-                    createDonutChart(canvas, 0);
-                });
-
-                // Desmarcar todos os checkboxes
-                document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                    checkbox.checked = false;
-                });
             });
-
+            
             // Enviar formulário
-            form.addEventListener('submit', async function(e) {
+            form.addEventListener('submit', function(e) {
                 e.preventDefault();
-
+                
                 // Esconder alertas
                 successAlert.style.display = 'none';
                 errorAlert.style.display = 'none';
-
-                // Coletar dados do formulário
+                
+                // Validação
                 const professor = professorSelect.value;
                 const occurrenceDate = document.getElementById('occurrenceDate').value;
                 const student = studentSelect.value;
                 const classInfo = classSelect.value;
                 const description = document.getElementById('description').value;
-
+                
                 // Verificar irregularidades selecionadas
                 const irregularities = [];
-                document.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
-                    irregularities.push(cb.value);
+                const irregularityCheckboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+                irregularityCheckboxes.forEach(checkbox => {
+                    irregularities.push(checkbox.value);
                 });
-
-                // Validação
-                let errorMsg = "";
-                if (!professor) errorMsg += "• Selecione o professor<br>";
-                if (!occurrenceDate) errorMsg += "• Informe a data da ocorrência<br>";
-                if (!classInfo) errorMsg += "• Selecione a turma<br>";
-                if (!student) errorMsg += "• Selecione o aluno<br>";
-                if (irregularities.length === 0) errorMsg += "• Selecione pelo menos uma irregularidade<br>";
-
-                if (errorMsg) {
-                    errorMessage.innerHTML = `<strong>Erros encontrados:</strong><br>${errorMsg}`;
+                
+                if (!professor || !occurrenceDate || !student || !classInfo || !description || irregularities.length === 0) {
                     errorAlert.style.display = 'flex';
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     return;
                 }
-
-                // Mostrar loading
-                const originalBtnText = submitBtn.innerHTML;
-                submitBtn.innerHTML = '<span class="loading"></span> Enviando...';
-                submitBtn.disabled = true;
-
-                try {
-                    // Preparar dados para envio
-                    const formData = {
-                        professor: professor,
-                        date: occurrenceDate,
-                        student: student,
-                        class: classInfo,
-                        irregularities: irregularities.join(', '),
-                        description: description
-                    };
-
-                    // Enviar dados para o Google Sheets
-                    const response = await safeFetch("https://script.google.com/macros/s/AKfycbxgkBph_rcqPSLqc2QvPxZiXXEKgaF1MwamlcYMb1AfGfmjQF5qgkNBzHl7dt8Wya3j/exec", {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            action: 'addOccurrence',
-                            ...formData
-                        })
-                    });
-
-                    if (response && response.status === "success") {
-                        // Mostrar mensagem de sucesso
+                
+                // Preparar dados para envio
+                const data = {
+                    professor: professor,
+                    occurrenceDate: occurrenceDate,
+                    student: student,
+                    classInfo: classInfo,
+                    irregularities: irregularities.join(", "),
+                    description: description
+                };
+                
+                // Enviar para o Google Sheets via Google Apps Script
+                fetch("https://sheetdb.io/api/v1/1pm9gogehjysd", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
                         successAlert.style.display = 'flex';
                         window.scrollTo({ top: 0, behavior: 'smooth' });
-
-                        // Resetar formulário após sucesso
-                        form.reset();
-                        document.getElementById('occurrenceDate').value = formattedDate;
-                        studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
-                        studentSelect.disabled = true;
-                        classSelect.selectedIndex = 0;
-                        studentOccurrencesCard.style.display = 'none';
-
-                        // Atualizar estatísticas gerais
-                        const currentTotal = parseInt(totalOccurrencesEl.textContent);
-                        totalOccurrencesEl.textContent = currentTotal + 1;
-
-                        const currentStudents = parseInt(totalStudentsEl.textContent);
-                        if (currentStudents < 1000) {
-                            totalStudentsEl.textContent = currentStudents + 1;
-                        }
-
-                        // Resetar gráficos
-                        const chartCanvases = document.querySelectorAll('.donut-chart');
-                        chartCanvases.forEach(canvas => {
-                            createDonutChart(canvas, 0);
-                        });
+                        
+                        // Atualizar estatísticas
+                        document.getElementById('totalOccurrences').textContent = data.totalOccurrences;
+                        document.getElementById('totalStudents').textContent = data.totalStudents;
+                        
+                        // Limpar formulário após envio
+                        setTimeout(() => {
+                            form.reset();
+                            document.getElementById('occurrenceDate').value = formattedDate;
+                            professorSelect.selectedIndex = 0;
+                            studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+                            studentSelect.disabled = true;
+                            classSelect.selectedIndex = 0;
+                            successAlert.style.display = 'none';
+                        }, 3000);
                     } else {
-                        throw new Error(response?.message || "Erro desconhecido ao enviar ocorrência");
+                        throw new Error(data.message || 'Erro desconhecido');
                     }
-                } catch (error) {
-                    console.error('Erro ao enviar ocorrência:', error);
-                    errorMessage.textContent = `Ocorreu um erro ao enviar a ocorrência: ${error.message}`;
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    errorAlert.querySelector('p').textContent = `Erro no envio: ${error.message}`;
                     errorAlert.style.display = 'flex';
                     window.scrollTo({ top: 0, behavior: 'smooth' });
-                } finally {
-                    // Restaurar botão de envio
-                    submitBtn.innerHTML = originalBtnText;
-                    submitBtn.disabled = false;
-                }
+                });
             });
-
-            // Inicializar gráficos com valores zero
-            document.querySelectorAll('.donut-chart').forEach(canvas => {
-                createDonutChart(canvas, 0);
-            });
+            
+            // Carregar estatísticas iniciais
+            fetch(`${SCRIPT_URL}?action=getStats`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        document.getElementById('totalOccurrences').textContent = data.totalOccurrences;
+                        document.getElementById('totalStudents').textContent = data.totalStudents;
+                    }
+                });
         });
     </script>
 </body>
 </html>
-
-
