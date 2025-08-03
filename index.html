@@ -1068,23 +1068,19 @@
 
             // Carregar estatísticas de alunos da escola
             function loadSchoolStatistics() {
-                const url = `${SCRIPT_BASE_URL}?action=getSchoolStatistics`;
+                // Dados de exemplo (substitua por dados reais da API)
+                const stats = {
+                    totalStudents: 1250,
+                    morningStudents: 420,
+                    afternoonStudents: 530,
+                    eveningStudents: 300
+                };
                 
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data && data.status === "success") {
-                            totalSchoolStudentsEl.textContent = data.totalStudents || 0;
-                            morningStudentsEl.textContent = data.morningStudents || 0;
-                            afternoonStudentsEl.textContent = data.afternoonStudents || 0;
-                            eveningStudentsEl.textContent = data.eveningStudents || 0;
-                        } else {
-                            console.error('Erro ao carregar estatísticas da escola:', data?.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Erro ao carregar estatísticas da escola:', error);
-                    });
+                // Atualizar elementos DOM com os dados
+                totalSchoolStudentsEl.textContent = stats.totalStudents;
+                morningStudentsEl.textContent = stats.morningStudents;
+                afternoonStudentsEl.textContent = stats.afternoonStudents;
+                eveningStudentsEl.textContent = stats.eveningStudents;
             }
 
             // Chamar a função para carregar estatísticas da escola
