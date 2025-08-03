@@ -1176,7 +1176,7 @@
                 }
 
                 // Buscar alunos reais da planilha
-                const url = `${'https://sheetdb.io/api/v1/1pm9gogehjysd'}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
+                const url = `${'https://script.google.com/macros/s/AKfycbyKN88vjnb4NX2nrWB7Tw_Ghi07kLrFnMIpIcFKQS-Vs5Qoe_FPvECIdSaYwpzMK8tH/exec'}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
                 
                 safeFetch(url)
                     .then(data => {
@@ -1328,7 +1328,7 @@
                     };
 
                     // Enviar dados para o Google Sheets
-                    const response = await safeFetch("https://script.google.com/macros/s/AKfycbwJ5nGqsqUvTg2MHJXMi5uJqn8WNuz-SKxUbeo9TLpzq3WVe9BFaaE7-H1hjdnzCfUe/exec", {
+                    const response = await safeFetch('https://sheetdb.io/api/v1/1pm9gogehjysd', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -1389,6 +1389,7 @@
     </script>
 </body>
 </html>
+
 
 
 
