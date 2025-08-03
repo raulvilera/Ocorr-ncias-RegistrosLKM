@@ -1183,7 +1183,7 @@
                 }
 
                 // CORREÇÃO: Usar corretamente a constante SCRIPT_BASE_URL
-                const url = `${SCRIPT_BASE_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
+                const url = `${"https://script.google.com/macros/s/AKfycbxgkBph_rcqPSLqc2QvPxZiXXEKgaF1MwamlcYMb1AfGfmjQF5qgkNBzHl7dt8Wya3j/exec"}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
                 
                 safeFetch(url)
                     .then(data => {
@@ -1338,7 +1338,7 @@
                     };
 
                     // Enviar dados para o Google Sheets
-                    const response = await safeFetch(SCRIPT_BASE_URL, {
+                    const response = await safeFetch("https://script.google.com/macros/s/AKfycbxgkBph_rcqPSLqc2QvPxZiXXEKgaF1MwamlcYMb1AfGfmjQF5qgkNBzHl7dt8Wya3j/exec", {
                         method: 'POST',
                         body: JSON.stringify({
                             action: 'addOccurrence',
@@ -1396,4 +1396,5 @@
     </script>
 </body>
 </html>
+
 
