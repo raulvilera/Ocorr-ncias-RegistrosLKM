@@ -1040,7 +1040,7 @@
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
 
             // URL base do Apps Script
-            const SCRIPT_BASE_URL = 'https://script.google.com/macros/s/AKfycbxc_P27Wl96tqKT9IDte8jvhX-v3zOxFvsDD-QgTAgcyZoV4gqKhRWTojhcE-Y2gzoj/exec';
+            const SCRIPT_BASE_URL = 'https://script.google.com/macros/s/AKfycbyKN88vjnb4NX2nrWB7Tw_Ghi07kLrFnMIpIcFKQS-Vs5Qoe_FPvECIdSaYwpzMK8tH/exec';
 
             // Preencher dropdown de professores
             const teacherNames = Object.keys(teacherEmails);
@@ -1176,7 +1176,7 @@
                 }
 
                 // Buscar alunos reais da planilha
-                const url = `${"https://script.google.com/macros/s/AKfycbwJ5nGqsqUvTg2MHJXMi5uJqn8WNuz-SKxUbeo9TLpzq3WVe9BFaaE7-H1hjdnzCfUe/exec"}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
+                const url = `${'https://script.google.com/macros/s/AKfycbyKN88vjnb4NX2nrWB7Tw_Ghi07kLrFnMIpIcFKQS-Vs5Qoe_FPvECIdSaYwpzMK8tH/exec'}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
                 
                 safeFetch(url)
                     .then(data => {
@@ -1212,7 +1212,7 @@
                     studentOccurrencesCount.textContent = "Carregando...";
 
                     // Buscar estatísticas do aluno
-                    const url = `${"https://script.google.com/macros/s/AKfycbwJ5nGqsqUvTg2MHJXMi5uJqn8WNuz-SKxUbeo9TLpzq3WVe9BFaaE7-H1hjdnzCfUe/exec"}?action=getStudentStats&student=${encodeURIComponent(this.value)}`;
+                    const url = `${'https://script.google.com/macros/s/AKfycbyKN88vjnb4NX2nrWB7Tw_Ghi07kLrFnMIpIcFKQS-Vs5Qoe_FPvECIdSaYwpzMK8tH/exec'}?action=getStudentStats&student=${encodeURIComponent(this.value)}`;
                     
                     safeFetch(url)
                         .then(data => {
@@ -1389,6 +1389,7 @@
     </script>
 </body>
 </html>
+
 
 
 
