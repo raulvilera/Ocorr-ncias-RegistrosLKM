@@ -1448,7 +1448,7 @@
             // Função para buscar dados do backend
             async function fetchBackendData(action, params = {}) {
                 try {
-                    const url = new URL("https://script.google.com/macros/s/AKfycbxc_P27Wl96tqKT9IDte8jvhX-v3zOxFvsDD-QgTAgcyZoV4gqKhRWTojhcE-Y2gzoj/exec");
+                    const url = new URL(SCRIPT_BASE_URL);
                     url.searchParams.append('action', action);
                     
                     // Adicionar parâmetros
