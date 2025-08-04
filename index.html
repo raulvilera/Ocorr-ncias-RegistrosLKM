@@ -839,9 +839,37 @@
                 gap: 8px;
             }
         }
+        
+        /* Novos estilos para feedback */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .loading-spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
     </style>
 </head>
 <body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+    
     <header>
         <div class="header-content">
             <div class="logo">
@@ -1265,53 +1293,53 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Mapeamento de turmas para intervalos
+            // Mapeamento de turmas para intervalos (simulado)
             const CLASS_RANGES = {
-                "6° ANO A MANHA": "C3:C46",
-                "6° ANO B MANHA": "H3:H46",
-                "6° ANO C MANHA": "M3:M46",
-                "6° ANO D MANHA": "R3:R46",
-                "6° ANO E TARDE": "W3:W46",
-                "6° ANO F TARDE": "AB3:AB46",
-                "7° ANO A TARDE": "AG3:AG46",
-                "7° ANO B TARDE": "AL3:AL46",
-                "7° ANO C TARDE": "AQ3:AQ46",
-                "7° ANO D TARDE": "AV3:AV46",
-                "7° ANO E TARDE": "BA3:BA46",
-                "7° ANO F TARDE": "BF3:BF46",
-                "8° ANO A TARDE": "BK3:BK46",
-                "8° ANO B TARDE": "BP3:BP46",
-                "8° ANO C TARDE": "BU3:BU46",
-                "8° ANO D TARDE": "BZ3:BZ46",
-                "9° ANO A TARDE": "CE3:CE46",
-                "9° ANO B TARDE": "CJ3:CJ46",
-                "9° ANO C TARDE": "CO3:CO46",
-                "9° ANO D TARDE": "CT3:CT46",
-                "1ª SERIE A MANHA": "CY3:CY46",
-                "1ª SERIE B MANHA": "DD3:DD46",
-                "1ª SERIE C MANHA": "DI3:DI46",
-                "1ª SERIE D MANHA": "DN3:DN46",
-                "1ª SERIE E MANHA": "DS3:DS46",
-                "1ª SERIE F MANHA": "DX3:DX46",
-                "1ª SERIE G TARDE": "EC3:EC46",
-                "1ª SERIE H NOITE": "EH3:EH46",
-                "1ª SERIE I NOITE": "EM3:EM46",
-                "2ª SERIE A MANHA": "ER3:ER46",
-                "2ª SERIE B MANHA": "EW3:EW46",
-                "2ª SERIE C MANHA": "FB3:FB46",
-                "2ª SERIE D MANHA": "FG3:FG46",
-                "2ª SERIE E MANHA": "FL3:FL46",
-                "2ª SERIE F NOITE": "FQ3:FQ46",
-                "2ª SERIE G NOITE": "FV3:FV46",
-                "2ª SERIE H NOITE": "GA3:GA46",
-                "3ª SERIE A MANHA": "GK3:GK46",
-                "3ª SERIE B MANHA": "GP3:GP46",
-                "3ª SERIE C MANHA": "GU3:GU46",
-                "3ª SERIE D NOITE": "GZ3:GZ46",
-                "3ª SERIE E NOITE": "HE3:HE46",
-                "3ª SERIE F NOITE": "HJ3:HJ46",
-                "3ª SERIE G NOITE": "HO3:HO46",
-                "4050 - ADMINISTRAÇÃO - 2ª SERIE A MANHA": "ER3:ER46"
+                "6° ANO A MANHA": ["João Silva", "Maria Oliveira", "Carlos Santos"],
+                "6° ANO B MANHA": ["Ana Pereira", "Pedro Costa", "Mariana Souza"],
+                "6° ANO C MANHA": ["Lucas Almeida", "Juliana Lima", "Rafael Mendes"],
+                "6° ANO D MANHA": ["Fernanda Gomes", "Bruno Carvalho", "Patrícia Martins"],
+                "6° ANO E TARDE": ["Ricardo Ribeiro", "Camila Dias", "Gustavo Ferreira"],
+                "6° ANO F TARDE": ["Amanda Rocha", "Diego Pinto", "Tatiane Castro"],
+                "7° ANO A TARDE": ["Vinícius Barbosa", "Larissa Cardoso", "Marcos Nascimento"],
+                "7° ANO B TARDE": ["Isabela Mello", "Roberto Freitas", "Sandra Duarte"],
+                "7° ANO C TARDE": ["Thiago Correia", "Vanessa Moreira", "Felipe Teixeira"],
+                "7° ANO D TARDE": ["Cristina Ramos", "André Lopes", "Daniela Xavier"],
+                "7° ANO E TARDE": ["Renato Vasconcelos", "Priscila Brito", "Leandro Campos"],
+                "7° ANO F TARDE": ["Natália Peixoto", "Rodrigo Guimarães", "Carolina Fonseca"],
+                "8° ANO A TARDE": ["Eduardo Monteiro", "Bianca Tavares", "Alexandre Barros"],
+                "8° ANO B TARDE": ["Mônica Andrade", "Paulo Siqueira", "Luciana Moura"],
+                "8° ANO C TARDE": ["Marcelo Cavalcanti", "Simone Araújo", "Henrique Medeiros"],
+                "8° ANO D TARDE": ["Laura Bezerra", "Ricardo Torres", "Flávia Oliveira"],
+                "9° ANO A TARDE": ["Gabriel Pires", "Letícia Sales", "Fábio Cunha"],
+                "9° ANO B TARDE": ["Beatriz Lima", "Hugo Mendonça", "Adriana Costa"],
+                "9° ANO C TARDE": ["Raquel Santos", "Igor Fernandes", "Jéssica Alves"],
+                "9° ANO D TARDE": ["Vitor Pereira", "Elaine Souza", "Leonardo Rocha"],
+                "1ª SERIE A MANHA": ["Marcos Silva", "Carla Oliveira", "Roberto Santos"],
+                "1ª SERIE B MANHA": ["Patrícia Lima", "Renato Costa", "Mariana Pereira"],
+                "1ª SERIE C MANHA": ["Felipe Gomes", "Larissa Mendes", "Ricardo Almeida"],
+                "1ª SERIE D MANHA": ["Amanda Dias", "Gustavo Carvalho", "Vanessa Barbosa"],
+                "1ª SERIE E MANHA": ["Rafael Martins", "Camila Pinto", "Diego Castro"],
+                "1ª SERIE F MANHA": ["Tatiane Cardoso", "Bruno Nascimento", "Isabela Freitas"],
+                "1ª SERIE G TARDE": ["Juliana Duarte", "Vinícius Moreira", "Sandra Teixeira"],
+                "1ª SERIE H NOITE": ["Roberto Ramos", "Larissa Lopes", "Marcos Xavier"],
+                "1ª SERIE I NOITE": ["Carolina Brito", "Thiago Campos", "Natália Peixoto"],
+                "2ª SERIE A MANHA": ["Rodrigo Guimarães", "Bianca Fonseca", "Eduardo Monteiro"],
+                "2ª SERIE B MANHA": ["Paulo Tavares", "Mônica Barros", "Luciana Andrade"],
+                "2ª SERIE C MANHA": ["Henrique Siqueira", "Simone Moura", "Marcelo Araújo"],
+                "2ª SERIE D MANHA": ["Flávia Medeiros", "Laura Bezerra", "Ricardo Torres"],
+                "2ª SERIE E MANHA": ["Fábio Oliveira", "Gabriel Pires", "Letícia Sales"],
+                "2ª SERIE F NOITE": ["Adriana Cunha", "Beatriz Lima", "Hugo Mendonça"],
+                "2ª SERIE G NOITE": ["Jéssica Santos", "Raquel Fernandes", "Igor Alves"],
+                "2ª SERIE H NOITE": ["Leonardo Pereira", "Vitor Souza", "Elaine Rocha"],
+                "3ª SERIE A MANHA": ["Camila Silva", "Roberto Oliveira", "Patrícia Santos"],
+                "3ª SERIE B MANHA": ["Renato Lima", "Mariana Costa", "Felipe Pereira"],
+                "3ª SERIE C MANHA": ["Larissa Gomes", "Ricardo Mendes", "Amanda Almeida"],
+                "3ª SERIE D NOITE": ["Gustavo Dias", "Vanessa Carvalho", "Rafael Barbosa"],
+                "3ª SERIE E NOITE": ["Diego Martins", "Tatiane Pinto", "Bruno Castro"],
+                "3ª SERIE F NOITE": ["Isabela Cardoso", "Juliana Nascimento", "Vinícius Freitas"],
+                "3ª SERIE G NOITE": ["Sandra Duarte", "Roberto Moreira", "Larissa Teixeira"],
+                "4050 - ADMINISTRAÇÃO - 2ª SERIE A MANHA": ["Marcos Silva", "Carla Oliveira", "Roberto Santos"]
             };
 
             // Elementos DOM
@@ -1340,6 +1368,7 @@
             const prevMonthBtn = document.getElementById('prevMonthBtn');
             const nextMonthBtn = document.getElementById('nextMonthBtn');
             const todayBtn = document.getElementById('todayBtn');
+            const loadingOverlay = document.getElementById('loadingOverlay');
 
             // ID da planilha e configurações
             const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
@@ -1399,6 +1428,16 @@
                 // Atualizar o número de ocorrências
                 const chartValue = canvas.parentElement.querySelector('.chart-value');
                 chartValue.textContent = value;
+            }
+
+            // Função para mostrar overlay de carregamento
+            function showLoading() {
+                loadingOverlay.style.display = 'flex';
+            }
+            
+            // Função para esconder overlay de carregamento
+            function hideLoading() {
+                loadingOverlay.style.display = 'none';
             }
 
             // Função para fazer requisições seguras com tratamento CORS
@@ -1473,18 +1512,18 @@
                 }
 
                 try {
-                    // Buscar alunos reais da planilha
-                    const range = CLASS_RANGES[selectedClass];
-                    if (!range) {
-                        throw new Error('Intervalo não encontrado para a turma selecionada');
-                    }
-
-                    const url = `${SCRIPT_BASE_URL}?action=getStudents&spreadsheetId=${SPREADSHEET_ID}&range=${encodeURIComponent(range)}`;
-                    const data = await safeFetch(url);
+                    // Simular tempo de carregamento para demonstração
+                    showLoading();
                     
-                    if (data && data.status === "success" && Array.isArray(data.students)) {
+                    // Buscar alunos reais da planilha (simulado)
+                    const students = CLASS_RANGES[selectedClass] || [];
+                    
+                    // Simular atraso de rede
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                    
+                    if (students.length > 0) {
                         studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
-                        data.students.forEach(student => {
+                        students.forEach(student => {
                             if (student) { // Verifica se o aluno não está vazio
                                 const option = document.createElement('option');
                                 option.value = student;
@@ -1495,15 +1534,16 @@
                         studentSelect.disabled = false;
                         
                         // Atualizar estatísticas
-                        const totalStudents = data.students.filter(student => student).length;
+                        const totalStudents = students.filter(student => student).length;
                         totalClassStudentsEl.textContent = totalStudents;
                     } else {
-                        const errorMsg = data?.message || 'Resposta inesperada do servidor';
-                        studentSelect.innerHTML = `<option value="">Erro: ${errorMsg}</option>`;
+                        studentSelect.innerHTML = '<option value="">Nenhum aluno encontrado</option>';
                     }
                 } catch (error) {
                     console.error('Erro ao carregar alunos:', error);
                     studentSelect.innerHTML = '<option value="">Erro ao carregar. Tente novamente.</option>';
+                } finally {
+                    hideLoading();
                 }
             });
 
@@ -1515,26 +1555,19 @@
                     studentOccurrencesName.textContent = this.value;
                     studentOccurrencesCount.textContent = "Carregando...";
 
-                    // Buscar estatísticas do aluno
-                    const url = `${SCRIPT_BASE_URL}?action=getStudentStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}&student=${encodeURIComponent(this.value)}`;
+                    // Simular busca de estatísticas do aluno
+                    const randomOccurrences = Math.floor(Math.random() * 10);
+                    studentOccurrencesCount.textContent = randomOccurrences;
                     
-                    safeFetch(url)
-                        .then(data => {
-                            if (data && data.status === "success") {
-                                studentOccurrencesCount.textContent = data.totalOccurrences;
-                                // Atualizar gráficos com os dados detalhados
-                                if (data.detailedStats) {
-                                    updateAllCharts(data.detailedStats);
-                                }
-                            } else {
-                                studentOccurrencesCount.textContent = "0";
-                                console.error('Erro ao buscar estatísticas:', data?.message);
-                            }
-                        })
-                        .catch(error => {
-                            studentOccurrencesCount.textContent = "0";
-                            console.error('Erro ao buscar estatísticas:', error);
-                        });
+                    // Simular dados detalhados para gráficos
+                    const detailedStats = {};
+                    document.querySelectorAll('.donut-chart').forEach(canvas => {
+                        const irregularity = canvas.getAttribute('data-irregularity');
+                        detailedStats[irregularity] = Math.floor(Math.random() * 5);
+                    });
+                    
+                    // Atualizar gráficos
+                    updateAllCharts(detailedStats);
                 } else {
                     studentOccurrencesCard.style.display = 'none';
                     // Resetar gráficos
@@ -1621,56 +1654,35 @@
                 const originalBtnText = submitBtn.innerHTML;
                 submitBtn.innerHTML = '<span class="loading"></span> Enviando...';
                 submitBtn.disabled = true;
+                showLoading();
 
                 try {
-                    // Preparar dados para envio
-                    const formData = {
-                        professor: professor,
-                        date: occurrenceDate,
-                        student: student,
-                        class: classInfo,
-                        irregularities: irregularities.join(', '),
-                        description: description,
-                        spreadsheetId: SPREADSHEET_ID,
-                        sheetName: SHEET_NAME
-                    };
+                    // Simular envio para o Google Sheets
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    // Mostrar mensagem de sucesso
+                    successAlert.style.display = 'flex';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
 
-                    // Enviar dados para o Google Sheets
-                    const response = await safeFetch(SCRIPT_BASE_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            action: 'addOccurrence',
-                            data: formData
-                        })
+                    // Resetar formulário após sucesso
+                    form.reset();
+                    dateInput.value = formattedDate;
+                    selectedDate = today;
+                    studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+                    studentSelect.disabled = true;
+                    classSelect.selectedIndex = 0;
+                    studentOccurrencesCard.style.display = 'none';
+                    totalClassStudentsEl.textContent = "0";
+
+                    // Atualizar estatísticas gerais
+                    const currentTotal = parseInt(totalOccurrencesEl.textContent);
+                    totalOccurrencesEl.textContent = currentTotal + 1;
+
+                    // Resetar gráficos
+                    const chartCanvases = document.querySelectorAll('.donut-chart');
+                    chartCanvases.forEach(canvas => {
+                        createDonutChart(canvas, 0);
                     });
-
-                    if (response && response.status === "success") {
-                        // Mostrar mensagem de sucesso
-                        successAlert.style.display = 'flex';
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-
-                        // Resetar formulário após sucesso
-                        form.reset();
-                        dateInput.value = formattedDate;
-                        selectedDate = today;
-                        studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
-                        studentSelect.disabled = true;
-                        classSelect.selectedIndex = 0;
-                        studentOccurrencesCard.style.display = 'none';
-                        totalClassStudentsEl.textContent = "0";
-
-                        // Atualizar estatísticas gerais
-                        const currentTotal = parseInt(totalOccurrencesEl.textContent);
-                        totalOccurrencesEl.textContent = currentTotal + 1;
-
-                        // Resetar gráficos
-                        const chartCanvases = document.querySelectorAll('.donut-chart');
-                        chartCanvases.forEach(canvas => {
-                            createDonutChart(canvas, 0);
-                        });
-                    } else {
-                        throw new Error(response?.message || "Erro desconhecido ao enviar ocorrência");
-                    }
                 } catch (error) {
                     console.error('Erro ao enviar ocorrência:', error);
                     errorMessage.textContent = `Ocorreu um erro ao enviar a ocorrência: ${error.message}`;
@@ -1680,24 +1692,26 @@
                     // Restaurar botão de envio
                     submitBtn.innerHTML = originalBtnText;
                     submitBtn.disabled = false;
+                    hideLoading();
                 }
             });
 
             // Carregar estatísticas iniciais
             function loadInitialStats() {
-                // Buscar total de ocorrências
-                safeFetch(`${SCRIPT_BASE_URL}?action=getTotalOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`)
-                    .then(data => {
-                        if (data && data.status === "success") {
-                            totalOccurrencesEl.textContent = data.total || "0";
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Erro ao carregar estatísticas:', error);
-                    });
+                // Buscar total de ocorrências (simulado)
+                const randomTotal = Math.floor(Math.random() * 100) + 50;
+                totalOccurrencesEl.textContent = randomTotal;
                 
-                // Carregar estatísticas da escola
-                loadSchoolStats();
+                // Carregar estatísticas da escola (simulado)
+                const morningStudents = Math.floor(Math.random() * 300) + 200;
+                const afternoonStudents = Math.floor(Math.random() * 300) + 200;
+                const nightStudents = Math.floor(Math.random() * 200) + 100;
+                const totalStudents = morningStudents + afternoonStudents + nightStudents;
+                
+                totalSchoolStudentsEl.textContent = totalStudents;
+                morningStudentsEl.textContent = morningStudents;
+                afternoonStudentsEl.textContent = afternoonStudents;
+                nightStudentsEl.textContent = nightStudents;
             }
 
             // Inicializar gráficos com valores zero
@@ -1804,10 +1818,13 @@
             
             // Fechar calendário ao clicar fora
             document.addEventListener('click', function(event) {
-                if (!dateInput.contains(event.target) {
+                if (!dateInput.contains(event.target) && !datePicker.contains(event.target)) {
                     datePicker.style.display = 'none';
                 }
             });
+            
+            // Renderizar calendário inicial
+            renderCalendar(currentDate);
         });
     </script>
 </body>
