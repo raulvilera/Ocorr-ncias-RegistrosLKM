@@ -1559,7 +1559,7 @@
                 };
                 
                 // Enviar para o Google Sheets via Google Apps Script
-                fetch(SCRIPT_URL, {
+                fetch("https://script.google.com/macros/s/AKfycbyH5KsXTAD10JAtGJhVLUGFh9nk8Gt7sb2rwx9QFX-g8uE0kDrBqDZ7cgZBQf0p3-nF/exec", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1614,7 +1614,7 @@
             // Carregar estatísticas iniciais
             function loadInitialStats() {
                 showLoading();
-                fetch(`${SCRIPT_URL}?action=getStats`)
+                fetch(`${"https://script.google.com/macros/s/AKfycbyH5KsXTAD10JAtGJhVLUGFh9nk8Gt7sb2rwx9QFX-g8uE0kDrBqDZ7cgZBQf0p3-nF/exec"}?action=getStats`)
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === "success") {
