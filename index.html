@@ -946,26 +946,26 @@
                                 <div class="stat-label">OCORRÊNCIAS REGISTRADAS</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-value" id="totalSchoolStudents">1.432</div>
+                                <div class="stat-value" id="totalSchoolStudents">0</div>
                                 <div class="stat-label">TOTAL DE ALUNOS NA ESCOLA</div>
                                 <div class="period-stats">
                                     <div class="period-item">
-                                        <div class="period-value">624</div>
+                                        <div class="period-value" id="morningStudents">0</div>
                                         <div>Manhã</div>
                                     </div>
                                     <div class="period-item">
-                                        <div class="period-value">672</div>
+                                        <div class="period-value" id="afternoonStudents">0</div>
                                         <div>Tarde</div>
                                     </div>
                                     <div class="period-item">
-                                        <div class="period-value">136</div>
+                                        <div class="period-value" id="nightStudents">0</div>
                                         <div>Noite</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-value" id="totalStudents">0</div>
-                                <div class="stat-label">Nº DE ALUNOS MATRICULADOS NA TURMA</div>
+                                <div class="stat-value" id="totalClassStudents">0</div>
+                                <div class="stat-label">ALUNOS NA TURMA SELECIONADA</div>
                             </div>
                             <div class="stat-item">
                                 <div class="stat-value" id="totalClasses">40</div>
@@ -1022,6 +1022,55 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Mapeamento de turmas para intervalos
+            const CLASS_RANGES = {
+                "6° ANO A MANHA": "C3:C46",
+                "6° ANO B MANHA": "H3:H46",
+                "6° ANO C MANHA": "M3:M46",
+                "6° ANO D MANHA": "R3:R46",
+                "6° ANO E TARDE": "W3:W46",
+                "6° ANO F TARDE": "AB3:AB46",
+                "7° ANO A TARDE": "AG3:AG46",
+                "7° ANO B TARDE": "AL3:AL46",
+                "7° ANO C TARDE": "AQ3:AQ46",
+                "7° ANO D TARDE": "AV3:AV46",
+                "7° ANO E TARDE": "BA3:BA46",
+                "7° ANO F TARDE": "BF3:BF46",
+                "8° ANO A TARDE": "BK3:BK46",
+                "8° ANO B TARDE": "BP3:BP46",
+                "8° ANO C TARDE": "BU3:BU46",
+                "8° ANO D TARDE": "BZ3:BZ46",
+                "9° ANO A TARDE": "CE3:CE46",
+                "9° ANO B TARDE": "CJ3:CJ46",
+                "9° ANO C TARDE": "CO3:CO46",
+                "9° ANO D TARDE": "CT3:CT46",
+                "1ª SERIE A MANHA": "CY3:CY46",
+                "1ª SERIE B MANHA": "DD3:DD46",
+                "1ª SERIE C MANHA": "DI3:DI46",
+                "1ª SERIE D MANHA": "DN3:DN46",
+                "1ª SERIE E MANHA": "DS3:DS46",
+                "1ª SERIE F MANHA": "DX3:DX46",
+                "1ª SERIE G TARDE": "EC3:EC46",
+                "1ª SERIE H NOITE": "EH3:EH46",
+                "1ª SERIE I NOITE": "EM3:EM46",
+                "2ª SERIE A MANHA": "ER3:ER46",
+                "2ª SERIE B MANHA": "EW3:EW46",
+                "2ª SERIE C MANHA": "FB3:FB46",
+                "2ª SERIE D MANHA": "FG3:FG46",
+                "2ª SERIE E MANHA": "FL3:FL46",
+                "2ª SERIE F NOITE": "FQ3:FQ46",
+                "2ª SERIE G NOITE": "FV3:FV46",
+                "2ª SERIE H NOITE": "GA3:GA46",
+                "3ª SERIE A MANHA": "GK3:GK46",
+                "3ª SERIE B MANHA": "GP3:GP46",
+                "3ª SERIE C MANHA": "GU3:GU46",
+                "3ª SERIE D NOITE": "GZ3:GZ46",
+                "3ª SERIE E NOITE": "HE3:HE46",
+                "3ª SERIE F NOITE": "HJ3:HJ46",
+                "3ª SERIE G NOITE": "HO3:HO46",
+                "4050 - ADMINISTRAÇÃO - 2ª SERIE A MANHA": "ER3:ER46"
+            };
+
             // Elementos DOM
             const form = document.getElementById('occurrenceForm');
             const clearBtn = document.getElementById('clearBtn');
@@ -1033,7 +1082,11 @@
             const classSelect = document.getElementById('studentClass');
             const professorSelect = document.getElementById('professor');
             const totalOccurrencesEl = document.getElementById('totalOccurrences');
-            const totalStudentsEl = document.getElementById('totalStudents');
+            const totalSchoolStudentsEl = document.getElementById('totalSchoolStudents');
+            const totalClassStudentsEl = document.getElementById('totalClassStudents');
+            const morningStudentsEl = document.getElementById('morningStudents');
+            const afternoonStudentsEl = document.getElementById('afternoonStudents');
+            const nightStudentsEl = document.getElementById('nightStudents');
             const studentOccurrencesCard = document.getElementById('studentOccurrencesCard');
             const studentOccurrencesName = document.getElementById('studentOccurrencesName');
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
@@ -1125,12 +1178,32 @@
                 }
             }
 
+            // Carregar estatísticas de alunos da escola
+            async function loadSchoolStats() {
+                try {
+                    const url = `${SCRIPT_BASE_URL}?action=getSchoolStats`;
+                    const response = await safeFetch(url);
+                    
+                    if (response && response.status === "success") {
+                        totalSchoolStudentsEl.textContent = response.total || "0";
+                        morningStudentsEl.textContent = response.morning || "0";
+                        afternoonStudentsEl.textContent = response.afternoon || "0";
+                        nightStudentsEl.textContent = response.night || "0";
+                    } else {
+                        console.error('Erro ao carregar estatísticas da escola:', response?.message);
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar estatísticas da escola:', error);
+                }
+            }
+
             // Carregar alunos quando uma turma for selecionada
-            classSelect.addEventListener('change', function() {
+            classSelect.addEventListener('change', async function() {
                 const selectedClass = this.value;
                 studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
                 studentSelect.disabled = true;
                 studentOccurrencesCard.style.display = 'none';
+                totalClassStudentsEl.textContent = "0";
 
                 // Resetar gráficos
                 const chartCanvases = document.querySelectorAll('.donut-chart');
@@ -1143,32 +1216,39 @@
                     return;
                 }
 
-                // Buscar alunos reais da planilha
-                const url = `${SCRIPT_BASE_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
-                
-                safeFetch(url)
-                    .then(data => {
-                        if (data && data.status === "success" && Array.isArray(data.students)) {
-                            studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
-                            data.students.forEach(student => {
+                try {
+                    // Buscar alunos reais da planilha
+                    const range = CLASS_RANGES[selectedClass];
+                    if (!range) {
+                        throw new Error('Intervalo não encontrado para a turma selecionada');
+                    }
+
+                    const url = `${SCRIPT_BASE_URL}?action=getStudents&range=${encodeURIComponent(range)}`;
+                    const data = await safeFetch(url);
+                    
+                    if (data && data.status === "success" && Array.isArray(data.students)) {
+                        studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
+                        data.students.forEach(student => {
+                            if (student) { // Verifica se o aluno não está vazio
                                 const option = document.createElement('option');
                                 option.value = student;
                                 option.textContent = student;
                                 studentSelect.appendChild(option);
-                            });
-                            studentSelect.disabled = false;
-                            
-                            // Atualizar estatísticas
-                            totalStudentsEl.textContent = data.students.length;
-                        } else {
-                            const errorMsg = data?.message || 'Resposta inesperada do servidor';
-                            studentSelect.innerHTML = `<option value="">Erro: ${errorMsg}</option>`;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Erro ao carregar alunos:', error);
-                        studentSelect.innerHTML = '<option value="">Erro ao carregar. Tente novamente.</option>';
-                    });
+                            }
+                        });
+                        studentSelect.disabled = false;
+                        
+                        // Atualizar estatísticas
+                        const totalStudents = data.students.filter(student => student).length;
+                        totalClassStudentsEl.textContent = totalStudents;
+                    } else {
+                        const errorMsg = data?.message || 'Resposta inesperada do servidor';
+                        studentSelect.innerHTML = `<option value="">Erro: ${errorMsg}</option>`;
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar alunos:', error);
+                    studentSelect.innerHTML = '<option value="">Erro ao carregar. Tente novamente.</option>';
+                }
             });
 
             // Quando um aluno é selecionado
@@ -1230,6 +1310,7 @@
                 errorAlert.style.display = 'none';
                 studentOccurrencesCard.style.display = 'none';
                 classSelect.selectedIndex = 0;
+                totalClassStudentsEl.textContent = "0";
 
                 // Resetar gráficos
                 const chartCanvases = document.querySelectorAll('.donut-chart');
@@ -1316,15 +1397,11 @@
                         studentSelect.disabled = true;
                         classSelect.selectedIndex = 0;
                         studentOccurrencesCard.style.display = 'none';
+                        totalClassStudentsEl.textContent = "0";
 
                         // Atualizar estatísticas gerais
                         const currentTotal = parseInt(totalOccurrencesEl.textContent);
                         totalOccurrencesEl.textContent = currentTotal + 1;
-
-                        const currentStudents = parseInt(totalStudentsEl.textContent);
-                        if (currentStudents < 1000) {
-                            totalStudentsEl.textContent = currentStudents + 1;
-                        }
 
                         // Resetar gráficos
                         const chartCanvases = document.querySelectorAll('.donut-chart');
@@ -1358,6 +1435,9 @@
                     .catch(error => {
                         console.error('Erro ao carregar estatísticas:', error);
                     });
+                
+                // Carregar estatísticas da escola
+                loadSchoolStats();
             }
 
             // Inicializar gráficos com valores zero
