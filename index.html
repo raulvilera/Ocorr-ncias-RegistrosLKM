@@ -23,9 +23,6 @@
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
             --hover-bg: #f0f5ff;
-            --morning-color: #3498db;
-            --afternoon-color: #f39c12;
-            --night-color: #9b59b6;
         }
         
         * {
@@ -118,12 +115,6 @@
             margin-bottom: 30px;
         }
         
-        @media (max-width: 992px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-        }
-        
         .stats-card {
             background: linear-gradient(135deg, #2ecc71 0%, #3498db 100%);
             color: white;
@@ -132,11 +123,10 @@
             box-shadow: var(--shadow);
             position: relative;
             overflow: hidden;
-            margin-bottom: 25px;
         }
         
         .stats-card::after {
-            content: "";
+            content: '';
             position: absolute;
             bottom: 0;
             left: 0;
@@ -218,7 +208,7 @@
         }
         
         .card::after {
-            content: "";
+            content: '';
             position: absolute;
             bottom: 0;
             left: 0;
@@ -276,7 +266,7 @@
         }
         
         .student-occurrences-card::after {
-            content: "";
+            content: '';
             position: absolute;
             bottom: 0;
             left: 0;
@@ -600,13 +590,6 @@
             margin-bottom: 25px;
         }
         
-        @media (max-width: 768px) {
-            .form-row {
-                flex-direction: column;
-                gap: 20px;
-            }
-        }
-        
         .form-col {
             flex: 1;
         }
@@ -675,6 +658,7 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
+        /* Estilos para o campo de data personalizado */
         .date-input-container {
             position: relative;
             transition: var(--transition);
@@ -708,6 +692,7 @@
             transform: translateY(-50%) scale(1.1);
         }
         
+        /* Efeito para o select */
         select {
             appearance: none;
             -webkit-appearance: none;
@@ -719,76 +704,109 @@
             background-color: #f0f5ff;
         }
         
-        .loading-overlay {
-            position: fixed;
-            top: 0;
+        /* Custom date picker styles */
+        .date-picker {
+            position: absolute;
+            top: calc(100% + 10px);
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
             z-index: 1000;
+            width: 300px;
+            padding: 15px;
             display: none;
         }
         
-        .loading-spinner {
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid #3498db;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-        }
-        
-        .students-chart-container {
-            margin-top: 30px;
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
-        .chart-header {
-            text-align: center;
-            margin-bottom: 20px;
-            font-weight: 600;
-            color: var(--primary-color);
+        .date-picker-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .date-picker-title {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        .date-picker-nav {
+            display: flex;
             gap: 10px;
         }
         
-        .chart-wrapper {
-            position: relative;
-            height: 300px;
+        .date-picker-nav-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #f0f5ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
         }
         
-        .period-badge {
-            display: inline-flex;
+        .date-picker-nav-btn:hover {
+            background: #e0eaff;
+            transform: scale(1.1);
+        }
+        
+        .date-picker-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--light-text);
+        }
+        
+        .date-picker-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+        
+        .date-picker-day {
+            height: 30px;
+            display: flex;
             align-items: center;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            margin: 0 5px;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .date-picker-day:hover {
+            background: #f0f5ff;
+            transform: scale(1.1);
+        }
+        
+        .date-picker-day.selected {
+            background: var(--primary-color);
             color: white;
         }
         
-        .morning-badge {
-            background-color: var(--morning-color);
+        .date-picker-day.today {
+            border: 2px solid var(--primary-color);
         }
         
-        .afternoon-badge {
-            background-color: var(--afternoon-color);
+        .date-picker-day.other-month {
+            color: #ccc;
         }
         
-        .night-badge {
-            background-color: var(--night-color);
+        @media (max-width: 992px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
         }
         
         @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
             .header-content {
                 flex-direction: column;
                 gap: 15px;
@@ -821,6 +839,36 @@
                 gap: 8px;
             }
         }
+        
+        /* Novos estilos para feedback */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .loading-spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Novos estilos para estatísticas */
+        .stats-chart-container {
+            height: 200px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -847,7 +895,7 @@
             <div class="dashboard">
                 <div>
                     <div class="alert alert-success" id="successAlert">
-                        <i class="fas fa-check-circle"></i>
+                        <i class="fas fa-check-circle"></i> 
                         <div>
                             <strong>Ocorrência registrada com sucesso!</strong>
                             <p>Os dados foram enviados para a planilha de ocorrências.</p>
@@ -855,7 +903,7 @@
                     </div>
                     
                     <div class="alert alert-error" id="errorAlert">
-                        <i class="fas fa-exclamation-circle"></i>
+                        <i class="fas fa-exclamation-circle"></i> 
                         <div>
                             <strong>Erro no preenchimento do formulário</strong>
                             <p id="errorMessage">Por favor, preencha todos os campos obrigatórios e selecione pelo menos uma irregularidade.</p>
@@ -865,7 +913,7 @@
                     <div class="integration-status">
                         <i class="fas fa-plug"></i>
                         <div>
-                            <strong>Status de integração:</strong>
+                            <strong>Status de integração:</strong> 
                             <span class="status-indicator status-connected"></span>
                             Conectado à planilha Google Sheets
                         </div>
@@ -884,7 +932,86 @@
                                             <div class="student-select-container">
                                                 <select id="professor" required>
                                                     <option value="">Selecione seu nome</option>
-                                                    <!-- Professores serão carregados via JavaScript -->
+                                                    <option value="ALEX LUTH PEREIRA MARANHAO">ALEX LUTH PEREIRA MARANHAO</option>
+                                                    <option value="ALEXSANDRA PAULA VARELLA DE SOUZA">ALEXSANDRA PAULA VARELLA DE SOUZA</option>
+                                                    <option value="ALISON VASCONCELOS BESERRA">ALISON VASCONCELOS BESERRA</option>
+                                                    <option value="AMAURI TEODORO DE OLIVEIRA">AMAURI TEODORO DE OLIVEIRA</option>
+                                                    <option value="ANA PAULA DOS SANTOS">ANA PAULA DOS SANTOS</option>
+                                                    <option value="ANDREIA DOS SANTOS FREITAS">ANDREIA DOS SANTOS FREITAS</option>
+                                                    <option value="ANDREIA MADUREIRA REIS">ANDREIA MADUREIRA REIS</option>
+                                                    <option value="ANTONIO CARLOS DE OLIVEIRA">ANTONIO CARLOS DE OLIVEIRA</option>
+                                                    <option value="ANTONIO RAMOS DE ARAUJO">ANTONIO RAMOS DE ARAUJO</option>
+                                                    <option value="ANTONIO WILTON WANDERLEY CABRAL">ANTONIO WILTON WANDERLEY CABRAL</option>
+                                                    <option value="AUGUSTO LINO PESSOA NETO">AUGUSTO LINO PESSOA NETO</option>
+                                                    <option value="AUREA MARIA DE JESUS MARQUES">AUREA MARIA DE JESUS MARQUES</option>
+                                                    <option value="CAROLINA PERNOMIAN PARUSSOLO">CAROLINA PERNOMIAN PARUSSOLO</option>
+                                                    <option value="CASSIA OLIVEIRA ANTONIAZI">CASSIA OLIVEIRA ANTONIAZI</option>
+                                                    <option value="CLAUDINEIA DE AGUIAR LIMA">CLAUDINEIA DE AGUIAR LIMA</option>
+                                                    <option value="DANIEL DE FREITAS ALMEIDA">DANIEL DE FREITAS ALMEIDA</option>
+                                                    <option value="DANIEL LOPES BARBOSA">DANIEL LOPES BARBOSA</option>
+                                                    <option value="DANIELA FERREIRA LIMA">DANIELA FERREIRA LIMA</option>
+                                                    <option value="DANIELLE LUCIA BATISTA DE ALMEIDA">DANIELLE LUCIA BATISTA DE ALMEIDA</option>
+                                                    <option value="EDIANE VIEIRA DA SILVA">EDIANE VIEIRA DA SILVA</option>
+                                                    <option value="EDILEUSA NUNES PEREIRA">EDILEUSA NUNES PEREIRA</option>
+                                                    <option value="EDUARDO HENRIQUE DA FONSECA">EDUARDO HENRIQUE DA FONSECA</option>
+                                                    <option value="ELIANE SANTOS SILVA">ELIANE SANTOS SILVA</option>
+                                                    <option value="ELIAS MONTEIRO DA SILVA">ELIAS MONTEIRO DA SILVA</option>
+                                                    <option value="ELISABETE APARECIDA PIRES">ELISABETE APARECIDA PIRES</option>
+                                                    <option value="ELZA DE FARIA PEREIRA">ELZA DE FARIA PEREIRA</option>
+                                                    <option value="EMERSON GABLER DE ALMEIDA">EMERSON GABLER DE ALMEIDA</option>
+                                                    <option value="EUZELI ARAUJO DE OLIVEIRA">EUZELI ARAUJO DE OLIVEIRA</option>
+                                                    <option value="FABIANO AUGUSTO PIEDADE">FABIANO AUGUSTO PIEDADE</option>
+                                                    <option value="FABIO CAMILO">FABIO CAMILO</option>
+                                                    <option value="FERNANDO JOSE DA SILVA FILHO">FERNANDO JOSE DA SILVA FILHO</option>
+                                                    <option value="FLAVIA CRISTINA APARECIDA BICHLER">FLAVIA CRISTINA APARECIDA BICHLER</option>
+                                                    <option value="FLAVIO CARDOSO FLEURY">FLAVIO CARDOSO FLEURY</option>
+                                                    <option value="FRANCISCA EDIVANIA DE MORAIS COSTA">FRANCISCA EDIVANIA DE MORAIS COSTA</option>
+                                                    <option value="GABRIELA SERIGHELLI DE MELO">GABRIELA SERIGHELLI DE MELO</option>
+                                                    <option value="GELSON DE ALMEIDA BATISTA">GELSON DE ALMEIDA BATISTA</option>
+                                                    <option value="GENILTON DE OLIVEIRA SILVA">GENILTON DE OLIVEIRA SILVA</option>
+                                                    <option value="GIANI CRISTINA DO PRADO">GIANI CRISTINA DO PRADO</option>
+                                                    <option value="INGRYD CAROLINA SUGUIMOTO VIEIRA">INGRYD CAROLINA SUGUIMOTO VIEIRA</option>
+                                                    <option value="IVANILDES DOS SANTOS OSHIKAWA">IVANILDES DOS SANTOS OSHIKAWA</option>
+                                                    <option value="JANINA DOS PASSOS BRAGA DE ALMEIDA">JANINA DOS PASSOS BRAGA DE ALMEIDA</option>
+                                                    <option value="JOSE APARECIDO DA SILVA">JOSE APARECIDO DA SILVA</option>
+                                                    <option value="JUAREZ GOMES DE MAGALHAES FILHO">JUAREZ GOMES DE MAGALHAES FILHO</option>
+                                                    <option value="JUREMA SOLEDADE FURINI SANTOS">JUREMA SOLEDADE FURINI SANTOS</option>
+                                                    <option value="KATIUSCIA ALVES BOMFIM">KATIUSCIA ALVES BOMFIM</option>
+                                                    <option value="LUANA CAROLINE ALVES LIMA">LUANA CAROLINE ALVES LIMA</option>
+                                                    <option value="LUANA DE FREITAS SILVA">LUANA DE FREITAS SILVA</option>
+                                                    <option value="LUCIANA NOVAIS CORREIA SANTOS">LUCIANA NOVAIS CORREIA SANTOS</option>
+                                                    <option value="LUCIANO MOREIRA DE AZEVEDO">LUCIANO MOREIRA DE AZEVEDO</option>
+                                                    <option value="MARCIEL DA SILVA">MARCIEL DA SILVA</option>
+                                                    <option value="MARIA HELENA CUNHA MORO">MARIA HELENA CUNHA MORO</option>
+                                                    <option value="MARIA QUITÉRIA FERREIRA DOS SANTOS">MARIA QUITÉRIA FERREIRA DOS SANTOS</option>
+                                                    <option value="MARINA DA CONCEICAO FRANCISCO SILVA">MARINA DA CONCEICAO FRANCISCO SILVA</option>
+                                                    <option value="MAURICIO DE BARROS SANTOS">MAURICIO DE BARROS SANTOS</option>
+                                                    <option value="MICHELE DE PINHO MORAES">MICHELE DE PINHO MORAES</option>
+                                                    <option value="MOISES ANTONIO DE BARROS">MOISES ANTONIO DE BARROS</option>
+                                                    <option value="PAULA ARMANI VILA">PAULA ARMANI VILA</option>
+                                                    <option value="PAULO ROBERTO DA SILVA ITO">PAULO ROBERTO DA SILVA ITO</option>
+                                                    <option value="PEDRO ZANOTTI FILHO">PEDRO ZANOTTI FILHO</option>
+                                                    <option value="RAUL PEREIRA VILERA JUNIOR">RAUL PEREIRA VILERA JUNIOR</option>
+                                                    <option value="REGIANE CURTI DE SOUZA OLIVEIRA">REGIANE CURTI DE SOUZA OLIVEIRA</option>
+                                                    <option value="REGINA DA SILVA CASTRO">REGINA DA SILVA CASTRO</option>
+                                                    <option value="RICARDO AMERICO DA SILVA">RICARDO AMERICO DA SILVA</option>
+                                                    <option value="ROBERTO SALGADO">ROBERTO SALGADO</option>
+                                                    <option value="RODRIGO VIEIRA">RODRIGO VIEIRA</option>
+                                                    <option value="ROSANGELA CAFASSO MOREIRA">ROSANGELA CAFASSO MOREIRA</option>
+                                                    <option value="ROSIMERY DE SOUZA PESSOA">ROSIMERY DE SOUZA PESSOA</option>
+                                                    <option value="ROSMARA DA SILVA CARDOSO">ROSMARA DA SILVA CARDOSO</option>
+                                                    <option value="SANDRA CRISTINA MACEDO MORAES">SANDRA CRISTINA MACEDO MORAES</option>
+                                                    <option value="SELMA GOMES DA SILVA">SELMA GOMES DA SILVA</option>
+                                                    <option value="SERGIO AGRIPINO VILLA NOVA">SERGIO AGRIPINO VILLA NOVA</option>
+                                                    <option value="SOLANGE ALMEIDA DA SILVA">SOLANGE ALMEIDA DA SILVA</option>
+                                                    <option value="SUZINEIDE SILVA DE FREITAS">SUZINEIDE SILVA DE FREITAS</option>
+                                                    <option value="THIAGO FABIANO BRITO">THIAGO FABIANO BRITO</option>
+                                                    <option value="TITTO AUGUSTO NASCIMENTO SILVA">TITTO AUGUSTO NASCIMENTO SILVA</option>
+                                                    <option value="VANDERSON HYPPOLITO">VANDERSON HYPPOLITO</option>
+                                                    <option value="VANESSA IVETE GOMES DOS SANTOS">VANESSA IVETE GOMES DOS SANTOS</option>
+                                                    <option value="VANIA PENHA DE BARROS">VANIA PENHA DE BARROS</option>
+                                                    <option value="VIVIANE LEAL CAMERA DE MORAES">VIVIANE LEAL CAMERA DE MORAES</option>
+                                                    <option value="WILSON RODRIGUES MOTA">WILSON RODRIGUES MOTA</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -892,7 +1019,27 @@
                                     <div class="form-col">
                                         <div class="form-group date-input-container">
                                             <label for="occurrenceDate" class="required">Data da ocorrência</label>
-                                            <input type="date" id="occurrenceDate" required>
+                                            <input type="text" id="occurrenceDate" required readonly>
+                                            <div class="date-picker" id="datePicker">
+                                                <div class="date-picker-header">
+                                                    <span class="date-picker-title" id="datePickerTitle">Setembro 2025</span>
+                                                    <div class="date-picker-nav">
+                                                        <button class="date-picker-nav-btn" id="prevMonthBtn"><i class="fas fa-chevron-left"></i></button>
+                                                        <button class="date-picker-nav-btn" id="todayBtn">Hoje</button>
+                                                        <button class="date-picker-nav-btn" id="nextMonthBtn"><i class="fas fa-chevron-right"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="date-picker-weekdays">
+                                                    <div>Dom</div>
+                                                    <div>Seg</div>
+                                                    <div>Ter</div>
+                                                    <div>Qua</div>
+                                                    <div>Qui</div>
+                                                    <div>Sex</div>
+                                                    <div>Sáb</div>
+                                                </div>
+                                                <div class="date-picker-days" id="datePickerDays"></div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -936,7 +1083,7 @@
                                                     <option value="2ª SERIE A MANHA">2ª SERIE A MANHA</option>
                                                     <option value="2ª SERIE B MANHA">2ª SERIE B MANHA</option>
                                                     <option value="2ª SERIE C MANHA">2ª SERIE C MANHA</option>
-                                                    <option value="2ª SERIE D MANHA">2ª SERie D MANHA</option>
+                                                    <option value="2ª SERIE D MANHA">2ª SERIE D MANHA</option>
                                                     <option value="2ª SERIE E MANHA">2ª SERIE E MANHA</option>
                                                     <option value="2ª SERIE F NOITE">2ª SERIE F NOITE</option>
                                                     <option value="2ª SERIE G NOITE">2ª SERIE G NOITE</option>
@@ -947,7 +1094,7 @@
                                                     <option value="3ª SERIE D NOITE">3ª SERIE D NOITE</option>
                                                     <option value="3ª SERIE E NOITE">3ª SERIE E NOITE</option>
                                                     <option value="3ª SERIE F NOITE">3ª SERIE F NOITE</option>
-                                                    <option value="3ª SERIE G NOITE">3ª SERIE G NOITE</option>
+                                                    <option value="3ª SERIE G NOITE">3ª SERie G NOITE</option>
                                                     <option value="4050 - ADMINISTRAÇÃO - 2ª SERIE A MANHA">4050 - ADMINISTRAÇÃO - 2ª SERIE A MANHA</option>
                                                 </select>
                                             </div>
@@ -980,7 +1127,6 @@
                                             <input type="checkbox" id="irregularity1" name="irregularity" value="Não fez a lição">
                                             <label for="irregularity1">Não fez a lição</label>
                                         </div>
-                                        
                                         <div class="checkbox-item">
                                             <div class="chart-container">
                                                 <canvas class="donut-chart" width="50" height="50" data-irregularity="Não trouxe material"></canvas>
@@ -989,7 +1135,6 @@
                                             <input type="checkbox" id="irregularity2" name="irregularity" value="Não trouxe material">
                                             <label for="irregularity2">Não trouxe material</label>
                                         </div>
-                                        
                                         <div class="checkbox-item">
                                             <div class="chart-container">
                                                 <canvas class="donut-chart" width="50" height="50" data-irregularity="Fora do lugar constantemente durante a aula"></canvas>
@@ -998,7 +1143,6 @@
                                             <input type="checkbox" id="irregularity3" name="irregularity" value="Fora do lugar constantemente durante a aula">
                                             <label for="irregularity3">Fora do lugar durante a aula</label>
                                         </div>
-                                        
                                         <div class="checkbox-item">
                                             <div class="chart-container">
                                                 <canvas class="donut-chart" width="50" height="50" data-irregularity="Chegou atrasado"></canvas>
@@ -1007,7 +1151,6 @@
                                             <input type="checkbox" id="irregularity4" name="irregularity" value="Chegou atrasado">
                                             <label for="irregularity4">Chegou atrasado</label>
                                         </div>
-                                        
                                         <div class="checkbox-item">
                                             <div class="chart-container">
                                                 <canvas class="donut-chart" width="50" height="50" data-irregularity="Circulando no corredor durante a aula"></canvas>
@@ -1016,7 +1159,6 @@
                                             <input type="checkbox" id="irregularity5" name="irregularity" value="Circulando no corredor durante a aula">
                                             <label for="irregularity5">Circulando no corredor</label>
                                         </div>
-                                        
                                         <div class="checkbox-item">
                                             <div class="chart-container">
                                                 <canvas class="donut-chart" width="50" height="50" data-irregularity="Uso indevido do celular durante a aula"></canvas>
@@ -1025,7 +1167,6 @@
                                             <input type="checkbox" id="irregularity6" name="irregularity" value="Uso indevido do celular durante a aula">
                                             <label for="irregularity6">Uso indevido do celular</label>
                                         </div>
-                                        
                                         <div class="checkbox-item">
                                             <div class="chart-container">
                                                 <canvas class="donut-chart" width="50" height="50" data-irregularity="Interrompe a aula constantemente"></canvas>
@@ -1034,7 +1175,6 @@
                                             <input type="checkbox" id="irregularity7" name="irregularity" value="Interrompe a aula constantemente">
                                             <label for="irregularity7">Interrompe a aula constantemente</label>
                                         </div>
-                                        
                                         <div class="checkbox-item">
                                             <div class="chart-container">
                                                 <canvas class="donut-chart" width="50" height="50" data-irregularity="Falta de cuidado com o ambiente e o material"></canvas>
@@ -1043,7 +1183,6 @@
                                             <input type="checkbox" id="irregularity8" name="irregularity" value="Falta de cuidado com o ambiente e o material">
                                             <label for="irregularity8">Falta de cuidado com ambiente/material</label>
                                         </div>
-                                        
                                         <div class="checkbox-item">
                                             <div class="chart-container">
                                                 <canvas class="donut-chart" width="50" height="50" data-irregularity="Vestimenta inadequada"></canvas>
@@ -1114,6 +1253,9 @@
                                 <div class="stat-label">PROFESSORES CADASTRADOS</div>
                             </div>
                         </div>
+                        <div class="stats-chart-container">
+                            <canvas id="studentsChart"></canvas>
+                        </div>
                     </div>
                     
                     <div class="student-occurrences-card" id="studentOccurrencesCard">
@@ -1124,26 +1266,13 @@
                         </div>
                     </div>
                     
-                    <div class="students-chart-container">
-                        <div class="chart-header">
-                            <i class="fas fa-chart-pie"></i> Distribuição de Alunos por Período
-                        </div>
-                        <div class="chart-wrapper">
-                            <canvas id="studentsChart"></canvas>
-                        </div>
-                        <div class="chart-legend" style="text-align: center; margin-top: 20px;">
-                            <span class="period-badge morning-badge">Manhã: <span id="morningCount">0</span></span>
-                            <span class="period-badge afternoon-badge">Tarde: <span id="afternoonCount">0</span></span>
-                            <span class="period-badge night-badge">Noite: <span id="nightCount">0</span></span>
-                        </div>
-                    </div>
-                    
                     <div class="card">
                         <div class="card-header">
                             <i class="fas fa-info-circle"></i> Sobre o Sistema
                         </div>
                         <div class="card-body">
                             <p>Este sistema permite o registro de ocorrências escolares com integração direta ao Google Sheets.</p>
+                            <br>
                             <p><strong>Funcionalidades:</strong></p>
                             <ul style="padding-left: 20px; margin-top: 10px;">
                                 <li>Seleção de turma com carregamento automático dos alunos</li>
@@ -1173,90 +1302,6 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Dados dos professores
-            const teacherEmails = {
-                "ALEX LUTH PEREIRA MARANHAO": "luth@prof.educacao.sp.gov.br",
-                "ALEXSANDRA PAULA VARELLA DE SOUZA": "avarella@prof.educacao.sp.gov.br",
-                "ALISON VASCONCELOS BESERRA": "alisonv@prof.educacao.sp.gov.br",
-                "AMAURI TEODORO DE OLIVEIRA": "amaurit@prof.educacao.sp.gov.br",
-                "ANA PAULA DOS SANTOS": "paulasantosa@prof.educacao.sp.gov.br",
-                "ANDREIA DOS SANTOS FREITAS": "sanfreitas@prof.educacao.sp.gov.br",
-                "ANDREIA MADUREIRA REIS": "andreiamadureira@prof.educacao.sp.gov.br",
-                "ANTONIO CARLOS DE OLIVEIRA": "antoniocarloso@prof.educacao.sp.gov.br",
-                "ANTONIO RAMOS DE ARAUJO": "antonioramosaraujo@prof.educacao.sp.gov.br",
-                "ANTONIO WILTON WANDERLEY CABRAL": "antoniowilton@prof.educacao.sp.gov.br",
-                "AUGUSTO LINO PESSOA NETO": "augustolino@prof.educacao.sp.gov.br",
-                "AUREA MARIA DE JESUS MARQUES": "aureamaria@prof.educacao.sp.gov.br",
-                "CAROLINA PERNOMIAN PARUSSOLO": "carolinapernomian@prof.educacao.sp.gov.br",
-                "CASSIA OLIVEIRA ANTONIAZI": "cassiaosilva@prof.educacao.sp.gov.br",
-                "CLAUDINEIA DE AGUIAR LIMA": "aguiarl@prof.educacao.sp.gov.br",
-                "DANIEL DE FREITAS ALMEIDA": "danielalmeida@prof.educacao.sp.gov.br",
-                "DANIEL LOPES BARBOSA": "daniellopesbarbosa@prof.educacao.sp.gov.br",
-                "DANIELA FERREIRA LIMA": "danielaflima@prof.educacao.sp.gov.br",
-                "DANIELLE LUCIA BATISTA DE ALMEIDA": "danielelucia@prof.educacao.sp.gov.br",
-                "EDIANE VIEIRA DA SILVA": "ediane@prof.educacao.sp.gov.br",
-                "EDILEUSA NUNES PEREIRA": "edileusa@prof.educacao.sp.gov.br",
-                "EDUARDO HENRIQUE DA FONSECA": "henriquefonseca@prof.educacao.sp.gov.br",
-                "ELIANE SANTOS SILVA": "essantos@prof.educacao.sp.gov.br",
-                "ELIAS MONTEIRO DA SILVA": "elias1@prof.educacao.sp.gov.br",
-                "ELISABETE APARECIDA PIRES": "elisabetepires@prof.educacao.sp.gov.br",
-                "ELZA DE FARIA PEREIRA": "elzafariapereira@prof.educacao.sp.gov.br",
-                "EMERSON GABLER DE ALMEIDA": "egabler@prof.educacao.sp.gov.br",
-                "EUZELI ARAUJO DE OLIVEIRA": "euzeli@prof.educacao.sp.gov.br",
-                "FABIANO AUGUSTO PIEDADE": "fabianoaugusto@prof.educacao.sp.gov.br",
-                "FABIO CAMILO": "camilof@prof.educacao.sp.gov.br",
-                "FERNANDO JOSE DA SILVA FILHO": "fernandojs@prof.educacao.sp.gov.br",
-                "FLAVIA CRISTINA APARECIDA BICHLER": "flaviacri@prof.educacao.sp.gov.br",
-                "FLAVIO CARDOSO FLEURY": "flaviofleury@prof.educacao.sp.gov.br",
-                "FRANCISCA EDIVANIA DE MORAIS COSTA": "fedivania@prof.educacao.sp.gov.br",
-                "GABRIELA SERIGHELLI DE MELO": "gabrielaserighelli@prof.educacao.sp.gov.br",
-                "GELSON DE ALMEIDA BATISTA": "gelsonalmeida@prof.educacao.sp.gov.br",
-                "GENILTON DE OLIVEIRA SILVA": "genilton@prof.educacao.sp.gov.br",
-                "GIANI CRISTINA DO PRADO": "gianiprado@prof.educacao.sp.gov.br",
-                "INGRYD CAROLINA SUGUIMOTO VIEIRA": "ingryd@prof.educacao.sp.gov.br",
-                "IVANILDES DOS SANTOS OSHIKAWA": "oshikawa@prof.educacao.sp.gov.br",
-                "JANINA DOS PASSOS BRAGA DE ALMEIDA": "janinabraga@prof.educacao.sp.gov.br",
-                "JOSE APARECIDO DA SILVA": "joseaparecidosilva@prof.educacao.sp.gov.br",
-                "JUAREZ GOMES DE MAGALHAES FILHO": "juarezgomes@prof.educacao.sp.gov.br",
-                "JUREMA SOLEDADE FURINI SANTOS": "juremas@prof.educacao.sp.gov.br",
-                "KATIUSCIA ALVES BOMFIM": "katiusciabomfim@prof.educacao.sp.gov.br",
-                "LUANA CAROLINE ALVES LIMA": "luanalima01@prof.educacao.sp.gov.br",
-                "LUANA DE FREITAS SILVA": "luanafreitas@prof.educacao.sp.gov.br",
-                "LUCIANA NOVAIS CORREIA SANTOS": "novaiscorreia@prof.educacao.sp.gov.br",
-                "LUCIANO MOREIRA DE AZEVEDO": "lucianomoreira@prof.educacao.sp.gov.br",
-                "MARCIEL DA SILVA": "marcielsilva@prof.educacao.sp.gov.br",
-                "MARIA HELENA CUNHA MORO": "marcunha@prof.educacao.sp.gov.br",
-                "MARIA QUITÉRIA FERREIRA DOS SANTOS": "quiteriasantos@prof.educacao.sp.gov.br",
-                "MARINA DA CONCEICAO FRANCISCO SILVA": "marinafrancisco@prof.educacao.sp.gov.br",
-                "MAURICIO DE BARROS SANTOS": "mauriciobsantos@prof.educacao.sp.gov.br",
-                "MICHELE DE PINHO MORAES": "michelepinho@prof.educacao.sp.gov.br",
-                "MOISES ANTONIO DE BARROS": "moisesbarros@prof.educacao.sp.gov.br",
-                "PAULA ARMANI VILA": "paulaarmani@prof.educacao.sp.gov.br",
-                "PAULO ROBERTO DA SILVA ITO": "pauloito@prof.educacao.sp.gov.br",
-                "PEDRO ZANOTTI FILHO": "pedrozanotti@prof.educacao.sp.gov.br",
-                "RAUL PEREIRA VILERA JUNIOR": "vilera@prof.educacao.sp.gov.br",
-                "REGIANE CURTI DE SOUZA OLIVEIRA": "regianecurti@prof.educacao.sp.gov.br",
-                "REGINA DA SILVA CASTRO": "reginasilvacastro@prof.educacao.sp.gov.br",
-                "RICARDO AMERICO DA SILVA": "ricardoamerico@prof.educacao.sp.gov.br",
-                "ROBERTO SALGADO": "robertosalgado@prof.educacao.sp.gov.br",
-                "RODRIGO VIEIRA": "rodrigovieira1@prof.educacao.sp.gov.br",
-                "ROSANGELA CAFASSO MOREIRA": "cafasso@prof.educacao.sp.gov.br",
-                "ROSIMERY DE SOUZA PESSOA": "rosimerypessoa@prof.educacao.sp.gov.br",
-                "ROSMARA DA SILVA CARDOSO": "rosmaracardoso@prof.educacao.sp.gov.br",
-                "SANDRA CRISTINA MACEDO MORAES": "sandracristinamacedo@prof.educacao.sp.gov.br",
-                "SELMA GOMES DA SILVA": "selmagomess@prof.educacao.sp.gov.br",
-                "SERGIO AGRIPINO VILLA NOVA": "sergioagripino@prof.educacao.sp.gov.br",
-                "SOLANGE ALMEIDA DA SILVA": "almeidafazio@prof.educacao.sp.gov.br",
-                "SUZINEIDE SILVA DE FREITAS": "suzineidefreitas@prof.educacao.sp.gov.br",
-                "THIAGO FABIANO BRITO": "thiagofabiano@prof.educacao.sp.gov.br",
-                "TITTO AUGUSTO NASCIMENTO SILVA": "titto@prof.educacao.sp.gov.br",
-                "VANDERSON HYPPOLITO": "vhypolito@prof.educacao.sp.gov.br",
-                "VANESSA IVETE GOMES DOS SANTOS": "vanessaivete@prof.educacao.sp.gov.br",
-                "VANIA PENHA DE BARROS": "vaniapenha@prof.educacao.sp.gov.br",
-                "VIVIANE LEAL CAMERA DE MORAES": "camera@prof.educacao.sp.gov.br",
-                "WILSON RODRIGUES MOTA": "wmota@prof.educacao.sp.gov.br"
-            };
-            
             // Elementos DOM
             const form = document.getElementById('occurrenceForm');
             const clearBtn = document.getElementById('clearBtn');
@@ -1276,52 +1321,101 @@
             const studentOccurrencesCard = document.getElementById('studentOccurrencesCard');
             const studentOccurrencesName = document.getElementById('studentOccurrencesName');
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
+            const dateInput = document.getElementById('occurrenceDate');
+            const datePicker = document.getElementById('datePicker');
+            const datePickerTitle = document.getElementById('datePickerTitle');
+            const datePickerDays = document.getElementById('datePickerDays');
+            const prevMonthBtn = document.getElementById('prevMonthBtn');
+            const nextMonthBtn = document.getElementById('nextMonthBtn');
+            const todayBtn = document.getElementById('todayBtn');
             const loadingOverlay = document.getElementById('loadingOverlay');
             const studentsChartCtx = document.getElementById('studentsChart').getContext('2d');
-            
+
             // URL do Google Apps Script
-            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyH5KsXTAD10JAtGJhVLUGFh9nk8Gt7sb2rwx9QFX-g8uE0kDrBqDZ7cgZBQf0p3-nF/exec";
-            const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
-            
-            // Preencher dropdown de professores
-            Object.keys(teacherEmails).forEach(teacherName => {
-                const option = document.createElement('option');
-                option.value = teacherName;
-                option.textContent = teacherName;
-                professorSelect.appendChild(option);
-            });
+            const SCRIPT_BASE_URL = "https://script.google.com/macros/s/AKfycbxc_P27Wl96tqKT9IDte8jvhX-v3zOxFvsDD-QgTAgcyZoV4gqKhRWTojhcE-Y2gzoj/exec";
+
+            // Mapeamento de turmas para intervalos
+            const CLASS_RANGES = {
+                "6° ANO A MANHA": "C3:C46",
+                "6° ANO B MANHA": "H3:H46",
+                "6° ANO C MANHA": "M3:M46",
+                "6° ANO D MANHA": "R3:R46",
+                "6° ANO E TARDE": "W3:W46",
+                "6° ANO F TARDE": "AB3:AB46",
+                "7° ANO A TARDE": "AG3:AG46",
+                "7° ANO B TARDE": "AL3:AL46",
+                "7° ANO C TARDE": "AQ3:AQ46",
+                "7° ANO D TARDE": "AV3:AV46",
+                "7° ANO E TARDE": "BA3:BA46",
+                "7° ANO F TARDE": "BF3:BF46",
+                "8° ANO A TARDE": "BK3:BK46",
+                "8° ANO B TARDE": "BP3:BP46",
+                "8° ANO C TARDE": "BU3:BU46",
+                "8° ANO D TARDE": "BZ3:BZ46",
+                "9° ANO A TARDE": "CE3:CE46",
+                "9° ANO B TARDE": "CJ3:CJ46",
+                "9° ANO C TARDE": "CO3:CO46",
+                "9° ANO D TARDE": "CT3:CT46",
+                "1ª SERIE A MANHA": "CY3:CY46",
+                "1ª SERIE B MANHA": "DD3:DD46",
+                "1ª SERIE C MANHA": "DI3:DI46",
+                "1ª SERIE D MANHA": "DN3:DN46",
+                "1ª SERIE E MANHA": "DS3:DS46",
+                "1ª SERIE F MANHA": "DX3:DX46",
+                "1ª SERIE G TARDE": "EC3:EC46",
+                "1ª SERIE H NOITE": "EH3:EH46",
+                "1ª SERIE I NOITE": "EM3:EM46",
+                "2ª SERIE A MANHA": "ER3:ER46",
+                "2ª SERIE B MANHA": "EW3:EW46",
+                "2ª SERIE C MANHA": "FB3:FB46",
+                "2ª SERIE D MANHA": "FG3:FG46",
+                "2ª SERIE E MANHA": "FL3:FL46",
+                "2ª SERIE F NOITE": "FQ3:FQ46",
+                "2ª SERIE G NOITE": "FV3:FV46",
+                "2ª SERIE H NOITE": "GA3:GA46",
+                "3ª SERIE A MANHA": "GK3:GK46",
+                "3ª SERIE B MANHA": "GP3:GP46",
+                "3ª SERIE C MANHA": "GU3:GU46",
+                "3ª SERIE D NOITE": "GZ3:GZ46",
+                "3ª SERIE E NOITE": "HE3:HE46",
+                "3ª SERIE F NOITE": "HJ3:HJ46",
+                "3ª SERIE G NOITE": "HO3:HO46",
+                "4050 - ADMINISTRAÇÃO - 2ª SERIE A MANHA": "ER3:ER46"
+            };
+
+            // Configuração do calendário
+            let currentDate = new Date();
+            let selectedDate = null;
             
             // Preencher data atual como padrão
             const today = new Date();
-            const formattedDate = today.toISOString().split('T')[0];
-            document.getElementById('occurrenceDate').value = formattedDate;
-            
-            // Função para mostrar overlay de carregamento
-            function showLoading() {
-                loadingOverlay.style.display = 'flex';
-            }
-            
-            // Função para esconder overlay de carregamento
-            function hideLoading() {
-                loadingOverlay.style.display = 'none';
-            }
-            
+            const formattedDate = formatDate(today);
+            dateInput.value = formattedDate;
+            selectedDate = today;
+
+            // Armazenar gráficos
+            const charts = {};
+            let studentsChart = null;
+
             // Função para criar gráficos de rosca
             function createDonutChart(canvas, value, maxValue = 10) {
                 const ctx = canvas.getContext('2d');
                 const chartKey = canvas.getAttribute('data-irregularity');
-                
-                // Se já existe um gráfico, destruir antes de criar um novo
-                if (canvas.chart) {
-                    canvas.chart.destroy();
+
+                // Destruir gráfico anterior se existir
+                if (charts[chartKey]) {
+                    charts[chartKey].destroy();
                 }
-                
-                canvas.chart = new Chart(ctx, {
+
+                charts[chartKey] = new Chart(ctx, {
                     type: 'doughnut',
                     data: {
                         datasets: [{
                             data: [value, maxValue - value],
-                            backgroundColor: ['#3498db', '#e0e0e0'],
+                            backgroundColor: [
+                                '#3498db', // Cor da ocorrência
+                                '#e0e0e0' // Cor de fundo
+                            ],
                             borderWidth: 0
                         }]
                     },
@@ -1335,34 +1429,328 @@
                         }
                     }
                 });
-                
+
                 // Atualizar o número de ocorrências
                 const chartValue = canvas.parentElement.querySelector('.chart-value');
                 chartValue.textContent = value;
             }
+
+            // Função para mostrar overlay de carregamento
+            function showLoading() {
+                loadingOverlay.style.display = 'flex';
+            }
             
-            // Gráfico de alunos por período
-            let studentsChart;
-            function renderStudentsChart(morning, afternoon, night) {
+            // Função para esconder overlay de carregamento
+            function hideLoading() {
+                loadingOverlay.style.display = 'none';
+            }
+
+            // Função para buscar dados do backend
+            async function fetchBackendData(action, params = {}) {
+                try {
+                    const url = new URL(SCRIPT_BASE_URL);
+                    url.searchParams.append('action', action);
+                    
+                    // Adicionar parâmetros
+                    Object.keys(params).forEach(key => {
+                        url.searchParams.append(key, params[key]);
+                    });
+
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        mode: 'cors'
+                    });
+
+                    if (!response.ok) throw new Error('Erro na resposta do servidor');
+                    return await response.json();
+                } catch (error) {
+                    console.error('Erro na conexão com o backend:', error);
+                    return { status: 'error', message: error.message };
+                }
+            }
+
+            // Carregar alunos quando uma turma for selecionada
+            classSelect.addEventListener('change', async function() {
+                const selectedClass = this.value;
+                studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
+                studentSelect.disabled = true;
+                studentOccurrencesCard.style.display = 'none';
+                totalClassStudentsEl.textContent = "0";
+
+                // Resetar gráficos
+                const chartCanvases = document.querySelectorAll('.donut-chart');
+                chartCanvases.forEach(canvas => {
+                    createDonutChart(canvas, 0);
+                });
+
+                if (!selectedClass) {
+                    studentSelect.innerHTML = '<option value="">Selecione uma turma</option>';
+                    return;
+                }
+
+                try {
+                    showLoading();
+                    
+                    // Buscar alunos da turma no backend
+                    const response = await fetchBackendData('getClassStudents', {
+                        class: selectedClass,
+                        range: CLASS_RANGES[selectedClass] || ""
+                    });
+                    
+                    if (response.status === 'success' && response.students) {
+                        studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
+                        response.students.forEach(student => {
+                            if (student) {
+                                const option = document.createElement('option');
+                                option.value = student;
+                                option.textContent = student;
+                                studentSelect.appendChild(option);
+                            }
+                        });
+                        studentSelect.disabled = false;
+                        
+                        // Atualizar estatísticas
+                        totalClassStudentsEl.textContent = response.students.length;
+                    } else {
+                        studentSelect.innerHTML = '<option value="">Nenhum aluno encontrado</option>';
+                        if (response.message) {
+                            console.error('Erro ao carregar alunos:', response.message);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar alunos:', error);
+                    studentSelect.innerHTML = '<option value="">Erro ao carregar. Tente novamente.</option>';
+                } finally {
+                    hideLoading();
+                }
+            });
+
+            // Quando um aluno é selecionado
+            studentSelect.addEventListener('change', async function() {
+                if (this.value) {
+                    // Mostrar o card de ocorrências do aluno
+                    studentOccurrencesCard.style.display = 'block';
+                    studentOccurrencesName.textContent = this.value;
+                    studentOccurrencesCount.textContent = "Carregando...";
+
+                    try {
+                        showLoading();
+                        
+                        // Buscar ocorrências do aluno no backend
+                        const response = await fetchBackendData('getStudentOccurrences', {
+                            student: this.value
+                        });
+                        
+                        if (response.status === 'success') {
+                            const totalOccurrences = response.total || 0;
+                            studentOccurrencesCount.textContent = totalOccurrences;
+                            
+                            // Atualizar gráficos com as ocorrências por irregularidade
+                            updateAllCharts(response.detailed || {});
+                        } else {
+                            studentOccurrencesCount.textContent = "0";
+                            updateAllCharts({});
+                            if (response.message) {
+                                console.error('Erro ao carregar ocorrências do aluno:', response.message);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Erro ao carregar ocorrências do aluno:', error);
+                        studentOccurrencesCount.textContent = "Erro";
+                    } finally {
+                        hideLoading();
+                    }
+                } else {
+                    studentOccurrencesCard.style.display = 'none';
+                    // Resetar gráficos
+                    const chartCanvases = document.querySelectorAll('.donut-chart');
+                    chartCanvases.forEach(canvas => {
+                        createDonutChart(canvas, 0);
+                    });
+                }
+            });
+
+            // Função para atualizar todos os gráficos
+            function updateAllCharts(stats) {
+                const chartCanvases = document.querySelectorAll('.donut-chart');
+                chartCanvases.forEach(canvas => {
+                    const irregularity = canvas.getAttribute('data-irregularity');
+                    const count = stats[irregularity] || 0;
+                    createDonutChart(canvas, count);
+                });
+            }
+
+            // Limpar formulário
+            clearBtn.addEventListener('click', function() {
+                form.reset();
+                dateInput.value = formattedDate;
+                selectedDate = today;
+                professorSelect.selectedIndex = 0;
+                studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+                studentSelect.disabled = true;
+                successAlert.style.display = 'none';
+                errorAlert.style.display = 'none';
+                studentOccurrencesCard.style.display = 'none';
+                classSelect.selectedIndex = 0;
+                totalClassStudentsEl.textContent = "0";
+
+                // Resetar gráficos
+                const chartCanvases = document.querySelectorAll('.donut-chart');
+                chartCanvases.forEach(canvas => {
+                    createDonutChart(canvas, 0);
+                });
+
+                // Desmarcar todos os checkboxes
+                document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+            });
+
+            // Enviar formulário
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                // Esconder alertas
+                successAlert.style.display = 'none';
+                errorAlert.style.display = 'none';
+
+                // Coletar dados do formulário
+                const professor = professorSelect.value;
+                const occurrenceDate = formatDate(selectedDate);
+                const student = studentSelect.value;
+                const classInfo = classSelect.value;
+                const description = document.getElementById('description').value;
+
+                // Verificar irregularidades selecionadas
+                const irregularities = [];
+                document.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
+                    irregularities.push(cb.value);
+                });
+
+                // Validação
+                let errorMsg = "";
+                if (!professor) errorMsg += "• Selecione o professor<br>";
+                if (!occurrenceDate) errorMsg += "• Informe a data da ocorrência<br>";
+                if (!classInfo) errorMsg += "• Selecione a turma<br>";
+                if (!student) errorMsg += "• Selecione o aluno<br>";
+                if (irregularities.length === 0) errorMsg += "• Selecione pelo menos uma irregularidade<br>";
+
+                if (errorMsg) {
+                    errorMessage.innerHTML = `<strong>Erros encontrados:</strong><br>${errorMsg}`;
+                    errorAlert.style.display = 'flex';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
+                }
+
+                // Mostrar loading
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<span class="loading"></span> Enviando...';
+                submitBtn.disabled = true;
+                showLoading();
+
+                try {
+                    // Enviar dados para o backend
+                    const response = await fetchBackendData('registerOccurrence', {
+                        professor: professor,
+                        date: occurrenceDate,
+                        studentClass: classInfo,
+                        student: student,
+                        irregularities: JSON.stringify(irregularities),
+                        description: description
+                    });
+
+                    if (response.status === 'success') {
+                        // Mostrar mensagem de sucesso
+                        successAlert.style.display = 'flex';
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                        // Resetar formulário após sucesso
+                        form.reset();
+                        dateInput.value = formattedDate;
+                        selectedDate = today;
+                        studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+                        studentSelect.disabled = true;
+                        classSelect.selectedIndex = 0;
+                        studentOccurrencesCard.style.display = 'none';
+                        totalClassStudentsEl.textContent = "0";
+
+                        // Atualizar estatísticas gerais
+                        const newTotal = parseInt(totalOccurrencesEl.textContent) + 1;
+                        totalOccurrencesEl.textContent = newTotal;
+
+                        // Resetar gráficos
+                        const chartCanvases = document.querySelectorAll('.donut-chart');
+                        chartCanvases.forEach(canvas => {
+                            createDonutChart(canvas, 0);
+                        });
+                    } else {
+                        throw new Error(response.message || 'Erro desconhecido ao registrar ocorrência');
+                    }
+                } catch (error) {
+                    console.error('Erro ao enviar ocorrência:', error);
+                    errorMessage.textContent = `Ocorreu um erro ao enviar a ocorrência: ${error.message}`;
+                    errorAlert.style.display = 'flex';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } finally {
+                    // Restaurar botão de envio
+                    submitBtn.innerHTML = originalBtnText;
+                    submitBtn.disabled = false;
+                    hideLoading();
+                }
+            });
+
+            // Carregar estatísticas iniciais
+            async function loadInitialStats() {
+                try {
+                    showLoading();
+                    
+                    // Buscar total de ocorrências
+                    const occResponse = await fetchBackendData('getTotalOccurrences');
+                    if (occResponse.status === 'success') {
+                        totalOccurrencesEl.textContent = occResponse.total || "0";
+                    }
+                    
+                    // Carregar estatísticas da escola
+                    const statsResponse = await fetchBackendData('getSchoolStats');
+                    if (statsResponse.status === 'success') {
+                        // Atualizar os elementos com os valores retornados
+                        totalSchoolStudentsEl.textContent = statsResponse.total || "0";
+                        morningStudentsEl.textContent = statsResponse.morning || "0";
+                        afternoonStudentsEl.textContent = statsResponse.afternoon || "0";
+                        nightStudentsEl.textContent = statsResponse.night || "0";
+                        
+                        // Atualizar o gráfico de alunos por turno
+                        updateStudentsChart(statsResponse);
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar estatísticas:', error);
+                } finally {
+                    hideLoading();
+                }
+            }
+            
+            // Atualizar o gráfico de alunos por turno
+            function updateStudentsChart(stats) {
                 if (studentsChart) {
                     studentsChart.destroy();
                 }
                 
                 studentsChart = new Chart(studentsChartCtx, {
-                    type: 'pie',
+                    type: 'bar',
                     data: {
                         labels: ['Manhã', 'Tarde', 'Noite'],
                         datasets: [{
-                            data: [morning, afternoon, night],
+                            label: 'Alunos por Turno',
+                            data: [stats.morning || 0, stats.afternoon || 0, stats.night || 0],
                             backgroundColor: [
-                                'rgba(52, 152, 219, 0.7)',
-                                'rgba(243, 156, 18, 0.7)',
-                                'rgba(155, 89, 182, 0.7)'
+                                'rgba(54, 162, 235, 0.7)',
+                                'rgba(75, 192, 192, 0.7)',
+                                'rgba(153, 102, 255, 0.7)'
                             ],
                             borderColor: [
-                                'rgb(52, 152, 219)',
-                                'rgb(243, 156, 18)',
-                                'rgb(155, 89, 182)'
+                                'rgb(54, 162, 235)',
+                                'rgb(75, 192, 192)',
+                                'rgb(153, 102, 255)'
                             ],
                             borderWidth: 1
                         }]
@@ -1372,281 +1760,151 @@
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
-                                position: 'bottom',
-                                labels: {
-                                    font: {
-                                        size: 12
-                                    }
-                                }
+                                display: false
                             },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return `${context.label}: ${context.raw} alunos`;
-                                    }
+                            title: {
+                                display: true,
+                                text: 'Distribuição de Alunos por Turno',
+                                color: 'white',
+                                font: {
+                                    size: 14
                                 }
                             }
                         },
-                        animation: {
-                            animateScale: true,
-                            animateRotate: true
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    color: 'white'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: 'white'
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            }
                         }
                     }
                 });
-                
-                // Atualizar contadores
-                document.getElementById('morningCount').textContent = morning;
-                document.getElementById('afternoonCount').textContent = afternoon;
-                document.getElementById('nightCount').textContent = night;
             }
-            
-            // Carregar alunos quando uma turma for selecionada
-            classSelect.addEventListener('change', function() {
-                const selectedClass = this.value;
-                studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
-                studentSelect.disabled = true;
-                studentOccurrencesCard.style.display = 'none';
-                totalClassStudentsEl.textContent = "0";
-                
-                // Resetar gráficos
-                const chartCanvases = document.querySelectorAll('.donut-chart');
-                chartCanvases.forEach(canvas => {
-                    createDonutChart(canvas, 0);
-                });
-                
-                if (!selectedClass) {
-                    studentSelect.innerHTML = '<option value="">Selecione uma turma</option>';
-                    return;
-                }
-                
-                // Simular carregamento de alunos
-                showLoading();
-                
-                // Consultar o Google Apps Script para obter alunos
-                fetch(`${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === "success") {
-                            studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
-                            data.students.forEach(student => {
-                                const option = document.createElement('option');
-                                option.value = student;
-                                option.textContent = student;
-                                studentSelect.appendChild(option);
-                            });
-                            studentSelect.disabled = false;
-                            totalClassStudentsEl.textContent = data.students.length;
-                        } else {
-                            studentSelect.innerHTML = `<option value="">${data.message || 'Erro ao carregar alunos'}</option>`;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Erro ao carregar alunos:', error);
-                        studentSelect.innerHTML = '<option value="">Erro ao carregar alunos</option>';
-                    })
-                    .finally(() => {
-                        hideLoading();
-                    });
-            });
-            
-            // Quando um aluno é selecionado
-            studentSelect.addEventListener('change', function() {
-                if (this.value) {
-                    // Mostrar o card de ocorrências do aluno
-                    studentOccurrencesCard.style.display = 'block';
-                    studentOccurrencesName.textContent = this.value;
-                    studentOccurrencesCount.textContent = "Carregando...";
-                    
-                    // Simular busca de estatísticas do aluno
-                    setTimeout(() => {
-                        const randomOccurrences = Math.floor(Math.random() * 10);
-                        studentOccurrencesCount.textContent = randomOccurrences;
-                        
-                        // Simular dados detalhados para gráficos
-                        const detailedStats = {};
-                        document.querySelectorAll('.donut-chart').forEach(canvas => {
-                            const irregularity = canvas.getAttribute('data-irregularity');
-                            detailedStats[irregularity] = Math.floor(Math.random() * 5);
-                            createDonutChart(canvas, detailedStats[irregularity]);
-                        });
-                    }, 800);
-                } else {
-                    studentOccurrencesCard.style.display = 'none';
-                    
-                    // Resetar gráficos
-                    const chartCanvases = document.querySelectorAll('.donut-chart');
-                    chartCanvases.forEach(canvas => {
-                        createDonutChart(canvas, 0);
-                    });
-                }
-            });
-            
-            // Limpar formulário
-            clearBtn.addEventListener('click', function() {
-                form.reset();
-                document.getElementById('occurrenceDate').value = formattedDate;
-                professorSelect.selectedIndex = 0;
-                studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
-                studentSelect.disabled = true;
-                successAlert.style.display = 'none';
-                errorAlert.style.display = 'none';
-                studentOccurrencesCard.style.display = 'none';
-                classSelect.selectedIndex = 0;
-                totalClassStudentsEl.textContent = "0";
-                
-                // Resetar gráficos
-                const chartCanvases = document.querySelectorAll('.donut-chart');
-                chartCanvases.forEach(canvas => {
-                    createDonutChart(canvas, 0);
-                });
-                
-                // Desmarcar todos os checkboxes
-                document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                    checkbox.checked = false;
-                });
-            });
-            
-            // Enviar formulário
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Esconder alertas
-                successAlert.style.display = 'none';
-                errorAlert.style.display = 'none';
-                
-                // Coletar dados do formulário
-                const professor = professorSelect.value;
-                const occurrenceDate = document.getElementById('occurrenceDate').value;
-                const student = studentSelect.value;
-                const classInfo = classSelect.value;
-                const description = document.getElementById('description').value;
-                
-                // Verificar irregularidades selecionadas
-                const irregularities = [];
-                document.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
-                    irregularities.push(cb.value);
-                });
-                
-                // Validação
-                let errorMsg = "";
-                if (!professor) errorMsg += "• Selecione o professor<br>";
-                if (!occurrenceDate) errorMsg += "• Informe a data da ocorrência<br>";
-                if (!classInfo) errorMsg += "• Selecione a turma<br>";
-                if (!student) errorMsg += "• Selecione o aluno<br>";
-                if (irregularities.length === 0) errorMsg += "• Selecione pelo menos uma irregularidade<br>";
-                
-                if (errorMsg) {
-                    errorMessage.innerHTML = `<strong>Erros encontrados:</strong><br>${errorMsg}`;
-                    errorAlert.style.display = 'flex';
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    return;
-                }
-                
-                // Mostrar loading
-                const originalBtnText = submitBtn.innerHTML;
-                submitBtn.innerHTML = '<span class="loading"></span> Enviando...';
-                submitBtn.disabled = true;
-                showLoading();
-                
-                // Preparar dados para envio
-                const data = {
-                    professor: professor,
-                    occurrenceDate: occurrenceDate,
-                    student: student,
-                    classInfo: classInfo,
-                    irregularities: irregularities.join(", "),
-                    description: description
-                };
-                
-                // Enviar para o Google Sheets via Google Apps Script
-                fetch("https://script.google.com/macros/s/AKfycbyH5KsXTAD10JAtGJhVLUGFh9nk8Gt7sb2rwx9QFX-g8uE0kDrBqDZ7cgZBQf0p3-nF/exec", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        successAlert.style.display = 'flex';
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                        
-                        // Atualizar estatísticas gerais
-                        totalOccurrencesEl.textContent = data.totalOccurrences || (parseInt(totalOccurrencesEl.textContent) + 1);
-                        
-                        // Resetar formulário após sucesso
-                        form.reset();
-                        document.getElementById('occurrenceDate').value = formattedDate;
-                        studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
-                        studentSelect.disabled = true;
-                        classSelect.selectedIndex = 0;
-                        studentOccurrencesCard.style.display = 'none';
-                        totalClassStudentsEl.textContent = "0";
-                        
-                        // Resetar gráficos
-                        const chartCanvases = document.querySelectorAll('.donut-chart');
-                        chartCanvases.forEach(canvas => {
-                            createDonutChart(canvas, 0);
-                        });
-                    } else {
-                        throw new Error(data.message || 'Erro ao enviar ocorrência');
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro ao enviar ocorrência:', error);
-                    errorMessage.textContent = `Ocorreu um erro ao enviar a ocorrência: ${error.message}`;
-                    errorAlert.style.display = 'flex';
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                })
-                .finally(() => {
-                    submitBtn.innerHTML = originalBtnText;
-                    submitBtn.disabled = false;
-                    hideLoading();
-                });
-            });
-            
+
             // Inicializar gráficos com valores zero
             document.querySelectorAll('.donut-chart').forEach(canvas => {
                 createDonutChart(canvas, 0);
             });
-            
+
             // Carregar estatísticas iniciais
-            function loadInitialStats() {
-                showLoading();
-                fetch(`${"https://script.google.com/macros/s/AKfycbyH5KsXTAD10JAtGJhVLUGFh9nk8Gt7sb2rwx9QFX-g8uE0kDrBqDZ7cgZBQf0p3-nF/exec"}?action=getStats`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === "success") {
-                            totalOccurrencesEl.textContent = data.totalOccurrences || "0";
-                            totalSchoolStudentsEl.textContent = data.totalStudents || "0";
-                            
-                            // Preencher totais por período
-                            const morning = data.morning || 0;
-                            const afternoon = data.afternoon || 0;
-                            const night = data.night || 0;
-                            
-                            morningStudentsEl.textContent = morning;
-                            afternoonStudentsEl.textContent = afternoon;
-                            nightStudentsEl.textContent = night;
-                            
-                            // Renderizar gráfico de alunos por período
-                            renderStudentsChart(morning, afternoon, night);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Erro ao carregar estatísticas:', error);
-                    })
-                    .finally(() => {
-                        hideLoading();
-                    });
+            loadInitialStats();
+
+            // Funções para o calendário
+            function formatDate(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${day}/${month}/${year}`;
             }
             
-            // Carregar dados iniciais
-            loadInitialStats();
+            function renderCalendar(date) {
+                const year = date.getFullYear();
+                const month = date.getMonth();
+                
+                // Atualizar título do calendário
+                const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
+                                    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+                datePickerTitle.textContent = `${monthNames[month]} ${year}`;
+                
+                // Obter primeiro dia do mês
+                const firstDay = new Date(year, month, 1);
+                // Obter último dia do mês
+                const lastDay = new Date(year, month + 1, 0);
+                // Dias da semana do primeiro dia (0 = Domingo, 1 = Segunda, etc.)
+                const firstDayIndex = firstDay.getDay();
+                
+                // Limpar conteúdo anterior
+                datePickerDays.innerHTML = '';
+                
+                // Preencher dias vazios no início
+                for (let i = 0; i < firstDayIndex; i++) {
+                    const emptyDay = document.createElement('div');
+                    emptyDay.classList.add('date-picker-day', 'other-month');
+                    datePickerDays.appendChild(emptyDay);
+                }
+                
+                // Preencher dias do mês
+                for (let i = 1; i <= lastDay.getDate(); i++) {
+                    const day = document.createElement('div');
+                    day.classList.add('date-picker-day');
+                    day.textContent = i;
+                    
+                    // Verificar se é o dia atual
+                    const currentDay = new Date(year, month, i);
+                    if (currentDay.toDateString() === new Date().toDateString()) {
+                        day.classList.add('today');
+                    }
+                    
+                    // Verificar se é o dia selecionado
+                    if (selectedDate && currentDay.toDateString() === selectedDate.toDateString()) {
+                        day.classList.add('selected');
+                    }
+                    
+                    // Adicionar evento de clique
+                    day.addEventListener('click', () => {
+                        // Remover seleção anterior
+                        document.querySelectorAll('.date-picker-day.selected').forEach(el => {
+                            el.classList.remove('selected');
+                        });
+                        
+                        // Selecionar novo dia
+                        day.classList.add('selected');
+                        selectedDate = new Date(year, month, i);
+                        dateInput.value = formatDate(selectedDate);
+                        datePicker.style.display = 'none';
+                    });
+                    
+                    datePickerDays.appendChild(day);
+                }
+            }
             
-            // Renderizar gráfico vazio inicialmente
-            renderStudentsChart(0, 0, 0);
+            // Eventos do calendário
+            dateInput.addEventListener('click', function() {
+                datePicker.style.display = datePicker.style.display === 'block' ? 'none' : 'block';
+                if (datePicker.style.display === 'block') {
+                    renderCalendar(currentDate);
+                }
+            });
+            
+            prevMonthBtn.addEventListener('click', function() {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar(currentDate);
+            });
+            
+            nextMonthBtn.addEventListener('click', function() {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar(currentDate);
+            });
+            
+            todayBtn.addEventListener('click', function() {
+                currentDate = new Date();
+                selectedDate = new Date();
+                dateInput.value = formatDate(selectedDate);
+                renderCalendar(currentDate);
+            });
+            
+            // Fechar calendário ao clicar fora
+            document.addEventListener('click', function(event) {
+                if (!dateInput.contains(event.target) && !datePicker.contains(event.target)) {
+                    datePicker.style.display = 'none';
+                }
+            });
+            
+            // Renderizar calendário inicial
+            renderCalendar(currentDate);
         });
     </script>
 </body>
