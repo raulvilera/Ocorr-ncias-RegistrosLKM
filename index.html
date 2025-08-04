@@ -23,6 +23,9 @@
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
             --hover-bg: #f0f5ff;
+            --morning-color: #3498db;
+            --afternoon-color: #f39c12;
+            --night-color: #9b59b6;
         }
         
         * {
@@ -739,6 +742,52 @@
             animation: spin 1s linear infinite;
         }
         
+        .students-chart-container {
+            margin-top: 30px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .chart-header {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+        
+        .period-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin: 0 5px;
+            color: white;
+        }
+        
+        .morning-badge {
+            background-color: var(--morning-color);
+        }
+        
+        .afternoon-badge {
+            background-color: var(--afternoon-color);
+        }
+        
+        .night-badge {
+            background-color: var(--night-color);
+        }
+        
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
@@ -1075,6 +1124,20 @@
                         </div>
                     </div>
                     
+                    <div class="students-chart-container">
+                        <div class="chart-header">
+                            <i class="fas fa-chart-pie"></i> Distribuição de Alunos por Período
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="studentsChart"></canvas>
+                        </div>
+                        <div class="chart-legend" style="text-align: center; margin-top: 20px;">
+                            <span class="period-badge morning-badge">Manhã: <span id="morningCount">0</span></span>
+                            <span class="period-badge afternoon-badge">Tarde: <span id="afternoonCount">0</span></span>
+                            <span class="period-badge night-badge">Noite: <span id="nightCount">0</span></span>
+                        </div>
+                    </div>
+                    
                     <div class="card">
                         <div class="card-header">
                             <i class="fas fa-info-circle"></i> Sobre o Sistema
@@ -1214,9 +1277,11 @@
             const studentOccurrencesName = document.getElementById('studentOccurrencesName');
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
             const loadingOverlay = document.getElementById('loadingOverlay');
+            const studentsChartCtx = document.getElementById('studentsChart').getContext('2d');
             
             // URL do Google Apps Script
             const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyH5KsXTAD10JAtGJhVLUGFh9nk8Gt7sb2rwx9QFX-g8uE0kDrBqDZ7cgZBQf0p3-nF/exec";
+            const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
             
             // Preencher dropdown de professores
             Object.keys(teacherEmails).forEach(teacherName => {
@@ -1274,6 +1339,65 @@
                 // Atualizar o número de ocorrências
                 const chartValue = canvas.parentElement.querySelector('.chart-value');
                 chartValue.textContent = value;
+            }
+            
+            // Gráfico de alunos por período
+            let studentsChart;
+            function renderStudentsChart(morning, afternoon, night) {
+                if (studentsChart) {
+                    studentsChart.destroy();
+                }
+                
+                studentsChart = new Chart(studentsChartCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Manhã', 'Tarde', 'Noite'],
+                        datasets: [{
+                            data: [morning, afternoon, night],
+                            backgroundColor: [
+                                'rgba(52, 152, 219, 0.7)',
+                                'rgba(243, 156, 18, 0.7)',
+                                'rgba(155, 89, 182, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgb(52, 152, 219)',
+                                'rgb(243, 156, 18)',
+                                'rgb(155, 89, 182)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.label}: ${context.raw} alunos`;
+                                    }
+                                }
+                            }
+                        },
+                        animation: {
+                            animateScale: true,
+                            animateRotate: true
+                        }
+                    }
+                });
+                
+                // Atualizar contadores
+                document.getElementById('morningCount').textContent = morning;
+                document.getElementById('afternoonCount').textContent = afternoon;
+                document.getElementById('nightCount').textContent = night;
             }
             
             // Carregar alunos quando uma turma for selecionada
@@ -1496,10 +1620,18 @@
                         if (data.status === "success") {
                             totalOccurrencesEl.textContent = data.totalOccurrences || "0";
                             totalSchoolStudentsEl.textContent = data.totalStudents || "0";
-                            // Supondo que a resposta tenha os períodos
-                            morningStudentsEl.textContent = data.morning || "0";
-                            afternoonStudentsEl.textContent = data.afternoon || "0";
-                            nightStudentsEl.textContent = data.night || "0";
+                            
+                            // Preencher totais por período
+                            const morning = data.morning || 0;
+                            const afternoon = data.afternoon || 0;
+                            const night = data.night || 0;
+                            
+                            morningStudentsEl.textContent = morning;
+                            afternoonStudentsEl.textContent = afternoon;
+                            nightStudentsEl.textContent = night;
+                            
+                            // Renderizar gráfico de alunos por período
+                            renderStudentsChart(morning, afternoon, night);
                         }
                     })
                     .catch(error => {
@@ -1510,7 +1642,11 @@
                     });
             }
             
+            // Carregar dados iniciais
             loadInitialStats();
+            
+            // Renderizar gráfico vazio inicialmente
+            renderStudentsChart(0, 0, 0);
         });
     </script>
 </body>
