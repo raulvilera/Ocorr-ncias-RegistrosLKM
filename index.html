@@ -1344,7 +1344,7 @@
             // ID da planilha e configurações
             const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
             const SHEET_NAME = "OCORRENCIASDOSPROFESSORES";
-            const SCRIPT_BASE_URL = "https://script.google.com/macros/s/AKfycbxc_P27Wl96tqKT9IDte8jvhX-v3zOxFvsDD-QgTAgcyZoV4gqKhRWTojhcE-Y2gzoj/exec";
+            const SCRIPT_BASE_URL = "https://script.google.com/macros/s/AKfycbyH5KsXTAD10JAtGJhVLUGFh9nk8Gt7sb2rwx9QFX-g8uE0kDrBqDZ7cgZBQf0p3-nF/exec";
 
             // Configuração do calendário
             let currentDate = new Date();
@@ -1437,7 +1437,7 @@
             // Carregar estatísticas de alunos da escola
             async function loadSchoolStats() {
                 try {
-                    const url = `${SCRIPT_BASE_URL}?action=getSchoolStats&spreadsheetId=${SPREADSHEET_ID}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbyH5KsXTAD10JAtGJhVLUGFh9nk8Gt7sb2rwx9QFX-g8uE0kDrBqDZ7cgZBQf0p3-nF/exec"}?action=getSchoolStats&spreadsheetId=${SPREADSHEET_ID}`;
                     const response = await safeFetch(url);
                     
                     if (response && response.status === "success") {
@@ -1479,7 +1479,7 @@
                         throw new Error('Intervalo não encontrado para a turma selecionada');
                     }
 
-                    const url = `${SCRIPT_BASE_URL}?action=getStudents&spreadsheetId=${SPREADSHEET_ID}&range=${encodeURIComponent(range)}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbyH5KsXTAD10JAtGJhVLUGFh9nk8Gt7sb2rwx9QFX-g8uE0kDrBqDZ7cgZBQf0p3-nF/exec"}?action=getStudents&spreadsheetId=${SPREADSHEET_ID}&range=${encodeURIComponent(range)}`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success" && Array.isArray(data.students)) {
@@ -1636,7 +1636,7 @@
                     };
 
                     // Enviar dados para o Google Sheets
-                    const response = await safeFetch(SCRIPT_BASE_URL, {
+                    const response = await safeFetch("https://script.google.com/macros/s/AKfycbyH5KsXTAD10JAtGJhVLUGFh9nk8Gt7sb2rwx9QFX-g8uE0kDrBqDZ7cgZBQf0p3-nF/exec", {
                         method: 'POST',
                         body: JSON.stringify({
                             action: 'addOccurrence',
@@ -1686,7 +1686,7 @@
             // Carregar estatísticas iniciais
             function loadInitialStats() {
                 // Buscar total de ocorrências
-                safeFetch(`${SCRIPT_BASE_URL}?action=getTotalOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`)
+                safeFetch(`${"https://script.google.com/macros/s/AKfycbyH5KsXTAD10JAtGJhVLUGFh9nk8Gt7sb2rwx9QFX-g8uE0kDrBqDZ7cgZBQf0p3-nF/exec"}?action=getTotalOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`)
                     .then(data => {
                         if (data && data.status === "success") {
                             totalOccurrencesEl.textContent = data.total || "0";
