@@ -283,6 +283,7 @@
         
         .form-group {
             margin-bottom: 25px;
+            position: relative;
         }
         
         label {
@@ -291,6 +292,7 @@
             font-weight: 600;
             color: var(--text-color);
             font-size: 1.1rem;
+            transition: var(--transition);
         }
         
         .required::after {
@@ -306,6 +308,11 @@
             font-size: 16px;
             transition: var(--transition);
             background-color: #f8fafc;
+        }
+        
+        input:hover, select:hover, textarea:hover {
+            border-color: #bdc3c7;
+            background-color: #f0f5ff;
         }
         
         input:focus, select:focus, textarea:focus {
@@ -339,18 +346,21 @@
             display: flex;
             align-items: center;
             position: relative;
+            cursor: pointer;
         }
         
         .checkbox-item:hover {
             background: #e8f0fe;
             border-color: var(--primary-color);
             transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
         .checkbox-item input {
             width: auto;
             margin-right: 12px;
             transform: scale(1.2);
+            cursor: pointer;
         }
         
         .chart-container {
@@ -572,6 +582,54 @@
             gap: 15px;
         }
         
+        /* Estilos para o campo de data personalizado */
+        .date-input-container {
+            position: relative;
+        }
+        
+        .date-input-container input[type="date"] {
+            padding-right: 40px;
+        }
+        
+        .date-input-container::after {
+            content: "\f073";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--primary-color);
+            font-size: 18px;
+        }
+        
+        /* Efeitos para os campos do formulário */
+        .form-group:hover label {
+            color: var(--primary-color);
+        }
+        
+        .checkbox-item:hover label {
+            color: var(--primary-dark);
+        }
+        
+        /* Efeito para o select */
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+        }
+        
+        select:hover {
+            background-color: #f0f5ff;
+        }
+        
+        /* Efeito para textarea */
+        textarea:hover {
+            background-color: #f0f5ff;
+        }
+        
         @media (max-width: 992px) {
             .dashboard {
                 grid-template-columns: 1fr;
@@ -760,7 +818,7 @@
                                         </div>
                                     </div>
                                     <div class="form-col">
-                                        <div class="form-group">
+                                        <div class="form-group date-input-container">
                                             <label for="occurrenceDate" class="required">Data da ocorrência</label>
                                             <input type="date" id="occurrenceDate" required>
                                         </div>
@@ -1090,14 +1148,17 @@
             const studentOccurrencesCard = document.getElementById('studentOccurrencesCard');
             const studentOccurrencesName = document.getElementById('studentOccurrencesName');
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
+            const dateInput = document.getElementById('occurrenceDate');
 
-            // URL base do Apps Script
+            // ID da planilha e configurações
+            const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
+            const SHEET_NAME = "OCORRENCIASDOSPROFESSORES";
             const SCRIPT_BASE_URL = "https://script.google.com/macros/s/AKfycbxc_P27Wl96tqKT9IDte8jvhX-v3zOxFvsDD-QgTAgcyZoV4gqKhRWTojhcE-Y2gzoj/exec";
 
             // Preencher data atual como padrão
             const today = new Date();
             const formattedDate = today.toISOString().split('T')[0];
-            document.getElementById('occurrenceDate').value = formattedDate;
+            dateInput.value = formattedDate;
 
             // Contar turmas disponíveis
             const turmasCount = document.querySelectorAll('#studentClass option').length - 1;
@@ -1153,10 +1214,9 @@
                     const fetchOptions = {
                         ...options,
                         signal: controller.signal,
-                        mode: 'cors', // Modo CORS
+                        mode: 'cors',
                         headers: {
                             ...(options.headers || {}),
-                            'Access-Control-Allow-Origin': '*', // Cabeçalho CORS
                             'Content-Type': 'application/json'
                         }
                     };
@@ -1181,7 +1241,7 @@
             // Carregar estatísticas de alunos da escola
             async function loadSchoolStats() {
                 try {
-                    const url = `${SCRIPT_BASE_URL}?action=getSchoolStats`;
+                    const url = `${SCRIPT_BASE_URL}?action=getSchoolStats&spreadsheetId=${SPREADSHEET_ID}`;
                     const response = await safeFetch(url);
                     
                     if (response && response.status === "success") {
@@ -1223,7 +1283,7 @@
                         throw new Error('Intervalo não encontrado para a turma selecionada');
                     }
 
-                    const url = `${SCRIPT_BASE_URL}?action=getStudents&range=${encodeURIComponent(range)}`;
+                    const url = `${SCRIPT_BASE_URL}?action=getStudents&spreadsheetId=${SPREADSHEET_ID}&range=${encodeURIComponent(range)}`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success" && Array.isArray(data.students)) {
@@ -1260,7 +1320,7 @@
                     studentOccurrencesCount.textContent = "Carregando...";
 
                     // Buscar estatísticas do aluno
-                    const url = `${SCRIPT_BASE_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`;
+                    const url = `${SCRIPT_BASE_URL}?action=getStudentStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}&student=${encodeURIComponent(this.value)}`;
                     
                     safeFetch(url)
                         .then(data => {
@@ -1373,7 +1433,9 @@
                         student: student,
                         class: classInfo,
                         irregularities: irregularities.join(', '),
-                        description: description
+                        description: description,
+                        spreadsheetId: SPREADSHEET_ID,
+                        sheetName: SHEET_NAME
                     };
 
                     // Enviar dados para o Google Sheets
@@ -1426,7 +1488,7 @@
             // Carregar estatísticas iniciais
             function loadInitialStats() {
                 // Buscar total de ocorrências
-                safeFetch(`${SCRIPT_BASE_URL}?action=getTotalOccurrences`)
+                safeFetch(`${SCRIPT_BASE_URL}?action=getTotalOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`)
                     .then(data => {
                         if (data && data.status === "success") {
                             totalOccurrencesEl.textContent = data.total || "0";
@@ -1447,6 +1509,11 @@
 
             // Carregar estatísticas iniciais
             loadInitialStats();
+
+            // Adicionar evento de clique para abrir o calendário no campo de data
+            dateInput.addEventListener('click', function() {
+                this.showPicker();
+            });
         });
     </script>
 </body>
