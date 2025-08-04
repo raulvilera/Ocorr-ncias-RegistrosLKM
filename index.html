@@ -887,7 +887,7 @@
                                                     <option value="2ª SERIE A MANHA">2ª SERIE A MANHA</option>
                                                     <option value="2ª SERIE B MANHA">2ª SERIE B MANHA</option>
                                                     <option value="2ª SERIE C MANHA">2ª SERIE C MANHA</option>
-                                                    <option value="2ª SERIE D MANHA">2ª SERIE D MANHA</option>
+                                                    <option value="2ª SERIE D MANHA">2ª SERie D MANHA</option>
                                                     <option value="2ª SERIE E MANHA">2ª SERIE E MANHA</option>
                                                     <option value="2ª SERIE F NOITE">2ª SERIE F NOITE</option>
                                                     <option value="2ª SERIE G NOITE">2ª SERIE G NOITE</option>
@@ -1297,24 +1297,32 @@
                 
                 // Simular carregamento de alunos
                 showLoading();
-                setTimeout(() => {
-                    const students = [
-                        "João Silva", "Maria Oliveira", "Carlos Santos", "Ana Pereira", 
-                        "Pedro Costa", "Mariana Souza", "Lucas Almeida", "Juliana Lima"
-                    ];
-                    
-                    studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
-                    students.forEach(student => {
-                        const option = document.createElement('option');
-                        option.value = student;
-                        option.textContent = student;
-                        studentSelect.appendChild(option);
+                
+                // Consultar o Google Apps Script para obter alunos
+                fetch(`${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
+                            data.students.forEach(student => {
+                                const option = document.createElement('option');
+                                option.value = student;
+                                option.textContent = student;
+                                studentSelect.appendChild(option);
+                            });
+                            studentSelect.disabled = false;
+                            totalClassStudentsEl.textContent = data.students.length;
+                        } else {
+                            studentSelect.innerHTML = `<option value="">${data.message || 'Erro ao carregar alunos'}</option>`;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao carregar alunos:', error);
+                        studentSelect.innerHTML = '<option value="">Erro ao carregar alunos</option>';
+                    })
+                    .finally(() => {
+                        hideLoading();
                     });
-                    
-                    studentSelect.disabled = false;
-                    totalClassStudentsEl.textContent = students.length;
-                    hideLoading();
-                }, 1500);
             });
             
             // Quando um aluno é selecionado
@@ -1323,15 +1331,21 @@
                     // Mostrar o card de ocorrências do aluno
                     studentOccurrencesCard.style.display = 'block';
                     studentOccurrencesName.textContent = this.value;
-                    studentOccurrencesCount.textContent = Math.floor(Math.random() * 10);
+                    studentOccurrencesCount.textContent = "Carregando...";
                     
-                    // Simular dados detalhados para gráficos
-                    const detailedStats = {};
-                    document.querySelectorAll('.donut-chart').forEach(canvas => {
-                        const irregularity = canvas.getAttribute('data-irregularity');
-                        detailedStats[irregularity] = Math.floor(Math.random() * 5);
-                        createDonutChart(canvas, detailedStats[irregularity]);
-                    });
+                    // Simular busca de estatísticas do aluno
+                    setTimeout(() => {
+                        const randomOccurrences = Math.floor(Math.random() * 10);
+                        studentOccurrencesCount.textContent = randomOccurrences;
+                        
+                        // Simular dados detalhados para gráficos
+                        const detailedStats = {};
+                        document.querySelectorAll('.donut-chart').forEach(canvas => {
+                            const irregularity = canvas.getAttribute('data-irregularity');
+                            detailedStats[irregularity] = Math.floor(Math.random() * 5);
+                            createDonutChart(canvas, detailedStats[irregularity]);
+                        });
+                    }, 800);
                 } else {
                     studentOccurrencesCard.style.display = 'none';
                     
@@ -1410,36 +1424,62 @@
                 submitBtn.disabled = true;
                 showLoading();
                 
-                // Simular envio para o Google Sheets
-                setTimeout(() => {
-                    // Mostrar mensagem de sucesso
-                    successAlert.style.display = 'flex';
+                // Preparar dados para envio
+                const data = {
+                    professor: professor,
+                    occurrenceDate: occurrenceDate,
+                    student: student,
+                    classInfo: classInfo,
+                    irregularities: irregularities.join(", "),
+                    description: description
+                };
+                
+                // Enviar para o Google Sheets via Google Apps Script
+                fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        successAlert.style.display = 'flex';
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        
+                        // Atualizar estatísticas gerais
+                        totalOccurrencesEl.textContent = data.totalOccurrences || (parseInt(totalOccurrencesEl.textContent) + 1);
+                        
+                        // Resetar formulário após sucesso
+                        form.reset();
+                        document.getElementById('occurrenceDate').value = formattedDate;
+                        studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+                        studentSelect.disabled = true;
+                        classSelect.selectedIndex = 0;
+                        studentOccurrencesCard.style.display = 'none';
+                        totalClassStudentsEl.textContent = "0";
+                        
+                        // Resetar gráficos
+                        const chartCanvases = document.querySelectorAll('.donut-chart');
+                        chartCanvases.forEach(canvas => {
+                            createDonutChart(canvas, 0);
+                        });
+                    } else {
+                        throw new Error(data.message || 'Erro ao enviar ocorrência');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao enviar ocorrência:', error);
+                    errorMessage.textContent = `Ocorreu um erro ao enviar a ocorrência: ${error.message}`;
+                    errorAlert.style.display = 'flex';
                     window.scrollTo({ top: 0, behavior: 'smooth' });
-                    
-                    // Atualizar estatísticas gerais
-                    const currentTotal = parseInt(totalOccurrencesEl.textContent);
-                    totalOccurrencesEl.textContent = currentTotal + 1;
-                    
-                    // Resetar formulário após sucesso
-                    form.reset();
-                    document.getElementById('occurrenceDate').value = formattedDate;
-                    studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
-                    studentSelect.disabled = true;
-                    classSelect.selectedIndex = 0;
-                    studentOccurrencesCard.style.display = 'none';
-                    totalClassStudentsEl.textContent = "0";
-                    
-                    // Resetar gráficos
-                    const chartCanvases = document.querySelectorAll('.donut-chart');
-                    chartCanvases.forEach(canvas => {
-                        createDonutChart(canvas, 0);
-                    });
-                    
-                    // Restaurar botão de envio
+                })
+                .finally(() => {
                     submitBtn.innerHTML = originalBtnText;
                     submitBtn.disabled = false;
                     hideLoading();
-                }, 2000);
+                });
             });
             
             // Inicializar gráficos com valores zero
@@ -1449,12 +1489,25 @@
             
             // Carregar estatísticas iniciais
             function loadInitialStats() {
-                // Simular estatísticas
-                totalOccurrencesEl.textContent = Math.floor(Math.random() * 100) + 50;
-                totalSchoolStudentsEl.textContent = "1200";
-                morningStudentsEl.textContent = "450";
-                afternoonStudentsEl.textContent = "400";
-                nightStudentsEl.textContent = "350";
+                showLoading();
+                fetch(`${SCRIPT_URL}?action=getStats`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            totalOccurrencesEl.textContent = data.totalOccurrences || "0";
+                            totalSchoolStudentsEl.textContent = data.totalStudents || "0";
+                            // Supondo que a resposta tenha os períodos
+                            morningStudentsEl.textContent = data.morning || "0";
+                            afternoonStudentsEl.textContent = data.afternoon || "0";
+                            nightStudentsEl.textContent = data.night || "0";
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao carregar estatísticas:', error);
+                    })
+                    .finally(() => {
+                        hideLoading();
+                    });
             }
             
             loadInitialStats();
