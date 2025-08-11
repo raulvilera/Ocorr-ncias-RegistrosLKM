@@ -2020,7 +2020,7 @@ sistema_ocorrencias_corrigido.html
         // ==================== CONFIGURAÇÕES ====================
         
         // URL do App Script corrigida
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyEkEinhDuR1qQN-sTwowOUYgsm8kDIkZ8SnVsaa_lIsxDqMkrN9b49dr6mu4ddS_Wh/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-9tulW5lpIvWq3jVORnYWIrH16fTzmlxEuRRmL8OkikJdTzV8o5EqHDHfA_yEWwvb/exec";
         
         // Configurações da planilha
         const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
@@ -2251,7 +2251,7 @@ sistema_ocorrencias_corrigido.html
             }
 
             // Buscar alunos reais da planilha
-            const url = `${SCRIPT_URL}?action=getStudents&className=${encodeURIComponent(selectedClass)}`;
+            const url = `${"https://script.google.com/macros/s/AKfycby-9tulW5lpIvWq3jVORnYWIrH16fTzmlxEuRRmL8OkikJdTzV8o5EqHDHfA_yEWwvb/exec"}?action=getStudents&className=${encodeURIComponent(selectedClass)}`;
             
             safeFetch(url)
                 .then(data => {
@@ -2297,7 +2297,7 @@ sistema_ocorrencias_corrigido.html
                 studentOccurrencesCount.textContent = "Carregando...";
                 
                 // Buscar estatísticas do aluno
-                const url = `${SCRIPT_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`;
+                const url = `${"https://script.google.com/macros/s/AKfycby-9tulW5lpIvWq3jVORnYWIrH16fTzmlxEuRRmL8OkikJdTzV8o5EqHDHfA_yEWwvb/exec"}?action=getStudentStats&student=${encodeURIComponent(this.value)}`;
                 
                 safeFetch(url)
                     .then(data => {
