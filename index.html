@@ -1503,7 +1503,7 @@
             const SHEET_NAME = "OCORRENCIASDOSPROFESSORES";
             const LOG_SHEET_NAME = "REGISTRO_OCORRENCIAS";
             const STUDENT_SHEET_NAME = "BANCODEDADOSGERAL";
-            const SCRIPT_BASE_URL = "https://script.google.com/macros/s/AKfycbwzwIXocI6kwOsG8NmN5ndKkS28JDpujRP1B16r7seX4bX9Mq1BVU-qmNEJZsAWaG9m/exec";
+            const SCRIPT_BASE_URL = "https://script.google.com/macros/s/AKfycbwr2-R9puLSqIOlwx1BHMxIul9iM1bbHdYNxBsgjSksFgOPf09oXzIU64u2ppaxwUnx/exec";
 
             // Armazenar gráficos
             const charts = {};
@@ -1650,7 +1650,7 @@
                 }
 
                 // Buscar alunos reais da planilha
-                const url = `${"https://script.google.com/macros/s/AKfycbwzwIXocI6kwOsG8NmN5ndKkS28JDpujRP1B16r7seX4bX9Mq1BVU-qmNEJZsAWaG9m/exec"}?action=getStudents&class=${encodeURIComponent(selectedClass)}&spreadsheetId=${SPREADSHEET_ID}`;
+                const url = `${SCRIPT_BASE_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}&spreadsheetId=${SPREADSHEET_ID}`;
                 
                 safeFetch(url)
                     .then(data => {
@@ -1696,7 +1696,7 @@
                     studentOccurrencesCount.textContent = "Carregando...";
                     
                     // Buscar estatísticas do aluno
-                    const url = `${"https://script.google.com/macros/s/AKfycbwzwIXocI6kwOsG8NmN5ndKkS28JDpujRP1B16r7seX4bX9Mq1BVU-qmNEJZsAWaG9m/exec"}?action=getStudentStats&student=${encodeURIComponent(this.value)}&spreadsheetId=${SPREADSHEET_ID}`;
+                    const url = `${SCRIPT_BASE_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}&spreadsheetId=${SPREADSHEET_ID}`;
                     
                     safeFetch(url)
                         .then(data => {
@@ -1817,7 +1817,7 @@
                 registrosTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Carregando registros...</td></tr>';
                 
                 try {
-                    const url = `${"https://script.google.com/macros/s/AKfycbwzwIXocI6kwOsG8NmN5ndKkS28JDpujRP1B16r7seX4bX9Mq1BVU-qmNEJZsAWaG9m/exec"}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const url = `${SCRIPT_BASE_URL}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success" && Array.isArray(data.occurrences)) {
@@ -2089,7 +2089,7 @@
             // Carregar estatísticas de alunos por período
             async function loadStudentPeriodStats() {
                 try {
-                    const url = `${"https://script.google.com/macros/s/AKfycbwzwIXocI6kwOsG8NmN5ndKkS28JDpujRP1B16r7seX4bX9Mq1BVU-qmNEJZsAWaG9m/exec"}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=${STUDENT_SHEET_NAME}`;
+                    const url = `${SCRIPT_BASE_URL}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=${STUDENT_SHEET_NAME}`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success") {
@@ -2177,7 +2177,7 @@
             // Função para editar ocorrência
             async function editOccurrence(occurrenceId) {
                 try {
-                    const url = `${"https://script.google.com/macros/s/AKfycbwzwIXocI6kwOsG8NmN5ndKkS28JDpujRP1B16r7seX4bX9Mq1BVU-qmNEJZsAWaG9m/exec"}?action=getOccurrenceById&id=${occurrenceId}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const url = `${SCRIPT_BASE_URL}?action=getOccurrenceById&id=${occurrenceId}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                     const response = await safeFetch(url);
                     
                     if (response && response.status === "success" && response.occurrence) {
