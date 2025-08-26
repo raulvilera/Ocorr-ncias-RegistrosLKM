@@ -1064,7 +1064,7 @@
     <script>
         // Configurações - CORRIGIDAS
         const CONFIG = {
-            BACKEND_URL: "https://script.google.com/macros/s/AKfycbx8Uo3PPDo6nSEdcoH2hS9QGMtrzfCMU0tt3NC6KM1Gc0SaxeLMfhmrvcw1k8XpgL0i/exec",
+            BACKEND_URL: "https://script.google.com/macros/s/AKfycbzCMWz0j5JnuOFMgA7GhfAiQtBS0tUUd3NVHtrCkcP8KLMJZhudRx3jQmfFgHymTwHW/exec",
             SPREADSHEET_ID: "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio",
             STUDENT_SHEET_NAME: "BANCODEDADOSGERAL",
             OCCURRENCES_SHEET_NAME: "OCORRENCIASDOSPROFESSORES",
@@ -1171,7 +1171,7 @@
             console.log('Enviando dados:', payload);
 
             try {
-                const data = await safeFetch(CONFIG.BACKEND_URL, {
+                const data = await safeFetch(CONFIG."https://script.google.com/macros/s/AKfycbzCMWz0j5JnuOFMgA7GhfAiQtBS0tUUd3NVHtrCkcP8KLMJZhudRx3jQmfFgHymTwHW/exec", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1197,7 +1197,7 @@
                 studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
                 studentSelect.disabled = true;
 
-                const url = `${CONFIG.BACKEND_URL}?action=getStudentsByClass&class=${encodeURIComponent(className)}`;
+                const url = `${CONFIG."https://script.google.com/macros/s/AKfycbzCMWz0j5JnuOFMgA7GhfAiQtBS0tUUd3NVHtrCkcP8KLMJZhudRx3jQmfFgHymTwHW/exec"}?action=getStudentsByClass&class=${encodeURIComponent(className)}`;
                 const data = await safeFetch(url);
 
                 if (data && data.status === "success" && Array.isArray(data.students)) {
@@ -1232,7 +1232,7 @@
         // Função para carregar ocorrências do aluno selecionado - CORRIGIDA
         async function loadStudentOccurrences(studentName) {
             try {
-                const url = `${CONFIG.BACKEND_URL}?action=getStudentOccurrences&student=${encodeURIComponent(studentName)}`;
+                const url = `${CONFIG."https://script.google.com/macros/s/AKfycbzCMWz0j5JnuOFMgA7GhfAiQtBS0tUUd3NVHtrCkcP8KLMJZhudRx3jQmfFgHymTwHW/exec"}?action=getStudentOccurrences&student=${encodeURIComponent(studentName)}`;
                 const data = await safeFetch(url);
 
                 if (data && data.status === "success") {
@@ -1252,7 +1252,7 @@
         async function loadStudentPeriodStats() {
             try {
                 console.log('Carregando estatísticas de alunos por período...');
-                const url = `${CONFIG.BACKEND_URL}?action=getStudentPeriodStats`;
+                const url = `${CONFIG."https://script.google.com/macros/s/AKfycbzCMWz0j5JnuOFMgA7GhfAiQtBS0tUUd3NVHtrCkcP8KLMJZhudRx3jQmfFgHymTwHW/exec"}?action=getStudentPeriodStats`;
                 const data = await safeFetch(url);
 
                 if (data && data.status === "success") {
@@ -1301,7 +1301,7 @@
         async function loadIrregularityStats() {
             try {
                 console.log('Carregando estatísticas de irregularidades...');
-                const url = `${CONFIG.BACKEND_URL}?action=getIrregularityStats`;
+                const url = `${CONFIG."https://script.google.com/macros/s/AKfycbzCMWz0j5JnuOFMgA7GhfAiQtBS0tUUd3NVHtrCkcP8KLMJZhudRx3jQmfFgHymTwHW/exec"}?action=getIrregularityStats`;
                 const data = await safeFetch(url);
 
                 if (data && data.status === "success" && data.irregularities) {
@@ -1390,7 +1390,7 @@
         async function loadStatistics() {
             try {
                 console.log('Carregando estatísticas gerais...');
-                const url = `${CONFIG.BACKEND_URL}?action=getStatistics`;
+                const url = `${CONFIG."https://script.google.com/macros/s/AKfycbzCMWz0j5JnuOFMgA7GhfAiQtBS0tUUd3NVHtrCkcP8KLMJZhudRx3jQmfFgHymTwHW/exec"}?action=getStatistics`;
                 const data = await safeFetch(url);
 
                 if (data && data.status === "success") {
@@ -1494,7 +1494,7 @@
             registrosTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Carregando registros...</td></tr>';
             
             try {
-                const url = `${CONFIG.BACKEND_URL}?action=getAllOccurrences`;
+                const url = `${CONFIG."https://script.google.com/macros/s/AKfycbzCMWz0j5JnuOFMgA7GhfAiQtBS0tUUd3NVHtrCkcP8KLMJZhudRx3jQmfFgHymTwHW/exec"}?action=getAllOccurrences`;
                 const data = await safeFetch(url);
                 
                 if (data && data.status === "success" && Array.isArray(data.occurrences)) {
@@ -1852,7 +1852,7 @@
         // Função para exportar dados para Excel
         exportBtn.addEventListener('click', async function() {
             try {
-                const url = `${CONFIG.BACKEND_URL}?action=getAllOccurrences`;
+                const url = `${CONFIG."https://script.google.com/macros/s/AKfycbzCMWz0j5JnuOFMgA7GhfAiQtBS0tUUd3NVHtrCkcP8KLMJZhudRx3jQmfFgHymTwHW/exec"}?action=getAllOccurrences`;
                 const data = await safeFetch(url);
                 
                 if (data && data.status === "success" && Array.isArray(data.occurrences)) {
