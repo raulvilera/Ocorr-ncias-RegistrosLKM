@@ -363,7 +363,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
-        .checkbox-item input {
+        .checkbox-item input[type="checkbox"] {
             width: auto;
             margin-right: 12px;
             transform: scale(1.2);
@@ -828,6 +828,7 @@
             gap: 5px;
             cursor: pointer;
             transition: var(--transition);
+            border: none;
         }
         
         .btn-edit {
@@ -1554,13 +1555,13 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Configuração da API - CORRIGIDA
+            // Configuração da API - URL ATUALIZADA
             const API_CONFIG = {
                 SCRIPT_URL: "https://script.google.com/macros/s/AKfycbyXVbfK1KrQ54XU44WAind8L-rPNx4gs6ogJUevFtFH4tdSGWUFNbnvlmSu_-aj7UZ8/exec",
                 SPREADSHEET_ID: "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio",
                 SHEET_NAME: "OCORRENCIASDOSPROFESSORES",
                 STUDENT_SHEET_NAME: "BANCODEDADOSGERAL",
-                TIMEOUT: 30000 // 30 segundos
+                TIMEOUT: 30000
             };
 
             // Dados completos dos professores
@@ -1773,8 +1774,8 @@
                         datasets: [{
                             data: [value, maxValue - value],
                             backgroundColor: [
-                                '#3498db', // Cor da ocorrência
-                                '#e0e0e0' // Cor de fundo
+                                '#3498db',
+                                '#e0e0e0'
                             ],
                             borderWidth: 0
                         }]
@@ -1792,7 +1793,9 @@
 
                 // Atualizar o número de ocorrências
                 const chartValue = canvas.parentElement.querySelector('.chart-value');
-                chartValue.textContent = value;
+                if (chartValue) {
+                    chartValue.textContent = value;
+                }
             }
 
             // Função para fazer requisições seguras - CORRIGIDA
@@ -1814,36 +1817,33 @@
                         }
                     };
 
-                    console.log('Fazendo requisição para:', url);
-                    console.log('Opções:', fetchOptions);
+                    console.log('🔄 Fazendo requisição para:', url);
 
                     const response = await fetch(url, fetchOptions);
                     clearTimeout(timeoutId);
 
-                    console.log('Status da resposta:', response.status);
-                    console.log('Headers da resposta:', response.headers);
+                    console.log('✅ Status da resposta:', response.status);
 
                     if (!response.ok) {
                         throw new Error(`Erro HTTP ${response.status}: ${response.statusText}`);
                     }
 
                     const text = await response.text();
-                    console.log('Resposta bruta:', text);
+                    console.log('📄 Resposta bruta:', text.substring(0, 200) + '...');
 
-                    // Tentar fazer parse do JSON
                     let data;
                     try {
                         data = JSON.parse(text);
                     } catch (parseError) {
-                        console.error('Erro ao fazer parse do JSON:', parseError);
+                        console.error('❌ Erro ao fazer parse do JSON:', parseError);
                         throw new Error(`Resposta inválida do servidor: ${text.substring(0, 100)}`);
                     }
 
-                    console.log('Dados processados:', data);
+                    console.log('✅ Dados processados com sucesso');
                     return data;
 
                 } catch (error) {
-                    console.error('Erro na requisição:', error);
+                    console.error('❌ Erro na requisição:', error);
                     
                     if (error.name === 'AbortError') {
                         throw new Error('Timeout: A requisição demorou muito para responder');
@@ -1873,7 +1873,6 @@
                 }
 
                 try {
-                    // Construir URL com parâmetros
                     const params = new URLSearchParams({
                         action: 'getStudents',
                         class: selectedClass,
@@ -1893,10 +1892,8 @@
                         });
                         studentSelect.disabled = false;
                         
-                        // Atualizar o card com o total de alunos na turma
                         classStudentsCount.textContent = data.students.length;
                         
-                        // Determinar o período da turma
                         const periodo = selectedClass.includes("MANHA") ? "Manhã" : 
                                        selectedClass.includes("TARDE") ? "Tarde" : 
                                        selectedClass.includes("NOITE") ? "Noite" : "Desconhecido";
@@ -1917,13 +1914,11 @@
             // Quando um aluno é selecionado - CORRIGIDO
             studentSelect.addEventListener('change', async function() {
                 if (this.value) {
-                    // Mostrar o card de ocorrências do aluno
                     studentOccurrencesCard.style.display = 'block';
                     studentOccurrencesName.textContent = this.value;
                     studentOccurrencesCount.textContent = "Carregando...";
                     
                     try {
-                        // Buscar estatísticas do aluno
                         const params = new URLSearchParams({
                             action: 'getStudentStats',
                             student: this.value,
@@ -1935,7 +1930,6 @@
                         
                         if (data && data.status === "success") {
                             studentOccurrencesCount.textContent = data.totalOccurrences || 0;
-                            // Atualizar gráficos com os dados detalhados
                             if (data.detailedStats) {
                                 updateAllCharts(data.detailedStats);
                             }
@@ -1949,7 +1943,6 @@
                     }
                 } else {
                     studentOccurrencesCard.style.display = 'none';
-                    // Resetar gráficos
                     const chartCanvases = document.querySelectorAll('.donut-chart');
                     chartCanvases.forEach(canvas => {
                         createDonutChart(canvas, 0);
@@ -1980,18 +1973,15 @@
                 currentEditId = null;
                 submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> CADASTRAR';
 
-                // Resetar gráficos
                 const chartCanvases = document.querySelectorAll('.donut-chart');
                 chartCanvases.forEach(canvas => {
                     createDonutChart(canvas, 0);
                 });
 
-                // Desmarcar todos os checkboxes
                 document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
                     checkbox.checked = false;
                 });
                 
-                // Remover erros de validação
                 document.querySelectorAll('.input-error').forEach(el => {
                     el.classList.remove('input-error');
                 });
@@ -2001,7 +1991,7 @@
             async function sendFormData(formData, retries = 3) {
                 for (let attempt = 1; attempt <= retries; attempt++) {
                     try {
-                        console.log(`Tentativa ${attempt} de ${retries}`);
+                        console.log(`🔄 Tentativa ${attempt} de ${retries}`);
                         
                         const requestData = {
                             action: 'addOccurrence',
@@ -2009,8 +1999,6 @@
                             sheetName: API_CONFIG.SHEET_NAME,
                             ...formData
                         };
-
-                        console.log('Dados da requisição:', requestData);
 
                         const response = await fetch(API_CONFIG.SCRIPT_URL, {
                             method: 'POST',
@@ -2023,15 +2011,11 @@
                             body: JSON.stringify(requestData)
                         });
 
-                        console.log('Status da resposta POST:', response.status);
-
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status}`);
                         }
 
                         const text = await response.text();
-                        console.log('Resposta bruta POST:', text);
-
                         let data;
                         try {
                             data = JSON.parse(text);
@@ -2045,9 +2029,8 @@
                             throw new Error(data?.message || "Erro desconhecido ao enviar ocorrência");
                         }
                     } catch (error) {
-                        console.error(`Tentativa ${attempt} falhou:`, error);
+                        console.error(`❌ Tentativa ${attempt} falhou:`, error);
                         if (attempt < retries) {
-                            // Esperar antes de tentar novamente (exponential backoff)
                             await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
                         } else {
                             throw error;
@@ -2060,25 +2043,21 @@
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
-                // Remover classes de erro existentes
                 document.querySelectorAll('.input-error').forEach(el => {
                     el.classList.remove('input-error');
                 });
 
-                // Coletar dados do formulário
                 const professor = professorSelect.value;
                 const occurrenceDate = document.getElementById('occurrenceDate').value;
                 const student = studentSelect.value;
                 const classInfo = classSelect.value;
                 const description = document.getElementById('description').value;
 
-                // Verificar irregularidades selecionadas
                 const irregularities = [];
                 document.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
                     irregularities.push(cb.value);
                 });
 
-                // Validação
                 let isValid = true;
                 if (!professor) {
                     document.getElementById('professor').classList.add('input-error');
@@ -2099,7 +2078,6 @@
 
                 if (!isValid) {
                     showNotification('error', 'Por favor, preencha todos os campos obrigatórios');
-                    // Rolar para o primeiro erro
                     const firstError = document.querySelector('.input-error');
                     if (firstError) {
                         firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -2107,13 +2085,11 @@
                     return;
                 }
 
-                // Mostrar loading
                 const originalBtnText = submitBtn.innerHTML;
                 submitBtn.innerHTML = '<span class="loading"></span> Cadastrando...';
                 submitBtn.disabled = true;
 
                 try {
-                    // Preparar dados para envio
                     const formData = {
                         professor: professor,
                         date: occurrenceDate,
@@ -2123,22 +2099,15 @@
                         description: description
                     };
 
-                    console.log('Enviando dados:', formData);
-
-                    // Enviar dados para o Google Sheets (com retentativas)
                     const response = await sendFormData(formData);
-
-                    console.log('Resposta recebida:', response);
-
-                    // Mostrar mensagem de sucesso
                     showNotification('success', 'Ocorrência registrada com sucesso!');
 
-                    // Atualizar estatísticas gerais
                     const currentTotal = parseInt(totalOccurrencesEl.textContent);
                     totalOccurrencesEl.textContent = currentTotal + 1;
-                    totalOccurrencesStats.textContent = currentTotal + 1;
+                    if (totalOccurrencesStats) {
+                        totalOccurrencesStats.textContent = currentTotal + 1;
+                    }
                     
-                    // Resetar formulário após sucesso
                     form.reset();
                     document.getElementById('occurrenceDate').value = formattedDate;
                     studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
@@ -2147,7 +2116,6 @@
                     studentOccurrencesCard.style.display = 'none';
                     classStudentsCard.style.display = 'none';
                     
-                    // Recarregar dados
                     loadStudentPeriodStats();
                     loadStatistics();
                     
@@ -2155,7 +2123,6 @@
                     console.error('Erro ao enviar ocorrência:', error);
                     showNotification('error', `Erro ao registrar ocorrência: ${error.message}`);
                 } finally {
-                    // Restaurar botão de envio
                     submitBtn.innerHTML = originalBtnText;
                     submitBtn.disabled = false;
                 }
@@ -2194,13 +2161,6 @@
                         plugins: {
                             legend: {
                                 display: false
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return `${context.dataset.label}: ${context.parsed.y}`;
-                                    }
-                                }
                             }
                         },
                         scales: {
@@ -2240,14 +2200,12 @@
                         afternoonCountEl.textContent = data.afternoonCount;
                         nightCountEl.textContent = data.nightCount;
                         
-                        // Atualizar gráfico de distribuição por período
                         updateStudentsPeriodChart(data);
                     } else {
                         throw new Error(data?.message || "Erro ao carregar estatísticas de alunos");
                     }
                 } catch (error) {
                     console.error('Erro ao carregar estatísticas de alunos:', error);
-                    // Usar dados simulados para demonstração
                     const demoData = {
                         totalStudents: 1050,
                         morningCount: 450,
@@ -2291,7 +2249,6 @@
                             const row = document.createElement('tr');
                             row.setAttribute('data-id', occurrence.id);
                             
-                            // Formatar data
                             let formattedDate = occurrence.date;
                             try {
                                 const dateObj = new Date(occurrence.date);
@@ -2299,7 +2256,7 @@
                                     formattedDate = dateObj.toLocaleDateString('pt-BR');
                                 }
                             } catch (e) {
-                                // Manter data original se não conseguir formatar
+                                // Manter data original
                             }
                             
                             row.innerHTML = `
@@ -2325,9 +2282,10 @@
                             registrosTableBody.appendChild(row);
                         });
                         
-                        // Atualizar contagem de ocorrências
                         totalOccurrencesEl.textContent = data.occurrences.length;
-                        totalOccurrencesStats.textContent = data.occurrences.length;
+                        if (totalOccurrencesStats) {
+                            totalOccurrencesStats.textContent = data.occurrences.length;
+                        }
                     } else {
                         registrosTableBody.innerHTML = '';
                         noRecordsMessage.style.display = 'block';
@@ -2351,12 +2309,16 @@
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success") {
-                        // Atualizar estatísticas principais
-                        totalOccurrencesStats.textContent = data.totalOccurrences || 0;
-                        mostFrequentIrregularity.textContent = data.mostFrequentIrregularity || '-';
-                        mostAffectedClass.textContent = data.mostAffectedClass || '-';
+                        if (totalOccurrencesStats) {
+                            totalOccurrencesStats.textContent = data.totalOccurrences || 0;
+                        }
+                        if (mostFrequentIrregularity) {
+                            mostFrequentIrregularity.textContent = data.mostFrequentIrregularity || '-';
+                        }
+                        if (mostAffectedClass) {
+                            mostAffectedClass.textContent = data.mostAffectedClass || '-';
+                        }
                         
-                        // Atualizar gráficos se os dados existirem
                         if (data.classOccurrences) {
                             updateClassOccurrencesChart(data.classOccurrences);
                         }
@@ -2364,8 +2326,6 @@
                         if (data.irregularitiesStats) {
                             updateIrregularitiesChart(data.irregularitiesStats);
                         }
-                    } else {
-                        console.warn('Erro ao carregar estatísticas:', data?.message);
                     }
                 } catch (error) {
                     console.error('Erro ao carregar estatísticas:', error);
@@ -2431,7 +2391,6 @@
                 const labels = data.map(item => item.irregularity);
                 const values = data.map(item => item.count);
                 
-                // Gerar cores aleatórias
                 const backgroundColors = labels.map(() => {
                     return `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.8)`;
                 });
@@ -2472,7 +2431,6 @@
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success" && Array.isArray(data.occurrences)) {
-                        // Preparar dados para exportação
                         const exportData = data.occurrences.map(occurrence => {
                             let formattedDate = occurrence.date;
                             try {
@@ -2481,7 +2439,7 @@
                                     formattedDate = dateObj.toLocaleDateString('pt-BR');
                                 }
                             } catch (e) {
-                                // Manter data original se não conseguir formatar
+                                // Manter data original
                             }
                             
                             return {
@@ -2494,12 +2452,10 @@
                             };
                         });
                         
-                        // Criar planilha
                         const worksheet = XLSX.utils.json_to_sheet(exportData);
                         const workbook = XLSX.utils.book_new();
                         XLSX.utils.book_append_sheet(workbook, worksheet, "OCORRENCIASDOSPROFESSORES");
                         
-                        // Exportar para arquivo Excel
                         XLSX.writeFile(workbook, 'ocorrencias_escolares.xlsx');
                         showNotification('success', 'Dados exportados com sucesso!');
                     } else {
