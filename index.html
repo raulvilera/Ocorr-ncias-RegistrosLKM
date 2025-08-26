@@ -1581,7 +1581,7 @@
       };
 
       try {
-        const response = await fetch(API_URL, {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbzutgoGiSEnHxIPMw5yP23OScdP-a7BNDbBKujF1dl60RDSMIHSqq70hT4ov01FbeLm/exec", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -1605,7 +1605,7 @@
       if (!className) return;
 
       try {
-        const response = await fetch(`${API_URL}?action=getStudents&class=${encodeURIComponent(className)}`);
+        const response = await fetch(`${"https://script.google.com/macros/s/AKfycbzutgoGiSEnHxIPMw5yP23OScdP-a7BNDbBKujF1dl60RDSMIHSqq70hT4ov01FbeLm/exec"}?action=getStudents&class=${encodeURIComponent(className)}`);
         const result = await response.json();
 
         const studentSelect = document.getElementById("student");
@@ -1629,11 +1629,11 @@
     async function loadStats() {
       try {
         // Ocorrências totais por aluno
-        const statsResponse = await fetch(`${API_URL}?action=getStudentStats`);
+        const statsResponse = await fetch(`${"https://script.google.com/macros/s/AKfycbzutgoGiSEnHxIPMw5yP23OScdP-a7BNDbBKujF1dl60RDSMIHSqq70hT4ov01FbeLm/exec"}?action=getStudentStats`);
         const statsData = await statsResponse.json();
 
         // Estatísticas por período
-        const periodResponse = await fetch(`${API_URL}?action=getStudentPeriodStats`);
+        const periodResponse = await fetch(`${"https://script.google.com/macros/s/AKfycbzutgoGiSEnHxIPMw5yP23OScdP-a7BNDbBKujF1dl60RDSMIHSqq70hT4ov01FbeLm/exec"}?action=getStudentPeriodStats`);
         const periodData = await periodResponse.json();
 
         if (statsData.status === "success") {
