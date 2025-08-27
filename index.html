@@ -971,30 +971,30 @@
 
             // ===== MÉTODOS GET CORRIGIDOS =====
             async getStudents(className) {
-                const url = `${this.baseUrl}?action=getStudents&class=${encodeURIComponent(className)}&timestamp=${Date.now()}`;
+                const url = `${this.'https://script.google.com/macros/s/AKfycbzmmc0i28l-Oqmn9Tp2dnUqR35KpvVLRf3uezzKlCiQFQHDdm4hSz32hkYwOY8olg8n/exec'}?action=getStudents&class=${encodeURIComponent(className)}&timestamp=${Date.now()}`;
                 const response = await this.makeRequest(url);
                 return response.students || [];
             }
 
             async getStudentStats(studentName) {
-                const url = `${this.baseUrl}?action=getStudentStats&student=${encodeURIComponent(studentName)}&timestamp=${Date.now()}`;
+                const url = `${this.'https://script.google.com/macros/s/AKfycbzmmc0i28l-Oqmn9Tp2dnUqR35KpvVLRf3uezzKlCiQFQHDdm4hSz32hkYwOY8olg8n/exec'}?action=getStudentStats&student=${encodeURIComponent(studentName)}&timestamp=${Date.now()}`;
                 return await this.makeRequest(url);
             }
 
             async getAllOccurrences() {
-                const url = `${this.baseUrl}?action=getAllOccurrences&timestamp=${Date.now()}`;
+                const url = `${this.'https://script.google.com/macros/s/AKfycbzmmc0i28l-Oqmn9Tp2dnUqR35KpvVLRf3uezzKlCiQFQHDdm4hSz32hkYwOY8olg8n/exec'}?action=getAllOccurrences&timestamp=${Date.now()}`;
                 const response = await this.makeRequest(url);
                 return response.occurrences || [];
             }
 
             async getOccurrenceById(id) {
-                const url = `${this.baseUrl}?action=getOccurrenceById&id=${encodeURIComponent(id)}&timestamp=${Date.now()}`;
+                const url = `${this.'https://script.google.com/macros/s/AKfycbzmmc0i28l-Oqmn9Tp2dnUqR35KpvVLRf3uezzKlCiQFQHDdm4hSz32hkYwOY8olg8n/exec'}?action=getOccurrenceById&id=${encodeURIComponent(id)}&timestamp=${Date.now()}`;
                 const response = await this.makeRequest(url);
                 return response.occurrence;
             }
 
             async getStatistics() {
-                const url = `${this.baseUrl}?action=getStatistics&timestamp=${Date.now()}`;
+                const url = `${this.'https://script.google.com/macros/s/AKfycbzmmc0i28l-Oqmn9Tp2dnUqR35KpvVLRf3uezzKlCiQFQHDdm4hSz32hkYwOY8olg8n/exec'}?action=getStatistics&timestamp=${Date.now()}`;
                 return await this.makeRequest(url);
             }
 
@@ -1016,7 +1016,7 @@
             }
 
             async updateOccurrence(data) {
-                return await this.makeRequest(this.baseUrl, {
+                return await this.makeRequest(this.'https://script.google.com/macros/s/AKfycbzmmc0i28l-Oqmn9Tp2dnUqR35KpvVLRf3uezzKlCiQFQHDdm4hSz32hkYwOY8olg8n/exec', {
                     method: 'POST',
                     body: {
                         action: 'updateOccurrence',
@@ -1033,7 +1033,7 @@
             }
 
             async deleteOccurrence(id) {
-                return await this.makeRequest(this.baseUrl, {
+                return await this.makeRequest(this.'https://script.google.com/macros/s/AKfycbzmmc0i28l-Oqmn9Tp2dnUqR35KpvVLRf3uezzKlCiQFQHDdm4hSz32hkYwOY8olg8n/exec', {
                     method: 'POST',
                     body: {
                         action: 'deleteOccurrence',
@@ -1045,7 +1045,7 @@
         }
 
         // Instanciar cliente da API
-        const api = new APIClient(API_CONFIG);
+        const api = new APIClient('https://script.google.com/macros/s/AKfycbzmmc0i28l-Oqmn9Tp2dnUqR35KpvVLRf3uezzKlCiQFQHDdm4hSz32hkYwOY8olg8n/exec');
 
         // ===== APLICAÇÃO PRINCIPAL =====
         document.addEventListener('DOMContentLoaded', function() {
