@@ -19,16 +19,9 @@
             --text-color: #202124;
             --light-text: #5f6368;
             --card-bg: #ffffff;
-            --header-bg: #ffffff;
-            --footer-bg: #ffffff;
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
             --hover-bg: #f0f5ff;
-            --morning-color: #3498db;
-            --afternoon-color: #f39c12;
-            --night-color: #9b59b6;
-            --tab-active: #1a73e8;
-            --tab-inactive: #e0e0e0;
         }
         
         * {
@@ -91,19 +84,14 @@
             backdrop-filter: blur(10px);
         }
         
-        .logo-text {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .logo h1 {
+        .logo-text h1 {
             font-size: 1.6rem;
             color: white;
             font-weight: 700;
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         
-        .logo p {
+        .logo-text p {
             font-size: 0.9rem;
             color: rgba(255, 255, 255, 0.9);
             margin-top: 3px;
@@ -129,17 +117,6 @@
             box-shadow: var(--shadow);
             position: relative;
             overflow: hidden;
-        }
-        
-        .stats-card::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 20px;
-            background: linear-gradient(to top, rgba(255,255,255,0.3), transparent);
-            z-index: 1;
         }
         
         .stats-grid {
@@ -185,18 +162,6 @@
             margin-bottom: 25px;
             border: 1px solid var(--border-color);
             transition: var(--transition);
-            position: relative;
-        }
-        
-        .card::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 20px;
-            background: linear-gradient(to top, rgba(255,255,255,0.8), transparent);
-            z-index: 1;
         }
         
         .card:hover {
@@ -213,70 +178,14 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            position: relative;
         }
         
         .card-body {
             padding: 30px;
-            position: relative;
-            z-index: 2;
-        }
-        
-        .student-occurrences-card {
-            background: linear-gradient(135deg, #2ecc71 0%, #3498db 100%);
-            color: white;
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: var(--shadow);
-            position: relative;
-            overflow: hidden;
-            margin-top: 25px;
-            display: none;
-        }
-        
-        .student-occurrences-card::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 20px;
-            background: linear-gradient(to top, rgba(255,255,255,0.3), transparent);
-            z-index: 1;
-        }
-        
-        .student-occurrences-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            position: relative;
-            z-index: 2;
-        }
-        
-        .student-occurrences-name {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .student-occurrences-count {
-            font-size: 3rem;
-            font-weight: 700;
-            margin: 10px 0;
-            text-shadow: 0 3px 6px rgba(0,0,0,0.3);
-        }
-        
-        .student-occurrences-label {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
         
         .form-group {
             margin-bottom: 25px;
-            position: relative;
         }
         
         label {
@@ -285,13 +194,7 @@
             font-weight: 600;
             color: var(--text-color);
             font-size: 1.1rem;
-            transition: var(--transition);
             cursor: pointer;
-        }
-        
-        .form-group:hover label {
-            color: var(--primary-color);
-            transform: translateX(5px);
         }
         
         .required::after {
@@ -307,13 +210,6 @@
             font-size: 16px;
             transition: var(--transition);
             background-color: #f8fafc;
-        }
-        
-        input:hover, select:hover, textarea:hover {
-            border-color: var(--primary-color);
-            background-color: var(--hover-bg);
-            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
-            transform: translateY(-2px);
         }
         
         input:focus, select:focus, textarea:focus {
@@ -352,7 +248,6 @@
             transition: var(--transition);
             display: flex;
             align-items: center;
-            position: relative;
             cursor: pointer;
         }
         
@@ -370,20 +265,11 @@
             cursor: pointer;
         }
         
-        .checkbox-item:hover label {
-            color: var(--primary-dark);
-        }
-        
         .chart-container {
             position: relative;
             width: 50px;
             height: 50px;
             margin-right: 15px;
-            transition: var(--transition);
-        }
-        
-        .checkbox-item:hover .chart-container {
-            transform: scale(1.1);
         }
         
         .chart-value {
@@ -394,16 +280,17 @@
             font-weight: 700;
             font-size: 14px;
             color: var(--primary-dark);
-            transition: var(--transition);
             z-index: 10;
         }
         
-        .actions {
+        .form-row {
             display: flex;
-            gap: 18px;
-            padding-top: 25px;
-            border-top: 1px solid var(--border-color);
-            margin-top: 25px;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .form-col {
+            flex: 1;
         }
         
         .btn {
@@ -432,10 +319,6 @@
             box-shadow: 0 8px 20px rgba(26, 115, 232, 0.35);
         }
         
-        .btn-primary:active {
-            transform: translateY(1px);
-        }
-        
         .btn-secondary {
             background: linear-gradient(135deg, #f8f9fa 0%, #e8eaed 100%);
             color: var(--text-color);
@@ -447,47 +330,18 @@
             transform: translateY(-3px);
         }
         
-        .btn-lg {
-            padding: 18px 35px;
-            font-size: 17px;
-        }
-        
         .btn:disabled {
             opacity: 0.7;
             cursor: not-allowed;
             transform: none;
         }
         
-        footer {
-            background-color: var(--footer-bg);
+        .actions {
+            display: flex;
+            gap: 18px;
+            padding-top: 25px;
             border-top: 1px solid var(--border-color);
-            padding: 25px 0;
-            text-align: center;
-            color: var(--light-text);
-            font-size: 15px;
-        }
-        
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .footer-links a {
-            color: var(--primary-color);
-            text-decoration: none;
-            transition: color 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .footer-links a:hover {
-            color: var(--primary-dark);
-            text-decoration: underline;
-            transform: translateY(-2px);
+            margin-top: 25px;
         }
         
         .alert {
@@ -499,12 +353,6 @@
             font-weight: 500;
             align-items: center;
             gap: 15px;
-            transition: var(--transition);
-        }
-        
-        .alert:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
         .alert-success {
@@ -513,419 +361,10 @@
             color: #27ae60;
         }
         
-        .student-select-container {
-            position: relative;
-        }
-        
-        .student-select-container::after {
-            content: "\f107";
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            pointer-events: none;
-            color: var(--primary-color);
-            font-size: 20px;
-            transition: var(--transition);
-        }
-        
-        .student-select-container:hover::after {
-            color: var(--primary-dark);
-            transform: translateY(-50%) scale(1.1);
-        }
-        
-        .form-row {
-            display: flex;
-            gap: 25px;
-            margin-bottom: 25px;
-        }
-        
-        .form-col {
-            flex: 1;
-        }
-        
-        .section-title {
-            font-size: 1.3rem;
-            color: var(--primary-color);
-            margin: 35px 0 20px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid #e1e5eb;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: var(--transition);
-            cursor: pointer;
-        }
-        
-        .section-title:hover {
-            color: var(--primary-dark);
-            transform: translateX(5px);
-        }
-        
-        select option:nth-child(even) {
-            background-color: #f0f5ff;
-        }
-        
-        select option:nth-child(odd) {
-            background-color: white;
-        }
-        
-        select option:focus:checked {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color) 100%);
-            color: white;
-        }
-        
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
-            transition: var(--transition);
-        }
-        
-        .status-connected {
-            background-color: var(--success-color);
-        }
-        
-        .status-disconnected {
-            background-color: var(--error-color);
-        }
-        
-        .integration-status {
-            background: #e8f5e9;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            transition: var(--transition);
-        }
-        
-        .integration-status:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .date-input-container {
-            position: relative;
-            transition: var(--transition);
-        }
-        
-        .date-input-container:hover {
-            transform: translateY(-2px);
-        }
-        
-        .date-input-container input[type="date"] {
-            padding-right: 40px;
-            cursor: pointer;
-        }
-        
-        .date-input-container::after {
-            content: "\f073";
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            pointer-events: none;
-            color: var(--primary-color);
-            font-size: 18px;
-            transition: var(--transition);
-        }
-        
-        .date-input-container:hover::after {
-            color: var(--primary-dark);
-            transform: translateY(-50%) scale(1.1);
-        }
-        
-        select {
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            cursor: pointer;
-        }
-        
-        select:hover {
-            background-color: #f0f5ff;
-        }
-        
-        .stats-chart-container {
-            height: 200px;
-            margin-top: 20px;
-            position: relative;
-        }
-        
-        .period-stats {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.85);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            padding-top: 10px;
-        }
-        
-        .period-item {
-            text-align: center;
-            flex: 1;
-            transition: var(--transition);
-        }
-        
-        .period-item:hover {
-            transform: scale(1.05);
-        }
-        
-        .period-value {
-            font-weight: 600;
-            font-size: 1rem;
-        }
-        
-        .period-manha {
-            color: #f1c40f;
-        }
-        
-        .period-tarde {
-            color: #e67e22;
-        }
-        
-        .period-noite {
-            color: #9b59b6;
-        }
-        
-        .class-total-card {
-            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-            color: white;
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: var(--shadow);
-            position: relative;
-            overflow: hidden;
-            margin-top: 25px;
-            display: none;
-        }
-        
-        .class-total-card::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 20px;
-            background: linear-gradient(to top, rgba(255,255,255,0.3), transparent);
-            z-index: 1;
-        }
-        
-        .class-total-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            position: relative;
-            z-index: 2;
-        }
-        
-        .class-total-label {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-        
-        .class-total-count {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin: 10px 0;
-            text-shadow: 0 3px 6px rgba(0,0,0,0.3);
-        }
-        
-        .class-students-card {
-            background: linear-gradient(135deg, #3498db 0%, #1a73e8 100%);
-            color: white;
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: var(--shadow);
-            position: relative;
-            overflow: hidden;
-            margin-top: 25px;
-            display: none;
-        }
-        
-        .class-students-card::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 20px;
-            background: linear-gradient(to top, rgba(255,255,255,0.3), transparent);
-            z-index: 1;
-        }
-        
-        .class-students-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            position: relative;
-            z-index: 2;
-        }
-        
-        .class-students-label {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-        
-        .class-students-count {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin: 10px 0;
-            text-shadow: 0 3px 6px rgba(0,0,0,0.3);
-        }
-        
-        .registros-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background-color: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .registros-table th {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-            color: white;
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-        }
-        
-        .registros-table td {
-            padding: 15px;
-            border-bottom: 1px solid var(--border-color);
-            color: var(--text-color);
-        }
-        
-        .registros-table tr:last-child td {
-            border-bottom: none;
-        }
-        
-        .registros-table tr:hover {
-            background-color: var(--hover-bg);
-        }
-        
-        .registros-table .actions-cell {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-        
-        .btn-action {
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        
-        .btn-edit {
-            background-color: #f0f5ff;
-            color: var(--primary-color);
-            border: 1px solid var(--primary-color);
-        }
-        
-        .btn-edit:hover {
-            background-color: #e0eaff;
-        }
-        
-        .btn-delete {
-            background-color: #fff0f0;
-            color: var(--error-color);
+        .alert-error {
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.15) 0%, rgba(192, 57, 43, 0.15) 100%);
             border: 1px solid var(--error-color);
-        }
-        
-        .btn-delete:hover {
-            background-color: #ffe0e0;
-        }
-        
-        .registros-table .history-row {
-            background-color: #f9f9f9;
-        }
-        
-        .registros-table .history-row td {
-            padding: 10px 15px;
-            font-size: 0.9rem;
-        }
-        
-        .registros-table .history-table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #f0f5ff;
-            border-radius: 8px;
-        }
-        
-        .registros-table .history-table th {
-            background-color: #d0e0ff;
-            color: var(--text-color);
-            padding: 10px;
-            font-size: 0.85rem;
-        }
-        
-        .registros-table .history-table td {
-            padding: 8px 10px;
-            font-size: 0.85rem;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        
-        .registros-table .history-table tr:last-child td {
-            border-bottom: none;
-        }
-        
-        .table-actions {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 15px;
-            gap: 15px;
-        }
-        
-        .no-records {
-            text-align: center;
-            padding: 20px;
-            color: var(--light-text);
-            font-style: italic;
-        }
-        
-        .form-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 18px;
-            margin: 25px 0;
-            flex-wrap: wrap;
-        }
-        
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 10px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+            color: #c0392b;
         }
         
         .notification {
@@ -959,20 +398,19 @@
             color: white;
         }
         
-        .notification .icon {
-            font-size: 1.5rem;
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
         }
         
-        .notification .content {
-            flex-grow: 1;
-        }
-        
-        .notification .close {
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 1.2rem;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         
         .tabs {
@@ -987,20 +425,18 @@
         .tab-button {
             flex: 1;
             padding: 15px 20px;
-            background: var(--tab-inactive);
+            background: #e0e0e0;
             border: none;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
-            text-align: center;
             color: var(--light-text);
         }
         
         .tab-button.active {
-            background: var(--tab-active);
+            background: var(--primary-color);
             color: white;
-            box-shadow: 0 0 10px rgba(26, 115, 232, 0.3);
         }
         
         .tab-content {
@@ -1009,28 +445,58 @@
         
         .tab-content.active {
             display: block;
-            animation: fadeIn 0.5s ease;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        .registros-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
-        .occurrence-details {
-            background-color: #f9f9f9;
-            border-left: 4px solid var(--primary-color);
+        .registros-table th {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
             padding: 15px;
-            border-radius: 0 8px 8px 0;
-            margin: 10px 0;
+            text-align: left;
+            font-weight: 600;
         }
         
-        .occurrence-details p {
-            margin: 5px 0;
+        .registros-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
         }
         
-        .occurrence-details strong {
-            color: var(--primary-dark);
+        .registros-table tr:hover {
+            background-color: var(--hover-bg);
+        }
+        
+        .btn-action {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-right: 5px;
+        }
+        
+        .btn-edit {
+            background-color: #f0f5ff;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+        
+        .btn-delete {
+            background-color: #fff0f0;
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
         }
         
         .empty-state {
@@ -1045,15 +511,16 @@
             color: #d0d0d0;
         }
         
-        .empty-state h3 {
-            font-weight: 500;
-            margin-bottom: 10px;
-            color: var(--text-color);
-        }
-        
-        .empty-state p {
-            max-width: 500px;
-            margin: 0 auto;
+        footer {
+            background-color: white;
+            border-top: 1px solid var(--border-color);
+            padding: 25px 0;
+            text-align: center;
+            color: var(--light-text);
+            font-size: 15px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
         }
         
         @media (max-width: 992px) {
@@ -1065,7 +532,6 @@
         @media (max-width: 768px) {
             .form-row {
                 flex-direction: column;
-                gap: 20px;
             }
             
             .header-content {
@@ -1078,49 +544,12 @@
                 flex-direction: column;
             }
             
-            .btn {
-                width: 100%;
-            }
-            
             .stats-grid {
                 grid-template-columns: 1fr;
             }
             
             .checkbox-container {
                 grid-template-columns: 1fr;
-            }
-            
-            .chart-container {
-                width: 40px;
-                height: 40px;
-            }
-            
-            .period-stats {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .registros-table {
-                font-size: 0.9rem;
-            }
-            
-            .registros-table th,
-            .registros-table td {
-                padding: 10px;
-            }
-            
-            .registros-table .actions-cell {
-                flex-direction: column;
-                gap: 5px;
-            }
-            
-            .form-actions {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .tabs {
-                flex-direction: column;
             }
         }
     </style>
@@ -1134,7 +563,7 @@
                 </div>
                 <div class="logo-text">
                     <h1>Registro de Ocorrências Escolares</h1>
-                    <p>Sistema integrado ao Planilhas Google</p>
+                    <p>Sistema integrado ao Google Sheets</p>
                 </div>
             </div>
         </div>
@@ -1144,7 +573,7 @@
         <main>
             <div class="tabs">
                 <button class="tab-button active" data-tab="form-tab">Cadastrar Ocorrências</button>
-                <button class="tab-button" data-tab="records-tab">Registro de Ocorrências</button>
+                <button class="tab-button" data-tab="records-tab">Registros</button>
                 <button class="tab-button" data-tab="stats-tab">Estatísticas</button>
             </div>
 
@@ -1152,36 +581,29 @@
             <div id="form-tab" class="tab-content active">
                 <div class="dashboard">
                     <div>
-                        <div class="integration-status">
-                            <i class="fas fa-plug"></i>
-                            <div>
-                                <strong>Status de integração:</strong>
-                                <span class="status-indicator status-connected"></span>
-                                Conectado à Planilha Google Sheets
-                            </div>
-                        </div>
-
                         <div class="card">
                             <div class="card-header">
                                 <i class="fas fa-clipboard-list"></i>
                                 Informações de Ocorrência
                             </div>
                             <div class="card-body">
+                                <div id="alert" class="alert">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span id="alert-message"></span>
+                                </div>
+
                                 <form id="occurrenceForm">
                                     <div class="form-row">
                                         <div class="form-col">
                                             <div class="form-group">
                                                 <label for="professor" class="required">Nome do professor</label>
-                                                <div class="student-select-container">
-                                                    <select id="professor" required>
-                                                        <option value="">Selecione seu nome</option>
-                                                        <!-- Professores serão carregados via JS -->
-                                                    </select>
-                                                </div>
+                                                <select id="professor" required>
+                                                    <option value="">Selecione seu nome</option>
+                                                </select>
                                             </div>
                                         </div>
                                         <div class="form-col">
-                                            <div class="form-group date-input-container">
+                                            <div class="form-group">
                                                 <label for="occurrenceDate" class="required">Data da ocorrência</label>
                                                 <input type="date" id="occurrenceDate" required>
                                             </div>
@@ -1192,76 +614,67 @@
                                         <div class="form-col">
                                             <div class="form-group">
                                                 <label for="studentClass" class="required">Turma</label>
-                                                <div class="student-select-container">
-                                                    <select id="studentClass" required>
-                                                        <option value="">Selecione a turma</option>
-                                                        <option value="6° ANO A MANHA">6° ANO A MANHA</option>
-                                                        <option value="6° ANO B MANHA">6° ANO B MANHA</option>
-                                                        <option value="6° ANO C MANHA">6° ANO C MANHA</option>
-                                                        <option value="6° ANO D MANHA">6° ANO D MANHA</option>
-                                                        <option value="6° ANO E TARDE">6° ANO E TARDE</option>
-                                                        <option value="6° ANO F TARDE">6° ANO F TARDE</option>
-                                                        <option value="7° ANO A TARDE">7° ANO A TARDE</option>
-                                                        <option value="7° ANO B TARDE">7° ANO B TARDE</option>
-                                                        <option value="7° ANO C TARDE">7° ANO C TARDE</option>
-                                                        <option value="7° ANO D TARDE">7° ANO D TARDE</option>
-                                                        <option value="7° ANO E TARDE">7° ANO E TARDE</option>
-                                                        <option value="7° ANO F TARDE">7° ANO F TARDE</option>
-                                                        <option value="8° ANO A TARDE">8° ANO A TARDE</option>
-                                                        <option value="8° ANO B TARDE">8° ANO B TARDE</option>
-                                                        <option value="8° ANO C TARDE">8° ANO C TARDE</option>
-                                                        <option value="8° ANO D TARDE">8° ANO D TARDE</option>
-                                                        <option value="9° ANO A TARDE">9° ANO A TARDE</option>
-                                                        <option value="9° ANO B TARDE">9° ANO B TARDE</option>
-                                                        <option value="9° ANO C TARDE">9° ANO C TARDE</option>
-                                                        <option value="9° ANO D TARDE">9° ANO D TARDE</option>
-                                                        <option value="1ª SERIE A MANHA">1ª SERIE A MANHA</option>
-                                                        <option value="1ª SERIE B MANHA">1ª SERIE B MANHA</option>
-                                                        <option value="1ª SERIE C MANHA">1ª SERIE C MANHA</option>
-                                                        <option value="1ª SERIE D MANHA">1ª SERIE D MANHA</option>
-                                                        <option value="1ª SERIE E MANHA">1ª SERIE E MANHA</option>
-                                                        <option value="1ª SERIE F MANHA">1ª SERIE F MANHA</option>
-                                                        <option value="1ª SERIE G TARDE">1ª SERIE G TARDE</option>
-                                                        <option value="1ª SERIE H NOITE">1ª SERIE H NOITE</option>
-                                                        <option value="1ª SERIE I NOITE">1ª SERIE I NOITE</option>
-                                                        <option value="2ª SERIE A MANHA">2ª SERIE A MANHA</option>
-                                                        <option value="2ª SERIE B MANHA">2ª SERIE B MANHA</option>
-                                                        <option value="2ª SERIE C MANHA">2ª SERIE C MANHA</option>
-                                                        <option value="2ª SERIE D MANHA">2ª SERIE D MANHA</option>
-                                                        <option value="2ª SERIE E MANHA">2ª SERIE E MANHA</option>
-                                                        <option value="2ª SERIE F NOITE">2ª SERIE F NOITE</option>
-                                                        <option value="2ª SERIE G NOITE">2ª SERIE G NOITE</option>
-                                                        <option value="2ª SERIE H NOITE">2ª SERIE H NOITE</option>
-                                                        <option value="3ª SERIE A MANHA">3ª SERIE A MANHA</option>
-                                                        <option value="3ª SERIE B MANHA">3ª SERIE B MANHA</option>
-                                                        <option value="3ª SERIE C MANHA">3ª SERIE C MANHA</option>
-                                                        <option value="3ª SERIE D NOITE">3ª SERIE D NOITE</option>
-                                                        <option value="3ª SERIE E NOITE">3ª SERIE E NOITE</option>
-                                                        <option value="3ª SERIE F NOITE">3ª SERIE F NOITE</option>
-                                                        <option value="4050 - ADMINISTRAÇÃO - 2ª SERIE A MANHA">4050 - ADMINISTRAÇÃO - 2ª SERIE A MANHA</option>
-                                                    </select>
-                                                </div>
+                                                <select id="studentClass" required>
+                                                    <option value="">Selecione a turma</option>
+                                                    <option value="6° ANO A MANHA">6° ANO A MANHA</option>
+                                                    <option value="6° ANO B MANHA">6° ANO B MANHA</option>
+                                                    <option value="6° ANO C MANHA">6° ANO C MANHA</option>
+                                                    <option value="6° ANO D MANHA">6° ANO D MANHA</option>
+                                                    <option value="6° ANO E TARDE">6° ANO E TARDE</option>
+                                                    <option value="6° ANO F TARDE">6° ANO F TARDE</option>
+                                                    <option value="7° ANO A TARDE">7° ANO A TARDE</option>
+                                                    <option value="7° ANO B TARDE">7° ANO B TARDE</option>
+                                                    <option value="7° ANO C TARDE">7° ANO C TARDE</option>
+                                                    <option value="7° ANO D TARDE">7° ANO D TARDE</option>
+                                                    <option value="7° ANO E TARDE">7° ANO E TARDE</option>
+                                                    <option value="7° ANO F TARDE">7° ANO F TARDE</option>
+                                                    <option value="8° ANO A TARDE">8° ANO A TARDE</option>
+                                                    <option value="8° ANO B TARDE">8° ANO B TARDE</option>
+                                                    <option value="8° ANO C TARDE">8° ANO C TARDE</option>
+                                                    <option value="8° ANO D TARDE">8° ANO D TARDE</option>
+                                                    <option value="9° ANO A TARDE">9° ANO A TARDE</option>
+                                                    <option value="9° ANO B TARDE">9° ANO B TARDE</option>
+                                                    <option value="9° ANO C TARDE">9° ANO C TARDE</option>
+                                                    <option value="9° ANO D TARDE">9° ANO D TARDE</option>
+                                                    <option value="1ª SERIE A MANHA">1ª SERIE A MANHA</option>
+                                                    <option value="1ª SERIE B MANHA">1ª SERIE B MANHA</option>
+                                                    <option value="1ª SERIE C MANHA">1ª SERIE C MANHA</option>
+                                                    <option value="1ª SERIE D MANHA">1ª SERIE D MANHA</option>
+                                                    <option value="1ª SERIE E MANHA">1ª SERIE E MANHA</option>
+                                                    <option value="1ª SERIE F MANHA">1ª SERIE F MANHA</option>
+                                                    <option value="1ª SERIE G TARDE">1ª SERIE G TARDE</option>
+                                                    <option value="1ª SERIE H NOITE">1ª SERIE H NOITE</option>
+                                                    <option value="1ª SERIE I NOITE">1ª SERIE I NOITE</option>
+                                                    <option value="2ª SERIE A MANHA">2ª SERIE A MANHA</option>
+                                                    <option value="2ª SERIE B MANHA">2ª SERIE B MANHA</option>
+                                                    <option value="2ª SERIE C MANHA">2ª SERIE C MANHA</option>
+                                                    <option value="2ª SERIE D MANHA">2ª SERIE D MANHA</option>
+                                                    <option value="2ª SERIE E MANHA">2ª SERIE E MANHA</option>
+                                                    <option value="2ª SERIE F NOITE">2ª SERIE F NOITE</option>
+                                                    <option value="2ª SERIE G NOITE">2ª SERIE G NOITE</option>
+                                                    <option value="2ª SERIE H NOITE">2ª SERIE H NOITE</option>
+                                                    <option value="3ª SERIE A MANHA">3ª SERIE A MANHA</option>
+                                                    <option value="3ª SERIE B MANHA">3ª SERIE B MANHA</option>
+                                                    <option value="3ª SERIE C MANHA">3ª SERIE C MANHA</option>
+                                                    <option value="3ª SERIE D NOITE">3ª SERIE D NOITE</option>
+                                                    <option value="3ª SERIE E NOITE">3ª SERIE E NOITE</option>
+                                                    <option value="3ª SERIE F NOITE">3ª SERIE F NOITE</option>
+                                                    <option value="4050 - ADMINISTRAÇÃO - 2ª SERIE A MANHA">4050 - ADMINISTRAÇÃO - 2ª SERIE A MANHA</option>
+                                                </select>
                                             </div>
                                         </div>
                                         <div class="form-col">
                                             <div class="form-group">
                                                 <label for="student" class="required">Nome do aluno</label>
-                                                <div class="student-select-container">
-                                                    <select id="student" required disabled>
-                                                        <option value="">Selecione primeiro a turma</option>
-                                                    </select>
-                                                </div>
+                                                <select id="student" required disabled>
+                                                    <option value="">Selecione primeiro a turma</option>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
                                     
-                                    <div class="section-title">
-                                        <i class="fas fa-exclamation-triangle"></i>
-                                        Irregularidades
-                                    </div>
-                                    
                                     <div class="checkbox-group">
-                                        <label>Selecione as irregularidades (opcional):</label>
+                                        <label>Irregularidades (opcional):</label>
                                         <div class="checkbox-container">
                                             <div class="checkbox-item">
                                                 <div class="chart-container">
@@ -1343,18 +756,18 @@
                                         <textarea id="description" placeholder="Descreva detalhadamente a ocorrência..."></textarea>
                                     </div>
 
-                                    <div class="form-actions">
-                                        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                    <div class="actions">
+                                        <button type="submit" class="btn btn-primary" id="submitBtn">
                                             <i class="fas fa-paper-plane"></i>
                                             CADASTRAR
                                         </button>
                                         <button type="button" id="clearBtn" class="btn btn-secondary">
                                             <i class="fas fa-broom"></i>
-                                            Limpar formulário
+                                            Limpar
                                         </button>
                                         <button type="button" id="exportBtn" class="btn btn-secondary">
                                             <i class="fas fa-file-export"></i>
-                                            Exportar Dados
+                                            Exportar
                                         </button>
                                     </div>
                                 </form>
@@ -1371,90 +784,27 @@
                             <div class="stats-grid">
                                 <div class="stat-item">
                                     <div class="stat-value" id="totalOccurrences">0</div>
-                                    <div class="stat-label">Ocorrências registradas</div>
-                                </div>
-                                <div class="stat-item" id="classStudentsCard" style="display:none;">
-                                    <div class="stat-value" id="classStudentsCount">0</div>
-                                    <div class="stat-label">Alunos na turma</div>
-                                    <div class="period-stats">
-                                        <div class="period-item">
-                                            <div class="period-value" id="selectedClassPeriod">-</div>
-                                            <div class="period-label">Período</div>
-                                        </div>
-                                    </div>
+                                    <div class="stat-label">Ocorrências</div>
                                 </div>
                                 <div class="stat-item">
                                     <div class="stat-value" id="totalStudents">0</div>
-                                    <div class="stat-label">Total de alunos</div>
-                                    <div class="period-stats">
-                                        <div class="period-item">
-                                            <div class="period-value period-manha" id="morningCount">0</div>
-                                            <div class="period-label">Manhã</div>
-                                        </div>
-                                        <div class="period-item">
-                                            <div class="period-value period-tarde" id="afternoonCount">0</div>
-                                            <div class="period-label">Tarde</div>
-                                        </div>
-                                        <div class="period-item">
-                                            <div class="period-value period-noite" id="nightCount">0</div>
-                                            <div class="period-label">Noite</div>
-                                        </div>
-                                    </div>
+                                    <div class="stat-label">Alunos</div>
                                 </div>
                                 <div class="stat-item">
-                                    <div class="stat-value" id="totalClasses">40</div>
-                                    <div class="stat-label">Turmas monitoradas</div>
+                                    <div class="stat-value">40</div>
+                                    <div class="stat-label">Turmas</div>
                                 </div>
                                 <div class="stat-item">
-                                    <div class="stat-value" id="totalTeachers">64</div>
-                                    <div class="stat-label">Professores ativos</div>
+                                    <div class="stat-value">64</div>
+                                    <div class="stat-label">Professores</div>
                                 </div>
-                            </div>
-                        </div>
-                        
-                        <div class="student-occurrences-card" id="studentOccurrencesCard">
-                            <div class="student-occurrences-content">
-                                <div class="student-occurrences-name" id="studentOccurrencesName">Nome do Aluno</div>
-                                <div class="student-occurrences-count" id="studentOccurrencesCount">0</div>
-                                <div class="student-occurrences-label">Ocorrências registradas</div>
-                            </div>
-                        </div>
-                        
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-chart-bar"></i>
-                                Distribuição de Alunos por Período
-                            </div>
-                            <div class="card-body">
-                                <div class="stats-chart-container">
-                                    <canvas id="studentsPeriodChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-info-circle"></i>
-                                Sobre o Sistema
-                            </div>
-                            <div class="card-body">
-                                <p>Este sistema permite o registro de ocorrências escolares com integração direta ao Google Sheets.</p>
-                                <br>
-                                <p><strong>Funcionalidades:</strong></p>
-                                <ul style="padding-left: 20px; margin-top: 10px;">
-                                    <li>Seleção de turma com carregamento automático dos alunos</li>
-                                    <li>Registro detalhado de ocorrências</li>
-                                    <li>Integração em tempo real com planilha Google</li>
-                                    <li>Estatísticas atualizadas</li>
-                                    <li>Interface amigável e responsiva</li>
-                                </ul>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Registros de Ocorrências -->
+            <!-- Registros -->
             <div id="records-tab" class="tab-content">
                 <div class="card">
                     <div class="card-header">
@@ -1462,7 +812,7 @@
                         Registros de Ocorrências
                     </div>
                     <div class="card-body">
-                        <div class="table-container" style="overflow-x: auto;">
+                        <div style="overflow-x: auto;">
                             <table id="registrosTable" class="registros-table">
                                 <thead>
                                     <tr>
@@ -1476,14 +826,13 @@
                                     </tr>
                                 </thead>
                                 <tbody id="registrosTableBody">
-                                    <!-- Registros serão carregados via JavaScript -->
                                 </tbody>
                             </table>
                         </div>
                         <div id="noRecordsMessage" class="empty-state" style="display: none;">
                             <i class="fas fa-clipboard-list"></i>
                             <h3>Nenhuma ocorrência registrada</h3>
-                            <p>Quando você registrar ocorrências, elas aparecerão aqui para todos os professores visualizarem.</p>
+                            <p>Quando você registrar ocorrências, elas aparecerão aqui.</p>
                         </div>
                     </div>
                 </div>
@@ -1497,53 +846,18 @@
                         Estatísticas Gerais
                     </div>
                     <div class="card-body">
-                        <div class="form-row">
-                            <div class="form-col">
-                                <div class="stats-card">
-                                    <div class="stats-grid">
-                                        <div class="stat-item">
-                                            <div class="stat-value" id="totalOccurrencesStats">0</div>
-                                            <div class="stat-label">Total de Ocorrências</div>
-                                        </div>
-                                        <div class="stat-item">
-                                            <div class="stat-value" id="mostFrequentIrregularity">-</div>
-                                            <div class="stat-label">Irregularidade mais frequente</div>
-                                        </div>
-                                        <div class="stat-item">
-                                            <div class="stat-value" id="mostAffectedClass">-</div>
-                                            <div class="stat-label">Turma com mais ocorrências</div>
-                                        </div>
-                                    </div>
-                                </div>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-value" id="totalOccurrencesStats">0</div>
+                                <div class="stat-label">Total de Ocorrências</div>
                             </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-col">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <i class="fas fa-chart-bar"></i>
-                                        Ocorrências por Turma
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="stats-chart-container">
-                                            <canvas id="classOccurrencesChart"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="mostFrequentIrregularity">-</div>
+                                <div class="stat-label">Irregularidade mais frequente</div>
                             </div>
-                            <div class="form-col">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <i class="fas fa-chart-pie"></i>
-                                        Distribuição de Irregularidades
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="stats-chart-container">
-                                            <canvas id="irregularitiesChart"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="mostAffectedClass">-</div>
+                                <div class="stat-label">Turma com mais ocorrências</div>
                             </div>
                         </div>
                     </div>
@@ -1559,15 +873,7 @@
     </div>
 
     <footer>
-        <div class="footer-links">
-            <a href="#"><i class="fas fa-envelope"></i> Contato</a>
-            <a href="#"><i class="fas fa-file-contract"></i> Termos de Serviço</a>
-            <a href="#"><i class="fas fa-shield-alt"></i> Política de Privacidade</a>
-            <a href="#"><i class="fas fa-flag"></i> Denunciar</a>
-        </div>
-        <div style="margin-top: 10px;">
-            Sistema de Gestão Escolar © 2025
-        </div>
+        <div>Sistema de Gestão Escolar © 2025</div>
     </footer>
 
     <script>
@@ -1578,7 +884,7 @@
             MAX_RETRIES: 3
         };
 
-        // ===== CLASSE DE CLIENTE API CORRIGIDA =====
+        // ===== CLASSE DE CLIENTE API TOTALMENTE CORRIGIDA =====
         class APIClient {
             constructor(config) {
                 this.baseUrl = config.BASE_URL;
@@ -1614,7 +920,7 @@
                         const response = await fetch(url, fetchOptions);
                         clearTimeout(timeoutId);
 
-                        console.log(`Resposta recebida: ${response.status} ${response.statusText}`);
+                        console.log(`Resposta: ${response.status} ${response.statusText}`);
                         
                         if (!response.ok) {
                             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -1627,7 +933,7 @@
                             data = await response.json();
                         } else {
                             const text = await response.text();
-                            console.log('Resposta não JSON recebida:', text.substring(0, 200));
+                            console.log('Resposta não JSON:', text.substring(0, 200));
                             
                             try {
                                 const jsonMatch = text.match(/\{.*\}/s);
@@ -1675,11 +981,6 @@
                 return await this.makeRequest(url);
             }
 
-            async getStudentPeriodStats() {
-                const url = `${this.baseUrl}?action=getStudentPeriodStats&timestamp=${Date.now()}`;
-                return await this.makeRequest(url);
-            }
-
             async getAllOccurrences() {
                 const url = `${this.baseUrl}?action=getAllOccurrences&timestamp=${Date.now()}`;
                 const response = await this.makeRequest(url);
@@ -1697,11 +998,6 @@
                 return await this.makeRequest(url);
             }
 
-            async getIrregularityStats(irregularity) {
-                const url = `${this.baseUrl}?action=getIrregularityStats&irregularity=${encodeURIComponent(irregularity)}&timestamp=${Date.now()}`;
-                return await this.makeRequest(url);
-            }
-
             // ===== MÉTODOS POST CORRIGIDOS =====
             async addOccurrence(data) {
                 return await this.makeRequest(this.baseUrl, {
@@ -1710,7 +1006,7 @@
                         action: 'addOccurrence',
                         professor: data.professor,
                         date: data.date,
-                        studentClass: data.studentClass,
+                        class: data.studentClass,
                         student: data.student,
                         irregularities: data.irregularities,
                         description: data.description,
@@ -1727,7 +1023,7 @@
                         id: data.id,
                         professor: data.professor,
                         date: data.date,
-                        studentClass: data.studentClass,
+                        class: data.studentClass,
                         student: data.student,
                         irregularities: data.irregularities,
                         description: data.description,
@@ -1751,9 +1047,9 @@
         // Instanciar cliente da API
         const api = new APIClient(API_CONFIG);
 
-        // ===== APLICAÇÃO PRINCIPAL CORRIGIDA =====
+        // ===== APLICAÇÃO PRINCIPAL =====
         document.addEventListener('DOMContentLoaded', function() {
-            // Dados completos dos professores
+            // Dados dos professores
             const teacherEmails = {
                 "ALEX LUTH PEREIRA MARANHAO": "luth@prof.educacao.sp.gov.br",
                 "ALEXSANDRA PAULA VARELLA DE SOUZA": "avarella@prof.educacao.sp.gov.br",
@@ -1845,19 +1141,8 @@
             const classSelect = document.getElementById('studentClass');
             const professorSelect = document.getElementById('professor');
             const totalOccurrencesEl = document.getElementById('totalOccurrences');
-            const studentOccurrencesCard = document.getElementById('studentOccurrencesCard');
-            const studentOccurrencesName = document.getElementById('studentOccurrencesName');
-            const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
-            const morningCountEl = document.getElementById('morningCount');
-            const afternoonCountEl = document.getElementById('afternoonCount');
-            const nightCountEl = document.getElementById('nightCount');
-            const studentsPeriodChartCanvas = document.getElementById('studentsPeriodChart');
             const exportBtn = document.getElementById('exportBtn');
-            const registrosTable = document.getElementById('registrosTable');
             const registrosTableBody = document.getElementById('registrosTableBody');
-            const classStudentsCard = document.getElementById('classStudentsCard');
-            const classStudentsCount = document.getElementById('classStudentsCount');
-            const selectedClassPeriod = document.getElementById('selectedClassPeriod');
             const notification = document.getElementById('notification');
             const notificationIcon = notification.querySelector('.icon');
             const notificationContent = notification.querySelector('.content');
@@ -1865,17 +1150,11 @@
             const noRecordsMessage = document.getElementById('noRecordsMessage');
             const tabButtons = document.querySelectorAll('.tab-button');
             const tabContents = document.querySelectorAll('.tab-content');
-            const totalOccurrencesStats = document.getElementById('totalOccurrencesStats');
-            const mostFrequentIrregularity = document.getElementById('mostFrequentIrregularity');
-            const mostAffectedClass = document.getElementById('mostAffectedClass');
-            const classOccurrencesChartCanvas = document.getElementById('classOccurrencesChart');
-            const irregularitiesChartCanvas = document.getElementById('irregularitiesChart');
+            const alert = document.getElementById('alert');
+            const alertMessage = document.getElementById('alert-message');
 
-            // Armazenar gráficos
+            // Variáveis globais
             const charts = {};
-            let studentsPeriodChart = null;
-            let classOccurrencesChart = null;
-            let irregularitiesChart = null;
             let currentEditId = null;
 
             // Preencher dropdown de professores
@@ -1887,32 +1166,22 @@
                 professorSelect.appendChild(option);
             });
 
-            // Atualizar estatísticas de professores
-            document.getElementById('totalTeachers').textContent = teacherNames.length;
-
-            // Preencher data atual como padrão
+            // Preencher data atual
             const today = new Date();
             const formattedDate = today.toISOString().split('T')[0];
             document.getElementById('occurrenceDate').value = formattedDate;
-
-            // Contar turmas disponíveis
-            const turmasCount = document.querySelectorAll('#studentClass option').length - 1;
-            document.getElementById('totalClasses').textContent = turmasCount;
 
             // Configurar abas
             tabButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const tabId = button.getAttribute('data-tab');
                     
-                    // Remove classe ativa de todos os botões e conteúdos
                     tabButtons.forEach(btn => btn.classList.remove('active'));
                     tabContents.forEach(content => content.classList.remove('active'));
                     
-                    // Adicionar classe ativa ao botão e conteúdo clicado
                     button.classList.add('active');
                     document.getElementById(tabId).classList.add('active');
                     
-                    // Se for para a aba de registros, recarregar a tabela
                     if (tabId === 'records-tab') {
                         loadRegistrosTable();
                     } else if (tabId === 'stats-tab') {
@@ -1940,6 +1209,18 @@
                 }, 5000);
             }
 
+            // Função para mostrar alertas
+            function showAlert(type, message) {
+                alert.classList.remove('alert-success', 'alert-error');
+                alert.classList.add(`alert-${type}`);
+                alertMessage.textContent = message;
+                alert.style.display = 'flex';
+                
+                setTimeout(() => {
+                    alert.style.display = 'none';
+                }, 5000);
+            }
+
             notificationClose.addEventListener('click', () => {
                 notification.classList.remove('show');
             });
@@ -1949,7 +1230,6 @@
                 const ctx = canvas.getContext('2d');
                 const chartKey = canvas.getAttribute('data-irregularity');
 
-                // Destruir gráfico anterior se existir
                 if (charts[chartKey]) {
                     charts[chartKey].destroy();
                 }
@@ -1959,10 +1239,7 @@
                     data: {
                         datasets: [{
                             data: [value, Math.max(0, maxValue - value)],
-                            backgroundColor: [
-                                '#3498db',
-                                '#e0e0e0'
-                            ],
+                            backgroundColor: ['#3498db', '#e0e0e0'],
                             borderWidth: 0
                         }]
                     },
@@ -1977,20 +1254,16 @@
                     }
                 });
 
-                // Atualizar o número de ocorrências
                 const chartValue = canvas.parentElement.querySelector('.chart-value');
                 chartValue.textContent = value;
             }
 
-            // ===== CARREGAR ALUNOS QUANDO TURMA FOR SELECIONADA (GET CORRIGIDO) =====
+            // Carregar alunos quando turma for selecionada
             classSelect.addEventListener('change', async function() {
                 const selectedClass = this.value;
                 studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
                 studentSelect.disabled = true;
-                studentOccurrencesCard.style.display = 'none';
-                classStudentsCard.style.display = 'none';
 
-                // Resetar gráficos
                 const chartCanvases = document.querySelectorAll('.donut-chart');
                 chartCanvases.forEach(canvas => {
                     createDonutChart(canvas, 0);
@@ -2015,16 +1288,6 @@
                     });
                     studentSelect.disabled = false;
                     
-                    // Atualizar o card com o total de alunos na turma
-                    classStudentsCount.textContent = students.length;
-                    
-                    // Determinar o período da turma
-                    const periodo = selectedClass.includes("MANHA") ? "Manhã" : 
-                                   selectedClass.includes("TARDE") ? "Tarde" : 
-                                   selectedClass.includes("NOITE") ? "Noite" : "Desconhecido";
-                    selectedClassPeriod.textContent = periodo;
-                    
-                    classStudentsCard.style.display = 'block';
                 } catch (error) {
                     console.error('Erro ao carregar alunos:', error);
                     studentSelect.innerHTML = `<option value="">Erro: ${error.message}</option>`;
@@ -2032,33 +1295,22 @@
                 }
             });
 
-            // ===== QUANDO UM ALUNO É SELECIONADO (GET CORRIGIDO) =====
+            // Quando um aluno é selecionado
             studentSelect.addEventListener('change', async function() {
                 if (this.value) {
-                    // Mostrar o card de ocorrências do aluno
-                    studentOccurrencesCard.style.display = 'block';
-                    studentOccurrencesName.textContent = this.value;
-                    studentOccurrencesCount.textContent = "Carregando...";
-                    
                     try {
                         console.log('Carregando estatísticas para o aluno:', this.value);
                         const data = await api.getStudentStats(this.value);
                         console.log('Estatísticas carregadas:', data);
                         
-                        studentOccurrencesCount.textContent = data.totalOccurrences || 0;
-                        
-                        // Atualizar gráficos com os dados detalhados
                         if (data.detailedStats) {
                             updateAllCharts(data.detailedStats);
                         }
                     } catch (error) {
-                        studentOccurrencesCount.textContent = "0";
                         console.error('Erro ao buscar estatísticas:', error);
                         showNotification('error', 'Erro ao carregar estatísticas: ' + error.message);
                     }
                 } else {
-                    studentOccurrencesCard.style.display = 'none';
-                    // Resetar gráficos
                     const chartCanvases = document.querySelectorAll('.donut-chart');
                     chartCanvases.forEach(canvas => {
                         createDonutChart(canvas, 0);
@@ -2076,48 +1328,43 @@
                 });
             }
 
-            // ===== LIMPAR FORMULÁRIO =====
+            // Limpar formulário
             clearBtn.addEventListener('click', function() {
                 form.reset();
                 document.getElementById('occurrenceDate').value = formattedDate;
                 professorSelect.selectedIndex = 0;
                 studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
                 studentSelect.disabled = true;
-                studentOccurrencesCard.style.display = 'none';
-                classStudentsCard.style.display = 'none';
                 classSelect.selectedIndex = 0;
                 currentEditId = null;
                 submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> CADASTRAR';
 
-                // Resetar gráficos
                 const chartCanvases = document.querySelectorAll('.donut-chart');
                 chartCanvases.forEach(canvas => {
                     createDonutChart(canvas, 0);
                 });
 
-                // Desmarcar todos os checkboxes
                 document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
                     checkbox.checked = false;
                 });
                 
-                // Remover erros de validação
                 document.querySelectorAll('.input-error').forEach(el => {
                     el.classList.remove('input-error');
                 });
+
+                alert.style.display = 'none';
             });
 
-            // ===== SUBMISSÃO DO FORMULÁRIO (POST CORRIGIDO) =====
+            // Submissão do formulário
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                // Validação
                 const professor = document.getElementById('professor').value;
                 const date = document.getElementById('occurrenceDate').value;
                 const studentClass = document.getElementById('studentClass').value;
                 const student = document.getElementById('student').value;
                 const description = document.getElementById('description').value;
                 
-                // Remover erros anteriores
                 document.querySelectorAll('.input-error').forEach(el => {
                     el.classList.remove('input-error');
                 });
@@ -2145,17 +1392,15 @@
                 }
                 
                 if (hasError) {
-                    showNotification('error', 'Por favor, preencha todos os campos obrigatórios.');
+                    showAlert('error', 'Por favor, preencha todos os campos obrigatórios.');
                     return;
                 }
                 
-                // Coletar irregularidades selecionadas
                 const irregularities = [];
                 document.querySelectorAll('input[name="irregularity"]:checked').forEach(checkbox => {
                     irregularities.push(checkbox.value);
                 });
                 
-                // Preparar dados para envio
                 const occurrenceData = {
                     professor,
                     date,
@@ -2165,38 +1410,31 @@
                     description
                 };
                 
-                // Desabilitar botão durante o envio
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<div class="loading"></div> Enviando...';
                 
                 try {
                     let response;
                     if (currentEditId) {
-                        // Atualizar ocorrência existente
                         response = await api.updateOccurrence({
                             id: currentEditId,
                             ...occurrenceData
                         });
-                        showNotification('success', 'Ocorrência atualizada com sucesso!');
+                        showAlert('success', 'Ocorrência atualizada com sucesso!');
                     } else {
-                        // Adicionar nova ocorrência
                         response = await api.addOccurrence(occurrenceData);
-                        showNotification('success', 'Ocorrência registrada com sucesso!');
+                        showAlert('success', 'Ocorrência registrada com sucesso!');
                     }
                     
                     console.log('Resposta do servidor:', response);
                     
-                    // Limpar formulário após sucesso
                     clearBtn.click();
-                    
-                    // Recarregar estatísticas
-                    await loadInitialData();
+                    loadInitialData();
                     
                 } catch (error) {
                     console.error('Erro ao enviar ocorrência:', error);
-                    showNotification('error', 'Erro ao registrar ocorrência: ' + error.message);
+                    showAlert('error', 'Erro ao registrar ocorrência: ' + error.message);
                 } finally {
-                    // Reabilitar botão
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = currentEditId ? 
                         '<i class="fas fa-save"></i> ATUALIZAR' : 
@@ -2204,7 +1442,7 @@
                 }
             });
 
-            // ===== CARREGAR TABELA DE REGISTROS (GET CORRIGIDO) =====
+            // Carregar tabela de registros
             async function loadRegistrosTable() {
                 try {
                     console.log('Carregando registros de ocorrências...');
@@ -2215,12 +1453,12 @@
                     
                     if (occurrences.length === 0) {
                         noRecordsMessage.style.display = 'block';
-                        registrosTable.style.display = 'none';
+                        document.getElementById('registrosTable').style.display = 'none';
                         return;
                     }
                     
                     noRecordsMessage.style.display = 'none';
-                    registrosTable.style.display = 'table';
+                    document.getElementById('registrosTable').style.display = 'table';
                     
                     occurrences.forEach(occurrence => {
                         addOccurrenceToTable(occurrence);
@@ -2230,21 +1468,21 @@
                     console.error('Erro ao carregar registros:', error);
                     showNotification('error', 'Erro ao carregar registros: ' + error.message);
                     noRecordsMessage.style.display = 'block';
-                    registrosTable.style.display = 'none';
+                    document.getElementById('registrosTable').style.display = 'none';
                 }
             }
 
-            // Função para adicionar ocorrência na tabela
+            // Adicionar ocorrência na tabela
             function addOccurrenceToTable(occurrence) {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${formatDate(occurrence.date)}</td>
                     <td>${occurrence.professor}</td>
-                    <td>${occurrence.studentClass}</td>
+                    <td>${occurrence.class}</td>
                     <td>${occurrence.student}</td>
                     <td>${occurrence.irregularities || 'Nenhuma'}</td>
                     <td>${occurrence.description || 'Sem descrição'}</td>
-                    <td class="actions-cell">
+                    <td>
                         <button class="btn-action btn-edit" onclick="editOccurrence('${occurrence.id}')">
                             <i class="fas fa-edit"></i> Editar
                         </button>
@@ -2256,26 +1494,24 @@
                 registrosTableBody.appendChild(row);
             }
 
-            // Função para formatar data
+            // Formatar data
             function formatDate(dateString) {
                 const date = new Date(dateString);
                 return date.toLocaleDateString('pt-BR');
             }
 
-            // ===== EDITAR OCORRÊNCIA =====
+            // Editar ocorrência
             window.editOccurrence = async function(id) {
                 try {
                     console.log('Carregando ocorrência para edição:', id);
                     const occurrence = await api.getOccurrenceById(id);
                     console.log('Ocorrência carregada:', occurrence);
                     
-                    // Preencher formulário com dados da ocorrência
                     document.getElementById('professor').value = occurrence.professor;
                     document.getElementById('occurrenceDate').value = occurrence.date;
-                    document.getElementById('studentClass').value = occurrence.studentClass;
+                    document.getElementById('studentClass').value = occurrence.class;
                     
-                    // Carregar alunos da turma
-                    const students = await api.getStudents(occurrence.studentClass);
+                    const students = await api.getStudents(occurrence.class);
                     studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
                     students.forEach(student => {
                         const option = document.createElement('option');
@@ -2288,17 +1524,14 @@
                     
                     document.getElementById('description').value = occurrence.description || '';
                     
-                    // Marcar irregularidades
                     document.querySelectorAll('input[name="irregularity"]').forEach(checkbox => {
                         checkbox.checked = occurrence.irregularities && 
                                           occurrence.irregularities.includes(checkbox.value);
                     });
                     
-                    // Configurar modo de edição
                     currentEditId = id;
                     submitBtn.innerHTML = '<i class="fas fa-save"></i> ATUALIZAR';
                     
-                    // Ir para a aba de formulário
                     document.querySelector('[data-tab="form-tab"]').click();
                     
                     showNotification('success', 'Ocorrência carregada para edição');
@@ -2309,7 +1542,7 @@
                 }
             };
 
-            // ===== EXCLUIR OCORRÊNCIA (POST CORRIGIDO) =====
+            // Excluir ocorrência
             window.deleteOccurrence = async function(id) {
                 if (!confirm('Tem certeza que deseja excluir esta ocorrência?')) {
                     return;
@@ -2320,7 +1553,6 @@
                     await api.deleteOccurrence(id);
                     showNotification('success', 'Ocorrência excluída com sucesso!');
                     
-                    // Recarregar tabela
                     await loadRegistrosTable();
                     await loadInitialData();
                     
@@ -2330,21 +1562,16 @@
                 }
             };
 
-            // ===== CARREGAR ESTATÍSTICAS (GET CORRIGIDO) =====
+            // Carregar estatísticas
             async function loadStatistics() {
                 try {
                     console.log('Carregando estatísticas...');
                     const stats = await api.getStatistics();
                     console.log('Estatísticas carregadas:', stats);
                     
-                    // Atualizar elementos de estatísticas
-                    totalOccurrencesStats.textContent = stats.totalOccurrences || 0;
-                    mostFrequentIrregularity.textContent = stats.mostFrequentIrregularity || '-';
-                    mostAffectedClass.textContent = stats.mostAffectedClass || '-';
-                    
-                    // Criar gráficos
-                    createClassOccurrencesChart(stats.classCounts || {});
-                    createIrregularitiesChart(stats.irregularityCounts || {});
+                    document.getElementById('totalOccurrencesStats').textContent = stats.totalOccurrences || 0;
+                    document.getElementById('mostFrequentIrregularity').textContent = stats.mostFrequentIrregularity || '-';
+                    document.getElementById('mostAffectedClass').textContent = stats.mostAffectedClass || '-';
                     
                 } catch (error) {
                     console.error('Erro ao carregar estatísticas:', error);
@@ -2352,85 +1579,9 @@
                 }
             }
 
-            // Função para criar gráfico de ocorrências por turma
-            function createClassOccurrencesChart(data) {
-                if (classOccurrencesChart) {
-                    classOccurrencesChart.destroy();
-                }
-                
-                const ctx = classOccurrencesChartCanvas.getContext('2d');
-                classOccurrencesChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(data),
-                        datasets: [{
-                            label: 'Ocorrências',
-                            data: Object.values(data),
-                            backgroundColor: '#3498db',
-                            borderColor: '#2980b9',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
-            }
-
-            // Função para criar gráfico de irregularidades
-            function createIrregularitiesChart(data) {
-                if (irregularitiesChart) {
-                    irregularitiesChart.destroy();
-                }
-                
-                const ctx = irregularitiesChartCanvas.getContext('2d');
-                irregularitiesChart = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: Object.keys(data),
-                        datasets: [{
-                            data: Object.values(data),
-                            backgroundColor: [
-                                '#3498db', '#e74c3c', '#f39c12', '#2ecc71',
-                                '#9b59b6', '#1abc9c', '#34495e', '#e67e22',
-                                '#95a5a6'
-                            ]
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false
-                    }
-                });
-            }
-
-            // ===== CARREGAR DADOS INICIAIS (GET CORRIGIDO) =====
+            // Carregar dados iniciais
             async function loadInitialData() {
                 try {
-                    // Carregar estatísticas de período dos alunos
-                    const periodStats = await api.getStudentPeriodStats();
-                    console.log('Estatísticas de período carregadas:', periodStats);
-                    
-                    // Atualizar contadores
-                    morningCountEl.textContent = periodStats.morning || 0;
-                    afternoonCountEl.textContent = periodStats.afternoon || 0;
-                    nightCountEl.textContent = periodStats.night || 0;
-                    
-                    const totalStudents = (periodStats.morning || 0) + 
-                                         (periodStats.afternoon || 0) + 
-                                         (periodStats.night || 0);
-                    document.getElementById('totalStudents').textContent = totalStudents;
-                    
-                    // Criar gráfico de distribuição por período
-                    createStudentsPeriodChart(periodStats);
-                    
-                    // Carregar total de ocorrências
                     const occurrences = await api.getAllOccurrences();
                     totalOccurrencesEl.textContent = occurrences.length;
                     
@@ -2440,36 +1591,7 @@
                 }
             }
 
-            // Função para criar gráfico de distribuição por período
-            function createStudentsPeriodChart(data) {
-                if (studentsPeriodChart) {
-                    studentsPeriodChart.destroy();
-                }
-                
-                const ctx = studentsPeriodChartCanvas.getContext('2d');
-                studentsPeriodChart = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Manhã', 'Tarde', 'Noite'],
-                        datasets: [{
-                            data: [data.morning || 0, data.afternoon || 0, data.night || 0],
-                            backgroundColor: ['#f1c40f', '#e67e22', '#9b59b6'],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom'
-                            }
-                        }
-                    }
-                });
-            }
-
-            // ===== EXPORTAR DADOS =====
+            // Exportar dados
             exportBtn.addEventListener('click', async function() {
                 try {
                     console.log('Exportando dados...');
@@ -2480,22 +1602,19 @@
                         return;
                     }
                     
-                    // Preparar dados para exportação
                     const exportData = occurrences.map(occurrence => ({
                         'Data': formatDate(occurrence.date),
                         'Professor': occurrence.professor,
-                        'Turma': occurrence.studentClass,
+                        'Turma': occurrence.class,
                         'Aluno': occurrence.student,
                         'Irregularidades': occurrence.irregularities || 'Nenhuma',
                         'Descrição': occurrence.description || 'Sem descrição'
                     }));
                     
-                    // Criar planilha Excel
                     const ws = XLSX.utils.json_to_sheet(exportData);
                     const wb = XLSX.utils.book_new();
                     XLSX.utils.book_append_sheet(wb, ws, 'Ocorrências');
                     
-                    // Baixar arquivo
                     const fileName = `ocorrencias_${new Date().toISOString().split('T')[0]}.xlsx`;
                     XLSX.writeFile(wb, fileName);
                     
