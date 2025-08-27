@@ -887,7 +887,7 @@
         // ===== CLASSE DE CLIENTE API TOTALMENTE CORRIGIDA =====
         class APIClient {
             constructor(config) {
-                this.baseUrl = config.'https://script.google.com/macros/s/AKfycbzmmc0i28l-Oqmn9Tp2dnUqR35KpvVLRf3uezzKlCiQFQHDdm4hSz32hkYwOY8olg8n/exec';
+                this.baseUrl = config.BASE_URL;
                 this.timeout = config.TIMEOUT;
                 this.maxRetries = config.MAX_RETRIES;
             }
@@ -971,36 +971,36 @@
 
             // ===== MÉTODOS GET CORRIGIDOS =====
             async getStudents(className) {
-                const url = `${this.'https://script.google.com/macros/s/AKfycbzmmc0i28l-Oqmn9Tp2dnUqR35KpvVLRf3uezzKlCiQFQHDdm4hSz32hkYwOY8olg8n/exec'}?action=getStudents&class=${encodeURIComponent(className)}&timestamp=${Date.now()}`;
+                const url = `${this.baseUrl}?action=getStudents&class=${encodeURIComponent(className)}&timestamp=${Date.now()}`;
                 const response = await this.makeRequest(url);
                 return response.students || [];
             }
 
             async getStudentStats(studentName) {
-                const url = `${this.'https://script.google.com/macros/s/AKfycbzmmc0i28l-Oqmn9Tp2dnUqR35KpvVLRf3uezzKlCiQFQHDdm4hSz32hkYwOY8olg8n/exec'}?action=getStudentStats&student=${encodeURIComponent(studentName)}&timestamp=${Date.now()}`;
+                const url = `${this.baseUrl}?action=getStudentStats&student=${encodeURIComponent(studentName)}&timestamp=${Date.now()}`;
                 return await this.makeRequest(url);
             }
 
             async getAllOccurrences() {
-                const url = `${this.'https://script.google.com/macros/s/AKfycbzmmc0i28l-Oqmn9Tp2dnUqR35KpvVLRf3uezzKlCiQFQHDdm4hSz32hkYwOY8olg8n/exec'}?action=getAllOccurrences&timestamp=${Date.now()}`;
+                const url = `${this.baseUrl}?action=getAllOccurrences&timestamp=${Date.now()}`;
                 const response = await this.makeRequest(url);
                 return response.occurrences || [];
             }
 
             async getOccurrenceById(id) {
-                const url = `${this.'https://script.google.com/macros/s/AKfycbzmmc0i28l-Oqmn9Tp2dnUqR35KpvVLRf3uezzKlCiQFQHDdm4hSz32hkYwOY8olg8n/exec'}?action=getOccurrenceById&id=${encodeURIComponent(id)}&timestamp=${Date.now()}`;
+                const url = `${this.baseUrl}?action=getOccurrenceById&id=${encodeURIComponent(id)}&timestamp=${Date.now()}`;
                 const response = await this.makeRequest(url);
                 return response.occurrence;
             }
 
             async getStatistics() {
-                const url = `${this.'https://script.google.com/macros/s/AKfycbzmmc0i28l-Oqmn9Tp2dnUqR35KpvVLRf3uezzKlCiQFQHDdm4hSz32hkYwOY8olg8n/exec'}?action=getStatistics&timestamp=${Date.now()}`;
+                const url = `${this.baseUrl}?action=getStatistics&timestamp=${Date.now()}`;
                 return await this.makeRequest(url);
             }
 
             // ===== MÉTODOS POST CORRIGIDOS =====
             async addOccurrence(data) {
-                return await this.makeRequest(this.'https://script.google.com/macros/s/AKfycbzmmc0i28l-Oqmn9Tp2dnUqR35KpvVLRf3uezzKlCiQFQHDdm4hSz32hkYwOY8olg8n/exec', {
+                return await this.makeRequest(this.baseUrl, {
                     method: 'POST',
                     body: {
                         action: 'addOccurrence',
@@ -1016,7 +1016,7 @@
             }
 
             async updateOccurrence(data) {
-                return await this.makeRequest(this.'https://script.google.com/macros/s/AKfycbzmmc0i28l-Oqmn9Tp2dnUqR35KpvVLRf3uezzKlCiQFQHDdm4hSz32hkYwOY8olg8n/exec', {
+                return await this.makeRequest(this.baseUrl, {
                     method: 'POST',
                     body: {
                         action: 'updateOccurrence',
@@ -1033,7 +1033,7 @@
             }
 
             async deleteOccurrence(id) {
-                return await this.makeRequest(this.'https://script.google.com/macros/s/AKfycbzmmc0i28l-Oqmn9Tp2dnUqR35KpvVLRf3uezzKlCiQFQHDdm4hSz32hkYwOY8olg8n/exec', {
+                return await this.makeRequest(this.baseUrl, {
                     method: 'POST',
                     body: {
                         action: 'deleteOccurrence',
@@ -1112,7 +1112,7 @@
                 "PEDRO ZANOTTI FILHO": "pedrozanotti@prof.educacao.sp.gov.br",
                 "RAUL PEREIRA VILERA JUNIOR": "vilera@prof.educacao.sp.gov.br",
                 "REGIANE CURTI DE SOUZA OLIVEIRA": "regianecurti@prof.educacao.sp.gov.br",
-                "REGINA DA SILVA CASTRO": "reginasilvacastro@prof.educacao.sp.gov.br",
+                "REGINA DA SILRA CASTRO": "reginasilvacastro@prof.educacao.sp.gov.br",
                 "RICARDO AMERICO DA SILVA": "ricardoamerico@prof.educacao.sp.gov.br",
                 "ROBERTO SALGADO": "robertosalgado@prof.educacao.sp.gov.br",
                 "RODRIGO VIEIRA": "rodrigovieira1@prof.educacao.sp.gov.br",
