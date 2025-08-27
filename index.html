@@ -8,7 +8,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        /* [Mantém todo o CSS existente - não alterado] */
         :root {
             --primary-color: #1a73e8;
             --primary-dark: #0d47a1;
@@ -573,8 +572,8 @@
             background-color: white;
         }
         
-        select:focus option:checked {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        select option:focus:checked {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color) 100%);
             color: white;
         }
         
@@ -686,9 +685,17 @@
             font-size: 1rem;
         }
         
-        .period-manha { color: #f1c40f; }
-        .period-tarde { color: #e67e22; }
-        .period-noite { color: #9b59b6; }
+        .period-manha {
+            color: #f1c40f;
+        }
+        
+        .period-tarde {
+            color: #e67e22;
+        }
+        
+        .period-noite {
+            color: #9b59b6;
+        }
         
         .class-total-card {
             background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
@@ -1048,7 +1055,7 @@
             max-width: 500px;
             margin: 0 auto;
         }
-
+        
         @media (max-width: 992px) {
             .dashboard {
                 grid-template-columns: 1fr;
@@ -1097,7 +1104,7 @@
                 font-size: 0.9rem;
             }
             
-            .registros-table th, 
+            .registros-table th,
             .registros-table td {
                 padding: 10px;
             }
@@ -1127,20 +1134,20 @@
                 </div>
                 <div class="logo-text">
                     <h1>Registro de Ocorrências Escolares</h1>
-                    <p>Sistema integrado com Google Sheets</p>
+                    <p>Sistema integrado ao Planilhas Google</p>
                 </div>
             </div>
         </div>
     </header>
-    
+
     <div class="container">
         <main>
             <div class="tabs">
-                <button class="tab-button active" data-tab="form-tab">Cadastrar Ocorrência</button>
-                <button class="tab-button" data-tab="records-tab">Registros de Ocorrências</button>
+                <button class="tab-button active" data-tab="form-tab">Cadastrar Ocorrências</button>
+                <button class="tab-button" data-tab="records-tab">Registro de Ocorrências</button>
                 <button class="tab-button" data-tab="stats-tab">Estatísticas</button>
             </div>
-            
+
             <!-- Formulário de Cadastro -->
             <div id="form-tab" class="tab-content active">
                 <div class="dashboard">
@@ -1148,15 +1155,16 @@
                         <div class="integration-status">
                             <i class="fas fa-plug"></i>
                             <div>
-                                <strong>Status de integração:</strong> 
+                                <strong>Status de integração:</strong>
                                 <span class="status-indicator status-connected"></span>
-                                Conectado à planilha Google Sheets
+                                Conectado à Planilha Google Sheets
                             </div>
                         </div>
-                        
+
                         <div class="card">
                             <div class="card-header">
-                                <i class="fas fa-clipboard-list"></i> Informações da Ocorrência
+                                <i class="fas fa-clipboard-list"></i>
+                                Informações de Ocorrência
                             </div>
                             <div class="card-body">
                                 <form id="occurrenceForm">
@@ -1167,7 +1175,7 @@
                                                 <div class="student-select-container">
                                                     <select id="professor" required>
                                                         <option value="">Selecione seu nome</option>
-                                                        <!-- Professores serão preenchidos via JS -->
+                                                        <!-- Professores serão carregados via JS -->
                                                     </select>
                                                 </div>
                                             </div>
@@ -1179,7 +1187,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="form-row">
                                         <div class="form-col">
                                             <div class="form-group">
@@ -1248,7 +1256,8 @@
                                     </div>
                                     
                                     <div class="section-title">
-                                        <i class="fas fa-exclamation-triangle"></i> Irregularidades
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        Irregularidades
                                     </div>
                                     
                                     <div class="checkbox-group">
@@ -1333,35 +1342,38 @@
                                         <label for="description">Breve relato do ocorrido</label>
                                         <textarea id="description" placeholder="Descreva detalhadamente a ocorrência..."></textarea>
                                     </div>
-                                    
+
                                     <div class="form-actions">
                                         <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
-                                            <i class="fas fa-paper-plane"></i> CADASTRAR
+                                            <i class="fas fa-paper-plane"></i>
+                                            CADASTRAR
                                         </button>
                                         <button type="button" id="clearBtn" class="btn btn-secondary">
-                                            <i class="fas fa-broom"></i> Limpar formulário
+                                            <i class="fas fa-broom"></i>
+                                            Limpar formulário
                                         </button>
                                         <button type="button" id="exportBtn" class="btn btn-secondary">
-                                            <i class="fas fa-file-export"></i> Exportar Dados
+                                            <i class="fas fa-file-export"></i>
+                                            Exportar Dados
                                         </button>
                                     </div>
                                 </form>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div>
                         <div class="stats-card">
                             <div class="card-header">
-                                <i class="fas fa-chart-line"></i> Estatísticas do Sistema
+                                <i class="fas fa-chart-line"></i>
+                                Estatísticas do Sistema
                             </div>
                             <div class="stats-grid">
                                 <div class="stat-item">
                                     <div class="stat-value" id="totalOccurrences">0</div>
                                     <div class="stat-label">Ocorrências registradas</div>
                                 </div>
-                                
-                                <div class="stat-item" id="classStudentsCard" style="display: none;">
+                                <div class="stat-item" id="classStudentsCard" style="display:none;">
                                     <div class="stat-value" id="classStudentsCount">0</div>
                                     <div class="stat-label">Alunos na turma</div>
                                     <div class="period-stats">
@@ -1371,7 +1383,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                
                                 <div class="stat-item">
                                     <div class="stat-value" id="totalStudents">0</div>
                                     <div class="stat-label">Total de alunos</div>
@@ -1411,7 +1422,8 @@
                         
                         <div class="card">
                             <div class="card-header">
-                                <i class="fas fa-chart-bar"></i> Distribuição de Alunos por Período
+                                <i class="fas fa-chart-bar"></i>
+                                Distribuição de Alunos por Período
                             </div>
                             <div class="card-body">
                                 <div class="stats-chart-container">
@@ -1422,7 +1434,8 @@
                         
                         <div class="card">
                             <div class="card-header">
-                                <i class="fas fa-info-circle"></i> Sobre o Sistema
+                                <i class="fas fa-info-circle"></i>
+                                Sobre o Sistema
                             </div>
                             <div class="card-body">
                                 <p>Este sistema permite o registro de ocorrências escolares com integração direta ao Google Sheets.</p>
@@ -1445,7 +1458,8 @@
             <div id="records-tab" class="tab-content">
                 <div class="card">
                     <div class="card-header">
-                        <i class="fas fa-list"></i> Registros de Ocorrências
+                        <i class="fas fa-list"></i>
+                        Registros de Ocorrências
                     </div>
                     <div class="card-body">
                         <div class="table-container" style="overflow-x: auto;">
@@ -1479,7 +1493,8 @@
             <div id="stats-tab" class="tab-content">
                 <div class="card">
                     <div class="card-header">
-                        <i class="fas fa-chart-pie"></i> Estatísticas Gerais
+                        <i class="fas fa-chart-pie"></i>
+                        Estatísticas Gerais
                     </div>
                     <div class="card-body">
                         <div class="form-row">
@@ -1507,7 +1522,8 @@
                             <div class="form-col">
                                 <div class="card">
                                     <div class="card-header">
-                                        <i class="fas fa-chart-bar"></i> Ocorrências por Turma
+                                        <i class="fas fa-chart-bar"></i>
+                                        Ocorrências por Turma
                                     </div>
                                     <div class="card-body">
                                         <div class="stats-chart-container">
@@ -1519,7 +1535,8 @@
                             <div class="form-col">
                                 <div class="card">
                                     <div class="card-header">
-                                        <i class="fas fa-chart-pie"></i> Distribuição de Irregularidades
+                                        <i class="fas fa-chart-pie"></i>
+                                        Distribuição de Irregularidades
                                     </div>
                                     <div class="card-body">
                                         <div class="stats-chart-container">
@@ -1534,13 +1551,13 @@
             </div>
         </main>
     </div>
-    
+
     <div id="notification" class="notification">
         <i class="fas icon"></i>
         <div class="content"></div>
         <button class="close"><i class="fas fa-times"></i></button>
     </div>
-    
+
     <footer>
         <div class="footer-links">
             <a href="#"><i class="fas fa-envelope"></i> Contato</a>
@@ -1552,16 +1569,16 @@
             Sistema de Gestão Escolar © 2025
         </div>
     </footer>
-    
+
     <script>
         // ===== CONFIGURAÇÃO DA API CORRIGIDA =====
         const API_CONFIG = {
             BASE_URL: 'https://script.google.com/macros/s/AKfycbyjyLBsz0s63iiaQKOZ3gViNdGUt1QXEH0qOoLTXGkI3-BDW5SwfBCEiwrnCggBaS3m/exec',
-            TIMEOUT: 45000, // Aumentado para 45 segundos
-            MAX_RETRIES: 5  // Aumentado para 5 tentativas
+            TIMEOUT: 30000,
+            MAX_RETRIES: 3
         };
 
-        // ===== CAMADA DE API CORRIGIDA =====
+        // ===== CLASSE DE CLIENTE API CORRIGIDA =====
         class APIClient {
             constructor(config) {
                 this.baseUrl = config.BASE_URL;
@@ -1569,7 +1586,7 @@
                 this.maxRetries = config.MAX_RETRIES;
             }
 
-            async safeFetch(url, options = {}) {
+            async makeRequest(url, options = {}) {
                 const { method = 'GET', body = null, retries = this.maxRetries } = options;
                 
                 for (let attempt = 0; attempt <= retries; attempt++) {
@@ -1594,12 +1611,11 @@
                         }
 
                         console.log(`Tentativa ${attempt + 1} - ${method} ${url}`);
-                        
                         const response = await fetch(url, fetchOptions);
                         clearTimeout(timeoutId);
 
                         console.log(`Resposta recebida: ${response.status} ${response.statusText}`);
-
+                        
                         if (!response.ok) {
                             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                         }
@@ -1611,9 +1627,8 @@
                             data = await response.json();
                         } else {
                             const text = await response.text();
-                            console.log('Resposta não-JSON recebida:', text.substring(0, 200));
+                            console.log('Resposta não JSON recebida:', text.substring(0, 200));
                             
-                            // Tentar extrair JSON da resposta
                             try {
                                 const jsonMatch = text.match(/\{.*\}/s);
                                 if (jsonMatch) {
@@ -1625,14 +1640,14 @@
                                 throw new Error(`Erro ao processar resposta: ${text.substring(0, 100)}`);
                             }
                         }
-                        
+
                         if (data.status && data.status !== 'success') {
                             throw new Error(data.message || 'Erro desconhecido do servidor');
                         }
 
                         console.log('Dados processados com sucesso');
                         return data;
-                        
+
                     } catch (error) {
                         clearTimeout(timeoutId);
                         console.error(`Erro na tentativa ${attempt + 1}:`, error);
@@ -1640,8 +1655,7 @@
                         if (attempt === retries) {
                             throw new Error(`Falha após ${retries + 1} tentativas: ${error.message}`);
                         }
-                        
-                        // Backoff exponencial com jitter
+
                         const delay = Math.min(1000 * Math.pow(2, attempt) + Math.random() * 1000, 10000);
                         console.log(`Aguardando ${delay}ms antes da próxima tentativa...`);
                         await new Promise(resolve => setTimeout(resolve, delay));
@@ -1649,58 +1663,87 @@
                 }
             }
 
-            // Métodos da API corrigidos
+            // ===== MÉTODOS GET CORRIGIDOS =====
             async getStudents(className) {
                 const url = `${this.baseUrl}?action=getStudents&class=${encodeURIComponent(className)}&timestamp=${Date.now()}`;
-                const response = await this.safeFetch(url);
+                const response = await this.makeRequest(url);
                 return response.students || [];
             }
 
             async getStudentStats(studentName) {
                 const url = `${this.baseUrl}?action=getStudentStats&student=${encodeURIComponent(studentName)}&timestamp=${Date.now()}`;
-                return await this.safeFetch(url);
+                return await this.makeRequest(url);
             }
 
             async getStudentPeriodStats() {
                 const url = `${this.baseUrl}?action=getStudentPeriodStats&timestamp=${Date.now()}`;
-                return await this.safeFetch(url);
+                return await this.makeRequest(url);
             }
 
             async getAllOccurrences() {
                 const url = `${this.baseUrl}?action=getAllOccurrences&timestamp=${Date.now()}`;
-                const response = await this.safeFetch(url);
+                const response = await this.makeRequest(url);
                 return response.occurrences || [];
             }
 
             async getOccurrenceById(id) {
                 const url = `${this.baseUrl}?action=getOccurrenceById&id=${encodeURIComponent(id)}&timestamp=${Date.now()}`;
-                const response = await this.safeFetch(url);
+                const response = await this.makeRequest(url);
                 return response.occurrence;
             }
 
             async getStatistics() {
                 const url = `${this.baseUrl}?action=getStatistics&timestamp=${Date.now()}`;
-                return await this.safeFetch(url);
+                return await this.makeRequest(url);
             }
 
+            async getIrregularityStats(irregularity) {
+                const url = `${this.baseUrl}?action=getIrregularityStats&irregularity=${encodeURIComponent(irregularity)}&timestamp=${Date.now()}`;
+                return await this.makeRequest(url);
+            }
+
+            // ===== MÉTODOS POST CORRIGIDOS =====
             async addOccurrence(data) {
-                return await this.safeFetch(this.baseUrl, {
+                return await this.makeRequest(this.baseUrl, {
                     method: 'POST',
-                    body: { action: 'addOccurrence', ...data }
+                    body: {
+                        action: 'addOccurrence',
+                        professor: data.professor,
+                        date: data.date,
+                        studentClass: data.studentClass,
+                        student: data.student,
+                        irregularities: data.irregularities,
+                        description: data.description,
+                        timestamp: Date.now()
+                    }
                 });
             }
 
             async updateOccurrence(data) {
-                return await this.safeFetch(this.baseUrl, {
+                return await this.makeRequest(this.baseUrl, {
                     method: 'POST',
-                    body: { action: 'updateOccurrence', ...data }
+                    body: {
+                        action: 'updateOccurrence',
+                        id: data.id,
+                        professor: data.professor,
+                        date: data.date,
+                        studentClass: data.studentClass,
+                        student: data.student,
+                        irregularities: data.irregularities,
+                        description: data.description,
+                        timestamp: Date.now()
+                    }
                 });
             }
 
             async deleteOccurrence(id) {
-                return await this.safeFetch(this.baseUrl, {
+                return await this.makeRequest(this.baseUrl, {
                     method: 'POST',
-                    body: { action: 'deleteOccurrence', id }
+                    body: {
+                        action: 'deleteOccurrence',
+                        id: id,
+                        timestamp: Date.now()
+                    }
                 });
             }
         }
@@ -1763,7 +1806,7 @@
                 "LUCIANO MOREIRA DE AZEVEDO": "lucianomoreira@prof.educacao.sp.gov.br",
                 "MARCIEL DA SILVA": "marcielsilva@prof.educacao.sp.gov.br",
                 "MARIA HELENA CUNHA MORO": "marcunha@prof.educacao.sp.gov.br",
-                "MARIA QUITÉRIA FERREIRA DOS SANTOS": "quiteriasantos@prof.educacao.sp.gov.br",
+                "MARIA QUITERIA FERREIRA DOS SANTOS": "quiteriasantos@prof.educacao.sp.gov.br",
                 "MARINA DA CONCEICAO FRANCISCO SILVA": "marinafrancisco@prof.educacao.sp.gov.br",
                 "MAURICIO DE BARROS SANTOS": "mauriciobsantos@prof.educacao.sp.gov.br",
                 "MICHELE DE PINHO MORAES": "michelepinho@prof.educacao.sp.gov.br",
@@ -1833,7 +1876,7 @@
             let studentsPeriodChart = null;
             let classOccurrencesChart = null;
             let irregularitiesChart = null;
-            let currentEditId = null; // Para controlar a edição
+            let currentEditId = null;
 
             // Preencher dropdown de professores
             const teacherNames = Object.keys(teacherEmails);
@@ -1856,26 +1899,23 @@
             const turmasCount = document.querySelectorAll('#studentClass option').length - 1;
             document.getElementById('totalClasses').textContent = turmasCount;
 
-            // Configurar tabs
+            // Configurar abas
             tabButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const tabId = button.getAttribute('data-tab');
                     
-                    // Remover classe ativa de todos os botões e conteúdos
+                    // Remove classe ativa de todos os botões e conteúdos
                     tabButtons.forEach(btn => btn.classList.remove('active'));
                     tabContents.forEach(content => content.classList.remove('active'));
                     
-                    // Adicionar classe ativa ao botão e conteúdo clicados
+                    // Adicionar classe ativa ao botão e conteúdo clicado
                     button.classList.add('active');
                     document.getElementById(tabId).classList.add('active');
                     
-                    // Se for a aba de registros, recarregar a tabela
+                    // Se for para a aba de registros, recarregar a tabela
                     if (tabId === 'records-tab') {
                         loadRegistrosTable();
-                    }
-                    
-                    // Se for a aba de estatísticas, recarregar as estatísticas
-                    if (tabId === 'stats-tab') {
+                    } else if (tabId === 'stats-tab') {
                         loadStatistics();
                     }
                 });
@@ -1899,7 +1939,7 @@
                     notification.classList.remove('show');
                 }, 5000);
             }
-            
+
             notificationClose.addEventListener('click', () => {
                 notification.classList.remove('show');
             });
@@ -1920,8 +1960,8 @@
                         datasets: [{
                             data: [value, Math.max(0, maxValue - value)],
                             backgroundColor: [
-                                '#3498db', // Cor da ocorrência
-                                '#e0e0e0' // Cor de fundo
+                                '#3498db',
+                                '#e0e0e0'
                             ],
                             borderWidth: 0
                         }]
@@ -1942,7 +1982,7 @@
                 chartValue.textContent = value;
             }
 
-            // Carregar alunos quando uma turma for selecionada
+            // ===== CARREGAR ALUNOS QUANDO TURMA FOR SELECIONADA (GET CORRIGIDO) =====
             classSelect.addEventListener('change', async function() {
                 const selectedClass = this.value;
                 studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
@@ -1992,7 +2032,7 @@
                 }
             });
 
-            // Quando um aluno é selecionado
+            // ===== QUANDO UM ALUNO É SELECIONADO (GET CORRIGIDO) =====
             studentSelect.addEventListener('change', async function() {
                 if (this.value) {
                     // Mostrar o card de ocorrências do aluno
@@ -2036,7 +2076,7 @@
                 });
             }
 
-            // Limpar formulário
+            // ===== LIMPAR FORMULÁRIO =====
             clearBtn.addEventListener('click', function() {
                 form.reset();
                 document.getElementById('occurrenceDate').value = formattedDate;
@@ -2066,244 +2106,355 @@
                 });
             });
 
-            // Função para adicionar novo registro na tabela
-            function addOccurrenceToTable(occurrence) {
-                const row = document.createElement('tr');
-                row.setAttribute('data-id', occurrence.id);
+            // ===== SUBMISSÃO DO FORMULÁRIO (POST CORRIGIDO) =====
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
                 
-                // Formatar data
-                const dateObj = new Date(occurrence.date);
-                const formattedDate = dateObj.toLocaleDateString('pt-BR');
+                // Validação
+                const professor = document.getElementById('professor').value;
+                const date = document.getElementById('occurrenceDate').value;
+                const studentClass = document.getElementById('studentClass').value;
+                const student = document.getElementById('student').value;
+                const description = document.getElementById('description').value;
                 
-                row.innerHTML = `
-                    <td>${formattedDate}</td>
-                    <td>${occurrence.professor}</td>
-                    <td>${occurrence.class}</td>
-                    <td>${occurrence.student}</td>
-                    <td>${occurrence.irregularities || '-'}</td>
-                    <td>${occurrence.description || '-'}</td>
-                    <td class="actions-cell">
-                        ${occurrence.professor === professorSelect.value ? 
-                            `<button class="btn-action btn-edit" data-id="${occurrence.id}">
-                                <i class="fas fa-edit"></i> Editar
-                            </button>
-                            <button class="btn-action btn-delete" data-id="${occurrence.id}">
-                                <i class="fas fa-trash"></i> Excluir
-                            </button>` : 
-                            '<span>Sem permissão</span>'
-                        }
-                    </td>
-                `;
+                // Remover erros anteriores
+                document.querySelectorAll('.input-error').forEach(el => {
+                    el.classList.remove('input-error');
+                });
                 
-                // Adicionar como primeira linha da tabela
-                registrosTableBody.insertBefore(row, registrosTableBody.firstChild);
+                let hasError = false;
                 
-                // Atualizar contagem de ocorrências
-                const currentTotal = parseInt(totalOccurrencesEl.textContent);
-                totalOccurrencesEl.textContent = currentTotal + 1;
-                totalOccurrencesStats.textContent = currentTotal + 1;
+                if (!professor) {
+                    document.getElementById('professor').classList.add('input-error');
+                    hasError = true;
+                }
                 
-                // Esconder mensagem de nenhum registro
-                noRecordsMessage.style.display = 'none';
-            }
-
-            // Função para carregar registros na tabela
-            async function loadRegistrosTable() {
-                registrosTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Carregando registros...</td></tr>';
+                if (!date) {
+                    document.getElementById('occurrenceDate').classList.add('input-error');
+                    hasError = true;
+                }
+                
+                if (!studentClass) {
+                    document.getElementById('studentClass').classList.add('input-error');
+                    hasError = true;
+                }
+                
+                if (!student) {
+                    document.getElementById('student').classList.add('input-error');
+                    hasError = true;
+                }
+                
+                if (hasError) {
+                    showNotification('error', 'Por favor, preencha todos os campos obrigatórios.');
+                    return;
+                }
+                
+                // Coletar irregularidades selecionadas
+                const irregularities = [];
+                document.querySelectorAll('input[name="irregularity"]:checked').forEach(checkbox => {
+                    irregularities.push(checkbox.value);
+                });
+                
+                // Preparar dados para envio
+                const occurrenceData = {
+                    professor,
+                    date,
+                    studentClass,
+                    student,
+                    irregularities: irregularities.join(', '),
+                    description
+                };
+                
+                // Desabilitar botão durante o envio
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<div class="loading"></div> Enviando...';
                 
                 try {
-                    console.log('Carregando registros...');
+                    let response;
+                    if (currentEditId) {
+                        // Atualizar ocorrência existente
+                        response = await api.updateOccurrence({
+                            id: currentEditId,
+                            ...occurrenceData
+                        });
+                        showNotification('success', 'Ocorrência atualizada com sucesso!');
+                    } else {
+                        // Adicionar nova ocorrência
+                        response = await api.addOccurrence(occurrenceData);
+                        showNotification('success', 'Ocorrência registrada com sucesso!');
+                    }
+                    
+                    console.log('Resposta do servidor:', response);
+                    
+                    // Limpar formulário após sucesso
+                    clearBtn.click();
+                    
+                    // Recarregar estatísticas
+                    await loadInitialData();
+                    
+                } catch (error) {
+                    console.error('Erro ao enviar ocorrência:', error);
+                    showNotification('error', 'Erro ao registrar ocorrência: ' + error.message);
+                } finally {
+                    // Reabilitar botão
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = currentEditId ? 
+                        '<i class="fas fa-save"></i> ATUALIZAR' : 
+                        '<i class="fas fa-paper-plane"></i> CADASTRAR';
+                }
+            });
+
+            // ===== CARREGAR TABELA DE REGISTROS (GET CORRIGIDO) =====
+            async function loadRegistrosTable() {
+                try {
+                    console.log('Carregando registros de ocorrências...');
                     const occurrences = await api.getAllOccurrences();
                     console.log('Registros carregados:', occurrences.length);
                     
                     registrosTableBody.innerHTML = '';
                     
                     if (occurrences.length === 0) {
-                        registrosTableBody.innerHTML = '';
                         noRecordsMessage.style.display = 'block';
+                        registrosTable.style.display = 'none';
                         return;
                     }
                     
                     noRecordsMessage.style.display = 'none';
+                    registrosTable.style.display = 'table';
                     
                     occurrences.forEach(occurrence => {
-                        const row = document.createElement('tr');
-                        row.setAttribute('data-id', occurrence.id);
-                        
-                        // Formatar data
-                        const dateObj = new Date(occurrence.date);
-                        const formattedDate = dateObj.toLocaleDateString('pt-BR');
-                        
-                        row.innerHTML = `
-                            <td>${formattedDate}</td>
-                            <td>${occurrence.professor}</td>
-                            <td>${occurrence.class}</td>
-                            <td>${occurrence.student}</td>
-                            <td>${occurrence.irregularities || '-'}</td>
-                            <td>${occurrence.description || '-'}</td>
-                            <td class="actions-cell">
-                                ${occurrence.professor === professorSelect.value ? 
-                                    `<button class="btn-action btn-edit" data-id="${occurrence.id}">
-                                        <i class="fas fa-edit"></i> Editar
-                                    </button>
-                                    <button class="btn-action btn-delete" data-id="${occurrence.id}">
-                                        <i class="fas fa-trash"></i> Excluir
-                                    </button>` : 
-                                    '<span>Sem permissão</span>'
-                                }
-                            </td>
-                        `;
-                        
-                        registrosTableBody.appendChild(row);
+                        addOccurrenceToTable(occurrence);
                     });
                     
-                    // Atualizar contagem de ocorrências
-                    totalOccurrencesEl.textContent = occurrences.length;
-                    totalOccurrencesStats.textContent = occurrences.length;
                 } catch (error) {
                     console.error('Erro ao carregar registros:', error);
-                    registrosTableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">Erro ao carregar registros: ${error.message}</td></tr>`;
                     showNotification('error', 'Erro ao carregar registros: ' + error.message);
+                    noRecordsMessage.style.display = 'block';
+                    registrosTable.style.display = 'none';
                 }
             }
 
-            // Enviar formulário
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
+            // Função para adicionar ocorrência na tabela
+            function addOccurrenceToTable(occurrence) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${formatDate(occurrence.date)}</td>
+                    <td>${occurrence.professor}</td>
+                    <td>${occurrence.studentClass}</td>
+                    <td>${occurrence.student}</td>
+                    <td>${occurrence.irregularities || 'Nenhuma'}</td>
+                    <td>${occurrence.description || 'Sem descrição'}</td>
+                    <td class="actions-cell">
+                        <button class="btn-action btn-edit" onclick="editOccurrence('${occurrence.id}')">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="btn-action btn-delete" onclick="deleteOccurrence('${occurrence.id}')">
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                    </td>
+                `;
+                registrosTableBody.appendChild(row);
+            }
 
-                // Remover classes de erro existentes
-                document.querySelectorAll('.input-error').forEach(el => {
-                    el.classList.remove('input-error');
-                });
+            // Função para formatar data
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('pt-BR');
+            }
 
-                // Coletar dados do formulário
-                const professor = professorSelect.value;
-                const occurrenceDate = document.getElementById('occurrenceDate').value;
-                const student = studentSelect.value;
-                const classInfo = classSelect.value;
-                const description = document.getElementById('description').value;
-
-                // Verificar irregularidades selecionadas
-                const irregularities = [];
-                document.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
-                    irregularities.push(cb.value);
-                });
-
-                // Validação
-                let isValid = true;
-                if (!professor) {
-                    document.getElementById('professor').classList.add('input-error');
-                    isValid = false;
+            // ===== EDITAR OCORRÊNCIA =====
+            window.editOccurrence = async function(id) {
+                try {
+                    console.log('Carregando ocorrência para edição:', id);
+                    const occurrence = await api.getOccurrenceById(id);
+                    console.log('Ocorrência carregada:', occurrence);
+                    
+                    // Preencher formulário com dados da ocorrência
+                    document.getElementById('professor').value = occurrence.professor;
+                    document.getElementById('occurrenceDate').value = occurrence.date;
+                    document.getElementById('studentClass').value = occurrence.studentClass;
+                    
+                    // Carregar alunos da turma
+                    const students = await api.getStudents(occurrence.studentClass);
+                    studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
+                    students.forEach(student => {
+                        const option = document.createElement('option');
+                        option.value = student;
+                        option.textContent = student;
+                        studentSelect.appendChild(option);
+                    });
+                    studentSelect.disabled = false;
+                    studentSelect.value = occurrence.student;
+                    
+                    document.getElementById('description').value = occurrence.description || '';
+                    
+                    // Marcar irregularidades
+                    document.querySelectorAll('input[name="irregularity"]').forEach(checkbox => {
+                        checkbox.checked = occurrence.irregularities && 
+                                          occurrence.irregularities.includes(checkbox.value);
+                    });
+                    
+                    // Configurar modo de edição
+                    currentEditId = id;
+                    submitBtn.innerHTML = '<i class="fas fa-save"></i> ATUALIZAR';
+                    
+                    // Ir para a aba de formulário
+                    document.querySelector('[data-tab="form-tab"]').click();
+                    
+                    showNotification('success', 'Ocorrência carregada para edição');
+                    
+                } catch (error) {
+                    console.error('Erro ao carregar ocorrência:', error);
+                    showNotification('error', 'Erro ao carregar ocorrência: ' + error.message);
                 }
-                if (!occurrenceDate) {
-                    document.getElementById('occurrenceDate').classList.add('input-error');
-                    isValid = false;
-                }
-                if (!classInfo) {
-                    document.getElementById('studentClass').classList.add('input-error');
-                    isValid = false;
-                }
-                if (!student) {
-                    document.getElementById('student').classList.add('input-error');
-                    isValid = false;
-                }
+            };
 
-                if (!isValid) {
-                    // Rolar para o primeiro erro
-                    const firstError = document.querySelector('.input-error');
-                    if (firstError) {
-                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                    showNotification('error', 'Por favor, preencha todos os campos obrigatórios');
+            // ===== EXCLUIR OCORRÊNCIA (POST CORRIGIDO) =====
+            window.deleteOccurrence = async function(id) {
+                if (!confirm('Tem certeza que deseja excluir esta ocorrência?')) {
                     return;
                 }
-
-                // Mostrar loading
-                const originalBtnText = submitBtn.innerHTML;
-                submitBtn.innerHTML = '<span class="loading"></span> Processando...';
-                submitBtn.disabled = true;
-
+                
                 try {
-                    // Preparar dados para envio
-                    const formData = {
-                        professor: professor,
-                        date: occurrenceDate,
-                        student: student,
-                        class: classInfo,
-                        irregularities: irregularities.join(', '),
-                        description: description
-                    };
-
-                    console.log('Enviando dados:', formData);
-
-                    // Enviar dados
-                    let response;
-                    if (currentEditId) {
-                        response = await api.updateOccurrence({ id: currentEditId, ...formData });
-                        showNotification('success', 'Ocorrência atualizada com sucesso!');
-                    } else {
-                        response = await api.addOccurrence(formData);
-                        showNotification('success', 'Ocorrência registrada com sucesso!');
-                        
-                        // Adicionar novo registro na tabela (primeira linha)
-                        addOccurrenceToTable({
-                            ...formData,
-                            id: response.id || Date.now().toString(),
-                            date: occurrenceDate
-                        });
-                    }
-
-                    console.log('Resposta do servidor:', response);
-
-                    // Resetar formulário após sucesso
-                    form.reset();
-                    document.getElementById('occurrenceDate').value = formattedDate;
-                    studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
-                    studentSelect.disabled = true;
-                    classSelect.selectedIndex = 0;
-                    studentOccurrencesCard.style.display = 'none';
-                    classStudentsCard.style.display = 'none';
-                    currentEditId = null;
-                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> CADASTRAR';
+                    console.log('Excluindo ocorrência:', id);
+                    await api.deleteOccurrence(id);
+                    showNotification('success', 'Ocorrência excluída com sucesso!');
                     
-                    // Recarregar estatísticas
-                    loadStudentPeriodStats();
-                    loadStatistics();
+                    // Recarregar tabela
+                    await loadRegistrosTable();
+                    await loadInitialData();
+                    
                 } catch (error) {
-                    console.error('Erro ao enviar ocorrência:', error);
-                    showNotification('error', `Erro ao registrar ocorrência: ${error.message}`);
-                } finally {
-                    // Restaurar botão de envio
-                    submitBtn.innerHTML = originalBtnText;
-                    submitBtn.disabled = false;
+                    console.error('Erro ao excluir ocorrência:', error);
+                    showNotification('error', 'Erro ao excluir ocorrência: ' + error.message);
                 }
-            });
+            };
 
-            // Atualizar gráfico de distribuição por período
-            function updateStudentsPeriodChart(data) {
+            // ===== CARREGAR ESTATÍSTICAS (GET CORRIGIDO) =====
+            async function loadStatistics() {
+                try {
+                    console.log('Carregando estatísticas...');
+                    const stats = await api.getStatistics();
+                    console.log('Estatísticas carregadas:', stats);
+                    
+                    // Atualizar elementos de estatísticas
+                    totalOccurrencesStats.textContent = stats.totalOccurrences || 0;
+                    mostFrequentIrregularity.textContent = stats.mostFrequentIrregularity || '-';
+                    mostAffectedClass.textContent = stats.mostAffectedClass || '-';
+                    
+                    // Criar gráficos
+                    createClassOccurrencesChart(stats.classCounts || {});
+                    createIrregularitiesChart(stats.irregularityCounts || {});
+                    
+                } catch (error) {
+                    console.error('Erro ao carregar estatísticas:', error);
+                    showNotification('error', 'Erro ao carregar estatísticas: ' + error.message);
+                }
+            }
+
+            // Função para criar gráfico de ocorrências por turma
+            function createClassOccurrencesChart(data) {
+                if (classOccurrencesChart) {
+                    classOccurrencesChart.destroy();
+                }
+                
+                const ctx = classOccurrencesChartCanvas.getContext('2d');
+                classOccurrencesChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(data),
+                        datasets: [{
+                            label: 'Ocorrências',
+                            data: Object.values(data),
+                            backgroundColor: '#3498db',
+                            borderColor: '#2980b9',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Função para criar gráfico de irregularidades
+            function createIrregularitiesChart(data) {
+                if (irregularitiesChart) {
+                    irregularitiesChart.destroy();
+                }
+                
+                const ctx = irregularitiesChartCanvas.getContext('2d');
+                irregularitiesChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: Object.keys(data),
+                        datasets: [{
+                            data: Object.values(data),
+                            backgroundColor: [
+                                '#3498db', '#e74c3c', '#f39c12', '#2ecc71',
+                                '#9b59b6', '#1abc9c', '#34495e', '#e67e22',
+                                '#95a5a6'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+
+            // ===== CARREGAR DADOS INICIAIS (GET CORRIGIDO) =====
+            async function loadInitialData() {
+                try {
+                    // Carregar estatísticas de período dos alunos
+                    const periodStats = await api.getStudentPeriodStats();
+                    console.log('Estatísticas de período carregadas:', periodStats);
+                    
+                    // Atualizar contadores
+                    morningCountEl.textContent = periodStats.morning || 0;
+                    afternoonCountEl.textContent = periodStats.afternoon || 0;
+                    nightCountEl.textContent = periodStats.night || 0;
+                    
+                    const totalStudents = (periodStats.morning || 0) + 
+                                         (periodStats.afternoon || 0) + 
+                                         (periodStats.night || 0);
+                    document.getElementById('totalStudents').textContent = totalStudents;
+                    
+                    // Criar gráfico de distribuição por período
+                    createStudentsPeriodChart(periodStats);
+                    
+                    // Carregar total de ocorrências
+                    const occurrences = await api.getAllOccurrences();
+                    totalOccurrencesEl.textContent = occurrences.length;
+                    
+                } catch (error) {
+                    console.error('Erro ao carregar dados iniciais:', error);
+                    showNotification('error', 'Erro ao carregar dados iniciais: ' + error.message);
+                }
+            }
+
+            // Função para criar gráfico de distribuição por período
+            function createStudentsPeriodChart(data) {
                 if (studentsPeriodChart) {
                     studentsPeriodChart.destroy();
                 }
                 
                 const ctx = studentsPeriodChartCanvas.getContext('2d');
                 studentsPeriodChart = new Chart(ctx, {
-                    type: 'bar',
+                    type: 'doughnut',
                     data: {
                         labels: ['Manhã', 'Tarde', 'Noite'],
                         datasets: [{
-                            label: 'Quantidade de Alunos',
-                            data: [data.morningCount, data.afternoonCount, data.nightCount],
-                            backgroundColor: [
-                                'rgba(241, 196, 15, 0.8)',
-                                'rgba(230, 126, 34, 0.8)',
-                                'rgba(155, 89, 182, 0.8)'
-                            ],
-                            borderColor: [
-                                'rgb(241, 196, 15)',
-                                'rgb(230, 126, 34)',
-                                'rgb(155, 89, 182)'
-                            ],
-                            borderWidth: 1
+                            data: [data.morning || 0, data.afternoon || 0, data.night || 0],
+                            backgroundColor: ['#f1c40f', '#e67e22', '#9b59b6'],
+                            borderWidth: 0
                         }]
                     },
                     options: {
@@ -2311,308 +2462,59 @@
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return `${context.dataset.label}: ${context.parsed.y}`;
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Quantidade de Alunos'
-                                }
-                            },
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Período'
-                                }
+                                position: 'bottom'
                             }
                         }
                     }
                 });
             }
-            
-            // Carregar estatísticas de alunos por período
-            async function loadStudentPeriodStats() {
-                try {
-                    console.log('Carregando estatísticas por período...');
-                    const data = await api.getStudentPeriodStats();
-                    console.log('Estatísticas por período carregadas:', data);
-                    
-                    document.getElementById('totalStudents').textContent = data.totalStudents || 0;
-                    morningCountEl.textContent = data.morningCount || 0;
-                    afternoonCountEl.textContent = data.afternoonCount || 0;
-                    nightCountEl.textContent = data.nightCount || 0;
-                    
-                    // Atualizar gráfico de distribuição por período
-                    updateStudentsPeriodChart(data);
-                } catch (error) {
-                    console.error('Erro ao carregar estatísticas de alunos:', error);
-                    // Usar dados simulados para demonstração
-                    const demoData = {
-                        totalStudents: 1050,
-                        morningCount: 450,
-                        afternoonCount: 380,
-                        nightCount: 220
-                    };
-                    document.getElementById('totalStudents').textContent = demoData.totalStudents;
-                    morningCountEl.textContent = demoData.morningCount;
-                    afternoonCountEl.textContent = demoData.afternoonCount;
-                    nightCountEl.textContent = demoData.nightCount;
-                    updateStudentsPeriodChart(demoData);
-                }
-            }
-            
-            // Função para exportar dados para Excel
+
+            // ===== EXPORTAR DADOS =====
             exportBtn.addEventListener('click', async function() {
                 try {
                     console.log('Exportando dados...');
                     const occurrences = await api.getAllOccurrences();
                     
+                    if (occurrences.length === 0) {
+                        showNotification('error', 'Não há dados para exportar');
+                        return;
+                    }
+                    
                     // Preparar dados para exportação
-                    const exportData = occurrences.map(occurrence => {
-                        return {
-                            'Data': new Date(occurrence.date).toLocaleDateString('pt-BR'),
-                            'Professor': occurrence.professor,
-                            'Turma': occurrence.class,
-                            'Aluno': occurrence.student,
-                            'Irregularidades': occurrence.irregularities || '',
-                            'Descrição': occurrence.description || ''
-                        };
-                    });
+                    const exportData = occurrences.map(occurrence => ({
+                        'Data': formatDate(occurrence.date),
+                        'Professor': occurrence.professor,
+                        'Turma': occurrence.studentClass,
+                        'Aluno': occurrence.student,
+                        'Irregularidades': occurrence.irregularities || 'Nenhuma',
+                        'Descrição': occurrence.description || 'Sem descrição'
+                    }));
                     
-                    // Criar planilha
-                    const worksheet = XLSX.utils.json_to_sheet(exportData);
-                    const workbook = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(workbook, worksheet, "OCORRENCIASDOSPROFESSORES");
+                    // Criar planilha Excel
+                    const ws = XLSX.utils.json_to_sheet(exportData);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, 'Ocorrências');
                     
-                    // Exportar para arquivo Excel
-                    XLSX.writeFile(workbook, 'ocorrencias_escolares.xlsx');
+                    // Baixar arquivo
+                    const fileName = `ocorrencias_${new Date().toISOString().split('T')[0]}.xlsx`;
+                    XLSX.writeFile(wb, fileName);
+                    
                     showNotification('success', 'Dados exportados com sucesso!');
+                    
                 } catch (error) {
                     console.error('Erro ao exportar dados:', error);
                     showNotification('error', 'Erro ao exportar dados: ' + error.message);
                 }
             });
-            
-            // Delegation para botões de editar e excluir
-            registrosTable.addEventListener('click', function(e) {
-                const target = e.target;
-                const editBtn = target.closest('.btn-edit');
-                const deleteBtn = target.closest('.btn-delete');
-                
-                if (editBtn) {
-                    const occurrenceId = editBtn.getAttribute('data-id');
-                    editOccurrence(occurrenceId);
-                }
-                
-                if (deleteBtn) {
-                    const occurrenceId = deleteBtn.getAttribute('data-id');
-                    if (confirm('Tem certeza que deseja excluir esta ocorrência?')) {
-                        deleteOccurrence(occurrenceId);
-                    }
-                }
-            });
 
-            // Função para editar ocorrência
-            async function editOccurrence(occurrenceId) {
-                try {
-                    console.log('Editando ocorrência:', occurrenceId);
-                    const occurrence = await api.getOccurrenceById(occurrenceId);
-                    console.log('Dados da ocorrência:', occurrence);
-                    
-                    // Preencher formulário com os dados da ocorrência
-                    professorSelect.value = occurrence.professor;
-                    document.getElementById('occurrenceDate').value = occurrence.date;
-                    classSelect.value = occurrence.class;
-                    
-                    // Disparar evento para carregar alunos
-                    const event = new Event('change');
-                    classSelect.dispatchEvent(event);
-                    
-                    // Aguardar um pouco para o carregamento dos alunos
-                    setTimeout(() => {
-                        studentSelect.value = occurrence.student;
-                        
-                        // Disparar evento para carregar estatísticas do aluno
-                        studentSelect.dispatchEvent(new Event('change'));
-                        
-                        // Preencher irregularidades
-                        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                            checkbox.checked = occurrence.irregularities && occurrence.irregularities.includes(checkbox.value);
-                        });
-                        
-                        // Preencher descrição
-                        document.getElementById('description').value = occurrence.description || '';
-                        
-                        // Alterar botão para "Atualizar"
-                        submitBtn.innerHTML = '<i class="fas fa-sync-alt"></i> ATUALIZAR';
-                        currentEditId = occurrenceId;
-                        
-                        // Rolar para o topo do formulário
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                        
-                        showNotification('success', 'Ocorrência carregada para edição');
-                    }, 1000);
-                } catch (error) {
-                    console.error('Erro ao editar ocorrência:', error);
-                    showNotification('error', 'Erro ao carregar ocorrência para edição: ' + error.message);
-                }
-            }
-
-            // Função para excluir ocorrência
-            async function deleteOccurrence(occurrenceId) {
-                try {
-                    console.log('Excluindo ocorrência:', occurrenceId);
-                    await api.deleteOccurrence(occurrenceId);
-                    
-                    showNotification('success', 'Ocorrência excluída com sucesso!');
-                    
-                    // Remover da tabela
-                    const row = document.querySelector(`tr[data-id="${occurrenceId}"]`);
-                    if (row) row.remove();
-                    
-                    // Atualizar estatísticas
-                    const currentTotal = parseInt(totalOccurrencesEl.textContent);
-                    totalOccurrencesEl.textContent = Math.max(0, currentTotal - 1);
-                    totalOccurrencesStats.textContent = Math.max(0, currentTotal - 1);
-                    
-                    // Recarregar estatísticas gerais
-                    loadStatistics();
-                } catch (error) {
-                    console.error('Erro ao excluir ocorrência:', error);
-                    showNotification('error', `Erro ao excluir ocorrência: ${error.message}`);
-                }
-            }
-
-            // Carregar estatísticas gerais
-            async function loadStatistics() {
-                try {
-                    console.log('Carregando estatísticas gerais...');
-                    const data = await api.getStatistics();
-                    console.log('Estatísticas gerais carregadas:', data);
-                    
-                    // Atualizar estatísticas principais
-                    totalOccurrencesStats.textContent = data.totalOccurrences || 0;
-                    mostFrequentIrregularity.textContent = data.mostFrequentIrregularity || '-';
-                    mostAffectedClass.textContent = data.mostAffectedClass || '-';
-                    
-                    // Atualizar gráfico de ocorrências por turma
-                    updateClassOccurrencesChart(data.classOccurrences || []);
-                    
-                    // Atualizar gráfico de distribuição de irregularidades
-                    updateIrregularitiesChart(data.irregularitiesStats || []);
-                } catch (error) {
-                    console.error('Erro ao carregar estatísticas:', error);
-                    showNotification('error', 'Erro ao carregar estatísticas: ' + error.message);
-                }
-            }
-            
-            // Atualizar gráfico de ocorrências por turma
-            function updateClassOccurrencesChart(data) {
-                if (classOccurrencesChart) {
-                    classOccurrencesChart.destroy();
-                }
-                
-                const ctx = classOccurrencesChartCanvas.getContext('2d');
-                const labels = data.map(item => item.class);
-                const values = data.map(item => item.count);
-                
-                classOccurrencesChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Ocorrências',
-                            data: values,
-                            backgroundColor: 'rgba(52, 152, 219, 0.8)',
-                            borderColor: 'rgb(52, 152, 219)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Número de Ocorrências'
-                                }
-                            },
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Turma'
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-            
-            // Atualizar gráfico de distribuição de irregularidades
-            function updateIrregularitiesChart(data) {
-                if (irregularitiesChart) {
-                    irregularitiesChart.destroy();
-                }
-                
-                const ctx = irregularitiesChartCanvas.getContext('2d');
-                const labels = data.map(item => item.irregularity);
-                const values = data.map(item => item.count);
-                
-                // Gerar cores aleatórias
-                const backgroundColors = labels.map(() => {
-                    return `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.8)`;
-                });
-                
-                irregularitiesChart = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Ocorrências',
-                            data: values,
-                            backgroundColor: backgroundColors,
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'right'
-                            }
-                        }
-                    }
-                });
-            }
-
-            // Inicializar gráficos com valores zero
-            document.querySelectorAll('.donut-chart').forEach(canvas => {
+            // Inicializar gráficos vazios
+            const chartCanvases = document.querySelectorAll('.donut-chart');
+            chartCanvases.forEach(canvas => {
                 createDonutChart(canvas, 0);
             });
-            
-            // Carregar estatísticas iniciais
-            console.log('Inicializando aplicação...');
-            loadStudentPeriodStats();
-            loadRegistrosTable();
-            loadStatistics();
+
+            // Carregar dados iniciais
+            loadInitialData();
         });
     </script>
 </body>
