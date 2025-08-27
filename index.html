@@ -511,6 +511,41 @@
             color: #d0d0d0;
         }
         
+        .offline-mode {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            border-radius: 16px;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
         footer {
             background-color: white;
             border-top: 1px solid var(--border-color);
@@ -571,6 +606,11 @@
 
     <div class="container">
         <main>
+            <div id="offlineAlert" class="offline-mode" style="display: none;">
+                <i class="fas fa-wifi"></i>
+                <span>Modo offline ativado. Algumas funcionalidades podem estar limitadas.</span>
+            </div>
+
             <div class="tabs">
                 <button class="tab-button active" data-tab="form-tab">Cadastrar Ocorrências</button>
                 <button class="tab-button" data-tab="records-tab">Registros</button>
@@ -666,9 +706,14 @@
                                         <div class="form-col">
                                             <div class="form-group">
                                                 <label for="student" class="required">Nome do aluno</label>
-                                                <select id="student" required disabled>
-                                                    <option value="">Selecione primeiro a turma</option>
-                                                </select>
+                                                <div style="position: relative;">
+                                                    <select id="student" required disabled>
+                                                        <option value="">Selecione primeiro a turma</option>
+                                                    </select>
+                                                    <div id="studentLoading" class="loading-overlay" style="display: none;">
+                                                        <div class="loading-spinner"></div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -884,12 +929,41 @@
             MAX_RETRIES: 3
         };
 
+        // ===== SISTEMA DE CACHE PARA DADOS =====
+        class DataCache {
+            constructor() {
+                this.studentsByClass = {};
+                this.lastUpdate = {};
+                this.CACHE_DURATION = 15 * 60 * 1000; // 15 minutos
+            }
+
+            getStudents(className) {
+                const cache = this.studentsByClass[className];
+                if (cache && Date.now() - (this.lastUpdate[className] || 0) < this.CACHE_DURATION) {
+                    return Promise.resolve(cache);
+                }
+                return null;
+            }
+
+            setStudents(className, students) {
+                this.studentsByClass[className] = students;
+                this.lastUpdate[className] = Date.now();
+            }
+
+            clear() {
+                this.studentsByClass = {};
+                this.lastUpdate = {};
+            }
+        }
+
         // ===== CLASSE DE CLIENTE API TOTALMENTE CORRIGIDA =====
         class APIClient {
             constructor(config) {
                 this.baseUrl = config.BASE_URL;
                 this.timeout = config.TIMEOUT;
                 this.maxRetries = config.MAX_RETRIES;
+                this.cache = new DataCache();
+                this.isOnline = true;
             }
 
             async makeRequest(url, options = {}) {
@@ -952,6 +1026,8 @@
                         }
 
                         console.log('Dados processados com sucesso');
+                        this.isOnline = true;
+                        document.getElementById('offlineAlert').style.display = 'none';
                         return data;
 
                     } catch (error) {
@@ -959,6 +1035,8 @@
                         console.error(`Erro na tentativa ${attempt + 1}:`, error);
                         
                         if (attempt === retries) {
+                            this.isOnline = false;
+                            document.getElementById('offlineAlert').style.display = 'flex';
                             throw new Error(`Falha após ${retries + 1} tentativas: ${error.message}`);
                         }
 
@@ -971,9 +1049,30 @@
 
             // ===== MÉTODOS GET CORRIGIDOS =====
             async getStudents(className) {
+                // Verificar cache primeiro
+                const cachedData = this.cache.getStudents(className);
+                if (cachedData) {
+                    console.log('Retornando dados do cache para:', className);
+                    return cachedData;
+                }
+
                 const url = `${this.baseUrl}?action=getStudents&class=${encodeURIComponent(className)}&timestamp=${Date.now()}`;
-                const response = await this.makeRequest(url);
-                return response.students || [];
+                try {
+                    const response = await this.makeRequest(url);
+                    const students = response.students || [];
+                    this.cache.setStudents(className, students);
+                    return students;
+                } catch (error) {
+                    console.error('Erro ao buscar alunos:', error);
+                    
+                    // Tentar usar dados do cache mesmo se expirados em caso de erro
+                    if (this.cache.studentsByClass[className]) {
+                        console.log('Usando dados expirados do cache devido ao erro');
+                        return this.cache.studentsByClass[className];
+                    }
+                    
+                    throw error;
+                }
             }
 
             async getStudentStats(studentName) {
@@ -1152,6 +1251,7 @@
             const tabContents = document.querySelectorAll('.tab-content');
             const alert = document.getElementById('alert');
             const alertMessage = document.getElementById('alert-message');
+            const studentLoading = document.getElementById('studentLoading');
 
             // Variáveis globais
             const charts = {};
@@ -1263,6 +1363,7 @@
                 const selectedClass = this.value;
                 studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
                 studentSelect.disabled = true;
+                studentLoading.style.display = 'flex';
 
                 const chartCanvases = document.querySelectorAll('.donut-chart');
                 chartCanvases.forEach(canvas => {
@@ -1271,6 +1372,7 @@
 
                 if (!selectedClass) {
                     studentSelect.innerHTML = '<option value="">Selecione uma turma</option>';
+                    studentLoading.style.display = 'none';
                     return;
                 }
 
@@ -1292,6 +1394,8 @@
                     console.error('Erro ao carregar alunos:', error);
                     studentSelect.innerHTML = `<option value="">Erro: ${error.message}</option>`;
                     showNotification('error', 'Erro ao carregar alunos: ' + error.message);
+                } finally {
+                    studentLoading.style.display = 'none';
                 }
             });
 
