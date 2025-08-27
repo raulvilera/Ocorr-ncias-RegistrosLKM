@@ -8,6 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
+        /* [Mantém todo o CSS existente - não alterado] */
         :root {
             --primary-color: #1a73e8;
             --primary-dark: #0d47a1;
@@ -1553,14 +1554,14 @@
     </footer>
     
     <script>
-        // ===== CONFIGURAÇÃO DA API =====
+        // ===== CONFIGURAÇÃO DA API CORRIGIDA =====
         const API_CONFIG = {
             BASE_URL: 'https://script.google.com/macros/s/AKfycbyjyLBsz0s63iiaQKOZ3gViNdGUt1QXEH0qOoLTXGkI3-BDW5SwfBCEiwrnCggBaS3m/exec',
-            TIMEOUT: 30000,
-            MAX_RETRIES: 3
+            TIMEOUT: 45000, // Aumentado para 45 segundos
+            MAX_RETRIES: 5  // Aumentado para 5 tentativas
         };
 
-        // ===== CAMADA DE API =====
+        // ===== CAMADA DE API CORRIGIDA =====
         class APIClient {
             constructor(config) {
                 this.baseUrl = config.BASE_URL;
@@ -1579,8 +1580,11 @@
                         const fetchOptions = {
                             method,
                             mode: 'cors',
+                            cache: 'no-cache',
+                            credentials: 'omit',
                             headers: {
-                                'Content-Type': 'application/json'
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
                             },
                             signal: controller.signal
                         };
@@ -1589,70 +1593,93 @@
                             fetchOptions.body = JSON.stringify(body);
                         }
 
+                        console.log(`Tentativa ${attempt + 1} - ${method} ${url}`);
+                        
                         const response = await fetch(url, fetchOptions);
                         clearTimeout(timeoutId);
+
+                        console.log(`Resposta recebida: ${response.status} ${response.statusText}`);
 
                         if (!response.ok) {
                             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                         }
 
                         const contentType = response.headers.get('content-type');
-                        if (!contentType || !contentType.includes('application/json')) {
-                            const text = await response.text();
-                            throw new Error(`Resposta inválida: ${text.substring(0, 100)}`);
-                        }
-
-                        const data = await response.json();
+                        let data;
                         
-                        if (data.status !== 'success') {
+                        if (contentType && contentType.includes('application/json')) {
+                            data = await response.json();
+                        } else {
+                            const text = await response.text();
+                            console.log('Resposta não-JSON recebida:', text.substring(0, 200));
+                            
+                            // Tentar extrair JSON da resposta
+                            try {
+                                const jsonMatch = text.match(/\{.*\}/s);
+                                if (jsonMatch) {
+                                    data = JSON.parse(jsonMatch[0]);
+                                } else {
+                                    throw new Error(`Resposta inválida: ${text.substring(0, 100)}`);
+                                }
+                            } catch (parseError) {
+                                throw new Error(`Erro ao processar resposta: ${text.substring(0, 100)}`);
+                            }
+                        }
+                        
+                        if (data.status && data.status !== 'success') {
                             throw new Error(data.message || 'Erro desconhecido do servidor');
                         }
 
+                        console.log('Dados processados com sucesso');
                         return data;
+                        
                     } catch (error) {
                         clearTimeout(timeoutId);
+                        console.error(`Erro na tentativa ${attempt + 1}:`, error);
                         
                         if (attempt === retries) {
-                            throw error;
+                            throw new Error(`Falha após ${retries + 1} tentativas: ${error.message}`);
                         }
                         
-                        // Backoff exponencial
-                        await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt)));
+                        // Backoff exponencial com jitter
+                        const delay = Math.min(1000 * Math.pow(2, attempt) + Math.random() * 1000, 10000);
+                        console.log(`Aguardando ${delay}ms antes da próxima tentativa...`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
                     }
                 }
             }
 
-            // Métodos da API
+            // Métodos da API corrigidos
             async getStudents(className) {
-                const url = `${this.baseUrl}?action=getStudents&class=${encodeURIComponent(className)}`;
+                const url = `${this.baseUrl}?action=getStudents&class=${encodeURIComponent(className)}&timestamp=${Date.now()}`;
                 const response = await this.safeFetch(url);
-                return response.students;
+                return response.students || [];
             }
 
             async getStudentStats(studentName) {
-                const url = `${this.baseUrl}?action=getStudentStats&student=${encodeURIComponent(studentName)}`;
+                const url = `${this.baseUrl}?action=getStudentStats&student=${encodeURIComponent(studentName)}&timestamp=${Date.now()}`;
                 return await this.safeFetch(url);
             }
 
             async getStudentPeriodStats() {
-                const url = `${this.baseUrl}?action=getStudentPeriodStats`;
+                const url = `${this.baseUrl}?action=getStudentPeriodStats&timestamp=${Date.now()}`;
                 return await this.safeFetch(url);
             }
 
             async getAllOccurrences() {
-                const url = `${this.baseUrl}?action=getAllOccurrences`;
+                const url = `${this.baseUrl}?action=getAllOccurrences&timestamp=${Date.now()}`;
                 const response = await this.safeFetch(url);
-                return response.occurrences;
+                return response.occurrences || [];
             }
 
             async getOccurrenceById(id) {
-                const url = `${this.baseUrl}?action=getOccurrenceById&id=${encodeURIComponent(id)}`;
+                const url = `${this.baseUrl}?action=getOccurrenceById&id=${encodeURIComponent(id)}&timestamp=${Date.now()}`;
                 const response = await this.safeFetch(url);
                 return response.occurrence;
             }
 
             async getStatistics() {
-                const url = `${this.baseUrl}?action=getStatistics`;
+                const url = `${this.baseUrl}?action=getStatistics&timestamp=${Date.now()}`;
                 return await this.safeFetch(url);
             }
 
@@ -1681,7 +1708,7 @@
         // Instanciar cliente da API
         const api = new APIClient(API_CONFIG);
 
-        // ===== APLICAÇÃO PRINCIPAL =====
+        // ===== APLICAÇÃO PRINCIPAL CORRIGIDA =====
         document.addEventListener('DOMContentLoaded', function() {
             // Dados completos dos professores
             const teacherEmails = {
@@ -1891,7 +1918,7 @@
                     type: 'doughnut',
                     data: {
                         datasets: [{
-                            data: [value, maxValue - value],
+                            data: [value, Math.max(0, maxValue - value)],
                             backgroundColor: [
                                 '#3498db', // Cor da ocorrência
                                 '#e0e0e0' // Cor de fundo
@@ -1935,7 +1962,9 @@
                 }
 
                 try {
+                    console.log('Carregando alunos para a turma:', selectedClass);
                     const students = await api.getStudents(selectedClass);
+                    console.log('Alunos carregados:', students.length);
                     
                     studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
                     students.forEach(student => {
@@ -1972,9 +2001,11 @@
                     studentOccurrencesCount.textContent = "Carregando...";
                     
                     try {
+                        console.log('Carregando estatísticas para o aluno:', this.value);
                         const data = await api.getStudentStats(this.value);
+                        console.log('Estatísticas carregadas:', data);
                         
-                        studentOccurrencesCount.textContent = data.totalOccurrences;
+                        studentOccurrencesCount.textContent = data.totalOccurrences || 0;
                         
                         // Atualizar gráficos com os dados detalhados
                         if (data.detailedStats) {
@@ -2081,7 +2112,9 @@
                 registrosTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Carregando registros...</td></tr>';
                 
                 try {
+                    console.log('Carregando registros...');
                     const occurrences = await api.getAllOccurrences();
+                    console.log('Registros carregados:', occurrences.length);
                     
                     registrosTableBody.innerHTML = '';
                     
@@ -2129,8 +2162,7 @@
                     totalOccurrencesStats.textContent = occurrences.length;
                 } catch (error) {
                     console.error('Erro ao carregar registros:', error);
-                    registrosTableBody.innerHTML = '';
-                    noRecordsMessage.style.display = 'block';
+                    registrosTableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">Erro ao carregar registros: ${error.message}</td></tr>`;
                     showNotification('error', 'Erro ao carregar registros: ' + error.message);
                 }
             }
@@ -2202,6 +2234,8 @@
                         description: description
                     };
 
+                    console.log('Enviando dados:', formData);
+
                     // Enviar dados
                     let response;
                     if (currentEditId) {
@@ -2218,6 +2252,8 @@
                             date: occurrenceDate
                         });
                     }
+
+                    console.log('Resposta do servidor:', response);
 
                     // Resetar formulário após sucesso
                     form.reset();
@@ -2307,12 +2343,14 @@
             // Carregar estatísticas de alunos por período
             async function loadStudentPeriodStats() {
                 try {
+                    console.log('Carregando estatísticas por período...');
                     const data = await api.getStudentPeriodStats();
+                    console.log('Estatísticas por período carregadas:', data);
                     
-                    document.getElementById('totalStudents').textContent = data.totalStudents;
-                    morningCountEl.textContent = data.morningCount;
-                    afternoonCountEl.textContent = data.afternoonCount;
-                    nightCountEl.textContent = data.nightCount;
+                    document.getElementById('totalStudents').textContent = data.totalStudents || 0;
+                    morningCountEl.textContent = data.morningCount || 0;
+                    afternoonCountEl.textContent = data.afternoonCount || 0;
+                    nightCountEl.textContent = data.nightCount || 0;
                     
                     // Atualizar gráfico de distribuição por período
                     updateStudentsPeriodChart(data);
@@ -2336,6 +2374,7 @@
             // Função para exportar dados para Excel
             exportBtn.addEventListener('click', async function() {
                 try {
+                    console.log('Exportando dados...');
                     const occurrences = await api.getAllOccurrences();
                     
                     // Preparar dados para exportação
@@ -2386,7 +2425,9 @@
             // Função para editar ocorrência
             async function editOccurrence(occurrenceId) {
                 try {
+                    console.log('Editando ocorrência:', occurrenceId);
                     const occurrence = await api.getOccurrenceById(occurrenceId);
+                    console.log('Dados da ocorrência:', occurrence);
                     
                     // Preencher formulário com os dados da ocorrência
                     professorSelect.value = occurrence.professor;
@@ -2406,7 +2447,7 @@
                         
                         // Preencher irregularidades
                         document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                            checkbox.checked = occurrence.irregularities.includes(checkbox.value);
+                            checkbox.checked = occurrence.irregularities && occurrence.irregularities.includes(checkbox.value);
                         });
                         
                         // Preencher descrição
@@ -2420,7 +2461,7 @@
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                         
                         showNotification('success', 'Ocorrência carregada para edição');
-                    }, 500);
+                    }, 1000);
                 } catch (error) {
                     console.error('Erro ao editar ocorrência:', error);
                     showNotification('error', 'Erro ao carregar ocorrência para edição: ' + error.message);
@@ -2430,6 +2471,7 @@
             // Função para excluir ocorrência
             async function deleteOccurrence(occurrenceId) {
                 try {
+                    console.log('Excluindo ocorrência:', occurrenceId);
                     await api.deleteOccurrence(occurrenceId);
                     
                     showNotification('success', 'Ocorrência excluída com sucesso!');
@@ -2440,8 +2482,8 @@
                     
                     // Atualizar estatísticas
                     const currentTotal = parseInt(totalOccurrencesEl.textContent);
-                    totalOccurrencesEl.textContent = currentTotal - 1;
-                    totalOccurrencesStats.textContent = currentTotal - 1;
+                    totalOccurrencesEl.textContent = Math.max(0, currentTotal - 1);
+                    totalOccurrencesStats.textContent = Math.max(0, currentTotal - 1);
                     
                     // Recarregar estatísticas gerais
                     loadStatistics();
@@ -2454,20 +2496,23 @@
             // Carregar estatísticas gerais
             async function loadStatistics() {
                 try {
+                    console.log('Carregando estatísticas gerais...');
                     const data = await api.getStatistics();
+                    console.log('Estatísticas gerais carregadas:', data);
                     
                     // Atualizar estatísticas principais
-                    totalOccurrencesStats.textContent = data.totalOccurrences;
+                    totalOccurrencesStats.textContent = data.totalOccurrences || 0;
                     mostFrequentIrregularity.textContent = data.mostFrequentIrregularity || '-';
                     mostAffectedClass.textContent = data.mostAffectedClass || '-';
                     
                     // Atualizar gráfico de ocorrências por turma
-                    updateClassOccurrencesChart(data.classOccurrences);
+                    updateClassOccurrencesChart(data.classOccurrences || []);
                     
                     // Atualizar gráfico de distribuição de irregularidades
-                    updateIrregularitiesChart(data.irregularitiesStats);
+                    updateIrregularitiesChart(data.irregularitiesStats || []);
                 } catch (error) {
                     console.error('Erro ao carregar estatísticas:', error);
+                    showNotification('error', 'Erro ao carregar estatísticas: ' + error.message);
                 }
             }
             
@@ -2564,6 +2609,7 @@
             });
             
             // Carregar estatísticas iniciais
+            console.log('Inicializando aplicação...');
             loadStudentPeriodStats();
             loadRegistrosTable();
             loadStatistics();
