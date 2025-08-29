@@ -922,184 +922,308 @@
     </footer>
 
     <script>
-        // ===== CONFIGURAÇÃO DA API COM NOVO LINK =====
+        // ===== CONFIGURAÇÃO DA API ROBUSTA =====
         const API_CONFIG = {
             BASE_URL: 'https://script.google.com/macros/s/AKfycbzmmc0i28l-Oqmn9Tp2dnUqR35KpvVLRf3uezzKlCiQFQHDdm4hSz32hkYwOY8olg8n/exec',
-            TIMEOUT: 30000,
-            MAX_RETRIES: 3
+            TIMEOUT: 45000,
+            MAX_RETRIES: 5,
+            RETRY_DELAYS: [1000, 2000, 4000, 8000, 16000],
+            CACHE_DURATION: 10 * 60 * 1000 // 10 minutos
         };
 
-        // ===== SISTEMA DE CACHE PARA DADOS =====
-        class DataCache {
+        // ===== SISTEMA DE CACHE AVANÇADO =====
+        class AdvancedCache {
             constructor() {
-                this.studentsByClass = {};
-                this.lastUpdate = {};
-                this.CACHE_DURATION = 15 * 60 * 1000; // 15 minutos
+                this.cache = new Map();
+                this.timestamps = new Map();
+                this.maxSize = 100;
             }
 
-            getStudents(className) {
-                const cache = this.studentsByClass[className];
-                if (cache && Date.now() - (this.lastUpdate[className] || 0) < this.CACHE_DURATION) {
-                    return Promise.resolve(cache);
+            set(key, value, ttl = API_CONFIG.CACHE_DURATION) {
+                if (this.cache.size >= this.maxSize) {
+                    const oldestKey = this.cache.keys().next().value;
+                    this.cache.delete(oldestKey);
+                    this.timestamps.delete(oldestKey);
                 }
-                return null;
+                
+                this.cache.set(key, value);
+                this.timestamps.set(key, Date.now() + ttl);
             }
 
-            setStudents(className, students) {
-                this.studentsByClass[className] = students;
-                this.lastUpdate[className] = Date.now();
+            get(key) {
+                const timestamp = this.timestamps.get(key);
+                if (!timestamp || Date.now() > timestamp) {
+                    this.cache.delete(key);
+                    this.timestamps.delete(key);
+                    return null;
+                }
+                return this.cache.get(key);
             }
 
             clear() {
-                this.studentsByClass = {};
-                this.lastUpdate = {};
+                this.cache.clear();
+                this.timestamps.clear();
+            }
+
+            has(key) {
+                return this.get(key) !== null;
             }
         }
 
-        // ===== CLASSE DE CLIENTE API TOTALMENTE CORRIGIDA =====
-        class APIClient {
+        // ===== CLIENTE API ULTRA ROBUSTO =====
+        class RobustAPIClient {
             constructor(config) {
-                this.baseUrl = config.BASE_URL;
-                this.timeout = config.TIMEOUT;
-                this.maxRetries = config.MAX_RETRIES;
-                this.cache = new DataCache();
-                this.isOnline = true;
+                this.config = config;
+                this.cache = new AdvancedCache();
+                this.requestQueue = [];
+                this.isProcessingQueue = false;
+                this.connectionStatus = 'online';
+                this.retryCount = 0;
+                
+                // Detectar status de conexão
+                this.setupConnectionMonitoring();
+            }
+
+            setupConnectionMonitoring() {
+                window.addEventListener('online', () => {
+                    this.connectionStatus = 'online';
+                    this.processQueue();
+                    document.getElementById('offlineAlert').style.display = 'none';
+                });
+
+                window.addEventListener('offline', () => {
+                    this.connectionStatus = 'offline';
+                    document.getElementById('offlineAlert').style.display = 'flex';
+                });
             }
 
             async makeRequest(url, options = {}) {
-                const { method = 'GET', body = null, retries = this.maxRetries } = options;
+                const requestId = this.generateRequestId();
+                const cacheKey = this.generateCacheKey(url, options);
+                
+                // Verificar cache para requisições GET
+                if (options.method !== 'POST' && this.cache.has(cacheKey)) {
+                    console.log(`Cache hit para: ${cacheKey}`);
+                    return this.cache.get(cacheKey);
+                }
+
+                // Se offline, adicionar à fila
+                if (this.connectionStatus === 'offline' && options.method === 'POST') {
+                    return this.queueRequest(url, options);
+                }
+
+                return this.executeRequest(url, options, requestId, cacheKey);
+            }
+
+            async executeRequest(url, options, requestId, cacheKey) {
+                const { method = 'GET', body = null, retries = this.config.MAX_RETRIES } = options;
                 
                 for (let attempt = 0; attempt <= retries; attempt++) {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
-                    
                     try {
+                        console.log(`[${requestId}] Tentativa ${attempt + 1}/${retries + 1} - ${method} ${url}`);
+                        
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => {
+                            controller.abort();
+                            console.log(`[${requestId}] Timeout após ${this.config.TIMEOUT}ms`);
+                        }, this.config.TIMEOUT);
+
                         const fetchOptions = {
                             method,
                             mode: 'cors',
                             cache: 'no-cache',
                             credentials: 'omit',
+                            redirect: 'follow',
+                            referrerPolicy: 'no-referrer',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'Accept': 'application/json'
+                                'Accept': 'application/json, text/plain, */*',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Cache-Control': 'no-cache',
+                                'Pragma': 'no-cache'
                             },
                             signal: controller.signal
                         };
 
                         if (body && method !== 'GET') {
-                            fetchOptions.body = JSON.stringify(body);
+                            if (typeof body === 'object') {
+                                fetchOptions.body = JSON.stringify(body);
+                            } else {
+                                fetchOptions.body = body;
+                            }
                         }
 
-                        console.log(`Tentativa ${attempt + 1} - ${method} ${url}`);
                         const response = await fetch(url, fetchOptions);
                         clearTimeout(timeoutId);
 
-                        console.log(`Resposta: ${response.status} ${response.statusText}`);
-                        
+                        console.log(`[${requestId}] Status: ${response.status} ${response.statusText}`);
+
                         if (!response.ok) {
                             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                         }
 
-                        const contentType = response.headers.get('content-type');
-                        let data;
+                        const data = await this.parseResponse(response, requestId);
                         
-                        if (contentType && contentType.includes('application/json')) {
-                            data = await response.json();
-                        } else {
-                            const text = await response.text();
-                            console.log('Resposta não JSON:', text.substring(0, 200));
-                            
-                            try {
-                                const jsonMatch = text.match(/\{.*\}/s);
-                                if (jsonMatch) {
-                                    data = JSON.parse(jsonMatch[0]);
-                                } else {
-                                    throw new Error(`Resposta inválida: ${text.substring(0, 100)}`);
-                                }
-                            } catch (parseError) {
-                                throw new Error(`Erro ao processar resposta: ${text.substring(0, 100)}`);
-                            }
+                        // Validar resposta
+                        if (!this.isValidResponse(data)) {
+                            throw new Error('Resposta inválida do servidor');
                         }
 
-                        if (data.status && data.status !== 'success') {
-                            throw new Error(data.message || 'Erro desconhecido do servidor');
+                        // Cache apenas respostas de sucesso para GET
+                        if (method === 'GET' && data.status === 'success') {
+                            this.cache.set(cacheKey, data);
                         }
 
-                        console.log('Dados processados com sucesso');
-                        this.isOnline = true;
-                        document.getElementById('offlineAlert').style.display = 'none';
+                        this.connectionStatus = 'online';
+                        this.retryCount = 0;
+                        
+                        console.log(`[${requestId}] Sucesso!`);
                         return data;
 
                     } catch (error) {
-                        clearTimeout(timeoutId);
-                        console.error(`Erro na tentativa ${attempt + 1}:`, error);
+                        console.error(`[${requestId}] Erro na tentativa ${attempt + 1}:`, error.message);
                         
                         if (attempt === retries) {
-                            this.isOnline = false;
-                            document.getElementById('offlineAlert').style.display = 'flex';
+                            this.connectionStatus = 'error';
                             throw new Error(`Falha após ${retries + 1} tentativas: ${error.message}`);
                         }
 
-                        const delay = Math.min(1000 * Math.pow(2, attempt) + Math.random() * 1000, 10000);
-                        console.log(`Aguardando ${delay}ms antes da próxima tentativa...`);
-                        await new Promise(resolve => setTimeout(resolve, delay));
+                        // Delay exponencial com jitter
+                        const baseDelay = this.config.RETRY_DELAYS[attempt] || 16000;
+                        const jitter = Math.random() * 1000;
+                        const delay = baseDelay + jitter;
+                        
+                        console.log(`[${requestId}] Aguardando ${delay}ms antes da próxima tentativa...`);
+                        await this.sleep(delay);
                     }
                 }
             }
 
-            // ===== MÉTODOS GET CORRIGIDOS =====
-            async getStudents(className) {
-                // Verificar cache primeiro
-                const cachedData = this.cache.getStudents(className);
-                if (cachedData) {
-                    console.log('Retornando dados do cache para:', className);
-                    return cachedData;
+            async parseResponse(response, requestId) {
+                const contentType = response.headers.get('content-type') || '';
+                
+                if (contentType.includes('application/json')) {
+                    return await response.json();
                 }
-
-                const url = `${this.baseUrl}?action=getStudents&class=${encodeURIComponent(className)}&timestamp=${Date.now()}`;
+                
+                const text = await response.text();
+                console.log(`[${requestId}] Resposta texto:`, text.substring(0, 200));
+                
+                // Tentar extrair JSON da resposta
                 try {
-                    const response = await this.makeRequest(url);
-                    const students = response.students || [];
-                    this.cache.setStudents(className, students);
-                    return students;
-                } catch (error) {
-                    console.error('Erro ao buscar alunos:', error);
-                    
-                    // Tentar usar dados do cache mesmo se expirados em caso de erro
-                    if (this.cache.studentsByClass[className]) {
-                        console.log('Usando dados expirados do cache devido ao erro');
-                        return this.cache.studentsByClass[className];
+                    // Procurar por JSON válido na resposta
+                    const jsonMatch = text.match(/\{[\s\S]*\}/);
+                    if (jsonMatch) {
+                        return JSON.parse(jsonMatch[0]);
                     }
                     
-                    throw error;
+                    // Se não encontrar JSON, criar resposta de erro
+                    throw new Error('Resposta não contém JSON válido');
+                    
+                } catch (parseError) {
+                    console.error(`[${requestId}] Erro ao parsear resposta:`, parseError);
+                    throw new Error(`Resposta inválida: ${text.substring(0, 100)}`);
                 }
+            }
+
+            isValidResponse(data) {
+                return data && 
+                       typeof data === 'object' && 
+                       (data.status === 'success' || data.status === 'error') &&
+                       data.hasOwnProperty('data') || data.hasOwnProperty('message');
+            }
+
+            generateRequestId() {
+                return Math.random().toString(36).substr(2, 9);
+            }
+
+            generateCacheKey(url, options) {
+                const key = url + JSON.stringify(options.body || {});
+                return btoa(key).replace(/[^a-zA-Z0-9]/g, '');
+            }
+
+            sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            async queueRequest(url, options) {
+                return new Promise((resolve, reject) => {
+                    this.requestQueue.push({ url, options, resolve, reject });
+                    this.processQueue();
+                });
+            }
+
+            async processQueue() {
+                if (this.isProcessingQueue || this.connectionStatus !== 'online') {
+                    return;
+                }
+
+                this.isProcessingQueue = true;
+                
+                while (this.requestQueue.length > 0 && this.connectionStatus === 'online') {
+                    const { url, options, resolve, reject } = this.requestQueue.shift();
+                    
+                    try {
+                        const result = await this.executeRequest(url, options, this.generateRequestId(), this.generateCacheKey(url, options));
+                        resolve(result);
+                    } catch (error) {
+                        reject(error);
+                    }
+                    
+                    // Pequeno delay entre requisições da fila
+                    await this.sleep(500);
+                }
+                
+                this.isProcessingQueue = false;
+            }
+
+            // ===== MÉTODOS DA API =====
+            
+            async getStudents(className) {
+                const url = `${this.config.BASE_URL}?action=getStudentsByClass&class=${encodeURIComponent(className)}&t=${Date.now()}`;
+                const response = await this.makeRequest(url);
+                return response.data?.students || [];
             }
 
             async getStudentStats(studentName) {
-                const url = `${this.baseUrl}?action=getStudentStats&student=${encodeURIComponent(studentName)}&timestamp=${Date.now()}`;
-                return await this.makeRequest(url);
+                const url = `${this.config.BASE_URL}?action=getStudentOccurrences&student=${encodeURIComponent(studentName)}&t=${Date.now()}`;
+                const response = await this.makeRequest(url);
+                
+                // Processar estatísticas detalhadas
+                const occurrences = response.data?.occurrences || [];
+                const detailedStats = {};
+                
+                occurrences.forEach(occurrence => {
+                    if (occurrence.irregularities) {
+                        const irregularities = occurrence.irregularities.split(',').map(i => i.trim());
+                        irregularities.forEach(irregularity => {
+                            detailedStats[irregularity] = (detailedStats[irregularity] || 0) + 1;
+                        });
+                    }
+                });
+                
+                return { ...response.data, detailedStats };
             }
 
             async getAllOccurrences() {
-                const url = `${this.baseUrl}?action=getAllOccurrences&timestamp=${Date.now()}`;
+                const url = `${this.config.BASE_URL}?action=getAllOccurrences&t=${Date.now()}`;
                 const response = await this.makeRequest(url);
-                return response.occurrences || [];
+                return response.data?.occurrences || [];
             }
 
             async getOccurrenceById(id) {
-                const url = `${this.baseUrl}?action=getOccurrenceById&id=${encodeURIComponent(id)}&timestamp=${Date.now()}`;
-                const response = await this.makeRequest(url);
-                return response.occurrence;
+                const occurrences = await this.getAllOccurrences();
+                return occurrences.find(occ => occ.id === id);
             }
 
             async getStatistics() {
-                const url = `${this.baseUrl}?action=getStatistics&timestamp=${Date.now()}`;
-                return await this.makeRequest(url);
+                const url = `${this.config.BASE_URL}?action=getStatistics&t=${Date.now()}`;
+                const response = await this.makeRequest(url);
+                return response.data || {};
             }
 
-            // ===== MÉTODOS POST CORRIGIDOS =====
             async addOccurrence(data) {
-                return await this.makeRequest(this.baseUrl, {
+                const response = await this.makeRequest(this.config.BASE_URL, {
                     method: 'POST',
                     body: {
                         action: 'addOccurrence',
@@ -1112,10 +1236,14 @@
                         timestamp: Date.now()
                     }
                 });
+                
+                // Limpar cache relacionado
+                this.cache.clear();
+                return response;
             }
 
             async updateOccurrence(data) {
-                return await this.makeRequest(this.baseUrl, {
+                const response = await this.makeRequest(this.config.BASE_URL, {
                     method: 'POST',
                     body: {
                         action: 'updateOccurrence',
@@ -1129,10 +1257,13 @@
                         timestamp: Date.now()
                     }
                 });
+                
+                this.cache.clear();
+                return response;
             }
 
             async deleteOccurrence(id) {
-                return await this.makeRequest(this.baseUrl, {
+                const response = await this.makeRequest(this.config.BASE_URL, {
                     method: 'POST',
                     body: {
                         action: 'deleteOccurrence',
@@ -1140,15 +1271,23 @@
                         timestamp: Date.now()
                     }
                 });
+                
+                this.cache.clear();
+                return response;
+            }
+
+            async testConnection() {
+                const url = `${this.config.BASE_URL}?action=testConnection&t=${Date.now()}`;
+                return await this.makeRequest(url);
             }
         }
 
-        // Instanciar cliente da API
-        const api = new APIClient(API_CONFIG);
+        // Instanciar cliente robusto
+        const api = new RobustAPIClient(API_CONFIG);
 
         // ===== APLICAÇÃO PRINCIPAL =====
         document.addEventListener('DOMContentLoaded', function() {
-            // Dados dos professores
+            // Dados dos professores (mantidos iguais)
             const teacherEmails = {
                 "ALEX LUTH PEREIRA MARANHAO": "luth@prof.educacao.sp.gov.br",
                 "ALEXSANDRA PAULA VARELLA DE SOUZA": "avarella@prof.educacao.sp.gov.br",
@@ -1735,6 +1874,17 @@
             chartCanvases.forEach(canvas => {
                 createDonutChart(canvas, 0);
             });
+
+            // Teste de conexão inicial
+            api.testConnection()
+                .then(result => {
+                    console.log('Teste de conexão:', result);
+                    showNotification('success', 'Conexão com Google Sheets estabelecida!');
+                })
+                .catch(error => {
+                    console.error('Erro no teste de conexão:', error);
+                    showNotification('error', 'Erro de conexão: ' + error.message);
+                });
 
             // Carregar dados iniciais
             loadInitialData();
