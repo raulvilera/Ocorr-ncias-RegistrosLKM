@@ -1,966 +1,2128 @@
-/**
- * Sistema de Registro de Ocorrências Escolares - Frontend
- * JavaScript com requisições robustas e tratamento de erros
- */
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Registro de Ocorrências Escolares</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --primary-dark: #0d47a1;
+            --secondary-color: #f8f9fa;
+            --accent-color: #f1c40f;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --warning-color: #f39c12;
+            --info-color: #3498db;
+            --border-color: #dadce0;
+            --text-color: #202124;
+            --light-text: #5f6368;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --hover-bg: #f0f5ff;
+            --border-radius: 12px;
+            --border-radius-lg: 16px;
+        }
 
-// ===== CONFIGURAÇÕES =====
-const CONFIG = {
-    // URL do Google Apps Script - SUBSTITUA PELA SUA URL
-    API_URL: 'https://script.google.com/macros/s/AKfycbwgqLT6gxXgT1h_IcvzemySgyUCf7g-phOW3WULaWZLEzIMPGnfadbzqZirMsPrdbkq/exec',
-    
-    // Configurações de retry
-    MAX_RETRIES: 3,
-    RETRY_DELAY: 1000, // 1 segundo
-    REQUEST_TIMEOUT: 30000, // 30 segundos
-    
-    // Turmas disponíveis
-    CLASSES: [
-        "6° ANO A MANHA", "6° ANO B MANHA", "6° ANO C MANHA", "6° ANO D MANHA",
-        "6° ANO E TARDE", "6° ANO F TARDE",
-        "7° ANO A TARDE", "7° ANO B TARDE", "7° ANO C TARDE", "7° ANO D TARDE",
-        "7° ANO E TARDE", "7° ANO F TARDE",
-        "8° ANO A TARDE", "8° ANO B TARDE", "8° ANO C TARDE", "8° ANO D TARDE",
-        "8° ANO E TARDE",
-        "9° ANO A TARDE", "9° ANO B TARDE", "9° ANO C TARDE", "9° ANO D TARDE",
-        "1ª SERIE A MANHA", "1ª SERIE B MANHA", "1ª SERIE C MANHA", "1ª SERIE D MANHA",
-        "1ª SERIE E MANHA", "1ª SERIE F MANHA", "1ª SERIE G TARDE", "1ª SERIE H NOITE",
-        "1ª SERIE I NOITE",
-        "2ª SERIE A MANHA", "2ª SERIE B MANHA", "2ª SERIE C MANHA", "2ª SERIE D MANHA",
-        "2ª SERIE E MANHA", "2ª SERIE F NOITE", "2ª SERIE G NOITE", "2ª SERIE H NOITE",
-        "3ª SERIE A MANHA", "3ª SERIE B MANHA", "3ª SERIE C MANHA", "3ª SERIE D NOITE",
-        "3ª SERIE E NOITE", "3ª SERIE F NOITE"
-    ]
-};
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-// ===== ESTADO GLOBAL =====
-let globalState = {
-    students: {},
-    occurrences: [],
-    statistics: {},
-    charts: {}
-};
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-// ===== UTILITÁRIOS DE REQUISIÇÃO =====
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
 
-/**
- * Função utilitária para fazer requisições robustas
- */
-async function apiCall(endpoint, options = {}) {
-    const {
-        method = 'GET',
-        data = null,
-        retries = CONFIG.MAX_RETRIES,
-        timeout = CONFIG.REQUEST_TIMEOUT
-    } = options;
+        .loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
 
-    let lastError;
-    
-    for (let attempt = 1; attempt <= retries; attempt++) {
-        try {
-            console.log(`Tentativa ${attempt}/${retries} para ${endpoint}`);
-            
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), timeout);
-            
-            const requestOptions = {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                signal: controller.signal
-            };
-            
-            if (data && method !== 'GET') {
-                requestOptions.body = JSON.stringify(data);
+        .loading-spinner {
+            text-align: center;
+            color: var(--primary-color);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(26, 115, 232, 0.2);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #2ecc71 0%, #3498db 100%);
+            padding: 20px 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        .logo-icon:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .logo-text h1 {
+            font-size: 1.8rem;
+            color: white;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            margin-bottom: 5px;
+        }
+
+        .logo-text p {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* Dashboard */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #2ecc71 0%, #3498db 100%);
+            color: white;
+            border-radius: var(--border-radius-lg);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .stats-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: var(--transition);
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius-lg);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .chart-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .chart-card h3 {
+            color: var(--text-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 18px 25px;
+            background: #f8f9fa;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--light-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+        }
+
+        .tab-button:not(:last-child) {
+            border-right: 1px solid var(--border-color);
+        }
+
+        .tab-button:hover {
+            background: var(--hover-bg);
+            color: var(--primary-color);
+        }
+
+        .tab-button.active {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: inset 0 -3px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 25px 30px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-body {
+            padding: 35px;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .form-col {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .required::after {
+            content: " *";
+            color: var(--error-color);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5eb;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+            background-color: #f8fafc;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.15);
+            background-color: white;
+            transform: translateY(-1px);
+        }
+
+        input:disabled, select:disabled {
+            background-color: #f0f0f0;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .input-error {
+            border-color: var(--error-color) !important;
+            box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.15) !important;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        /* Checkboxes */
+        .checkbox-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .checkbox-item {
+            background: #f8fafc;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            border: 2px solid #e1e5eb;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .checkbox-item:hover {
+            background: var(--hover-bg);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            margin-right: 12px;
+            transform: scale(1.2);
+            cursor: pointer;
+            accent-color: var(--primary-color);
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(26, 115, 232, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(26, 115, 232, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e8eaed 100%);
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #e8eaed 0%, #d7d9dd 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn:disabled::before {
+            display: none;
+        }
+
+        .actions {
+            display: flex;
+            gap: 20px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 30px;
+        }
+
+        /* Search Filters */
+        .search-filters {
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .registros-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .registros-table th {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .registros-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
+            vertical-align: middle;
+        }
+
+        .registros-table tr:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .registros-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .no-data {
+            text-align: center;
+            color: var(--light-text);
+            font-style: italic;
+            padding: 40px !important;
+        }
+
+        /* Action Buttons */
+        .btn-action {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-right: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-edit {
+            background: rgba(26, 115, 232, 0.1);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-edit:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .btn-delete {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+
+        .btn-delete:hover {
+            background: var(--error-color);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        /* Reports */
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .report-item {
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+        }
+
+        .report-item h3 {
+            margin-bottom: 20px;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .export-actions {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Notifications */
+        #notificationContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 400px;
+        }
+
+        .notification {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--info-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(100%);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .notification.success {
+            border-left-color: var(--success-color);
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.05) 0%, rgba(39, 174, 96, 0.05) 100%);
+        }
+
+        .notification.error {
+            border-left-color: var(--error-color);
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.05) 0%, rgba(192, 57, 43, 0.05) 100%);
+        }
+
+        .notification.warning {
+            border-left-color: var(--warning-color);
+            background: linear-gradient(135deg, rgba(243, 156, 18, 0.05) 0%, rgba(230, 126, 34, 0.05) 100%);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
             }
             
-            let url = CONFIG.API_URL;
-            if (method === 'GET' && data) {
-                const params = new URLSearchParams(data);
-                url += '?' + params.toString();
+            .dashboard {
+                grid-template-columns: 1fr;
+                gap: 20px;
             }
             
-            const response = await fetch(url, requestOptions);
-            clearTimeout(timeoutId);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
             }
             
-            const result = await response.json();
-            
-            if (result.status === 'error') {
-                throw new Error(result.message || 'Erro desconhecido do servidor');
+            .form-row {
+                flex-direction: column;
+                gap: 0;
             }
             
-            console.log(`Sucesso na tentativa ${attempt} para ${endpoint}:`, result);
-            return result;
+            .checkbox-container {
+                grid-template-columns: 1fr;
+            }
             
-        } catch (error) {
-            lastError = error;
-            console.warn(`Tentativa ${attempt} falhou para ${endpoint}:`, error.message);
+            .tabs {
+                flex-direction: column;
+            }
             
-            if (attempt < retries) {
-                const delay = CONFIG.RETRY_DELAY * attempt;
-                console.log(`Aguardando ${delay}ms antes da próxima tentativa...`);
-                await sleep(delay);
+            .tab-button {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
             }
-        }
-    }
-    
-    throw new Error(`Falha após ${retries} tentativas: ${lastError.message}`);
-}
-
-/**
- * Utilitário para aguardar um tempo
- */
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-// ===== FUNÇÕES DE API =====
-
-/**
- * Carrega alunos de uma turma
- */
-async function loadStudentsByClass(className) {
-    try {
-        showLoading(true);
-        
-        if (globalState.students[className]) {
-            console.log(`Usando cache para turma: ${className}`);
-            return globalState.students[className];
-        }
-        
-        const result = await apiCall('getStudentsByClass', {
-            method: 'GET',
-            data: { action: 'getStudentsByClass', class: className }
-        });
-        
-        if (result.status === 'success') {
-            globalState.students[className] = result.data.students;
-            return result.data.students;
-        } else {
-            throw new Error(result.message || 'Erro ao carregar alunos');
-        }
-        
-    } catch (error) {
-        console.error('Erro ao carregar alunos:', error);
-        showNotification('Erro ao carregar lista de alunos: ' + error.message, 'error');
-        return [];
-    } finally {
-        showLoading(false);
-    }
-}
-
-/**
- * Carrega todas as ocorrências
- */
-async function loadAllOccurrences() {
-    try {
-        showLoading(true);
-        
-        const result = await apiCall('getAllOccurrences', {
-            method: 'GET',
-            data: { action: 'getAllOccurrences' }
-        });
-        
-        if (result.status === 'success') {
-            globalState.occurrences = result.data.occurrences;
-            return result.data.occurrences;
-        } else {
-            throw new Error(result.message || 'Erro ao carregar ocorrências');
-        }
-        
-    } catch (error) {
-        console.error('Erro ao carregar ocorrências:', error);
-        showNotification('Erro ao carregar registros: ' + error.message, 'error');
-        return [];
-    } finally {
-        showLoading(false);
-    }
-}
-
-/**
- * Carrega estatísticas do sistema
- */
-async function loadStatistics() {
-    try {
-        const result = await apiCall('getStatistics', {
-            method: 'GET',
-            data: { action: 'getStatistics' }
-        });
-        
-        if (result.status === 'success') {
-            globalState.statistics = result.data;
-            return result.data;
-        } else {
-            throw new Error(result.message || 'Erro ao carregar estatísticas');
-        }
-        
-    } catch (error) {
-        console.error('Erro ao carregar estatísticas:', error);
-        showNotification('Erro ao carregar estatísticas: ' + error.message, 'error');
-        return {};
-    }
-}
-
-/**
- * Adiciona uma nova ocorrência
- */
-async function addOccurrence(occurrenceData) {
-    try {
-        showLoading(true);
-        
-        const result = await apiCall('addOccurrence', {
-            method: 'POST',
-            data: {
-                action: 'addOccurrence',
-                ...occurrenceData
-            }
-        });
-        
-        if (result.status === 'success') {
-            showNotification('Ocorrência registrada com sucesso!', 'success');
             
-            // Limpar cache para forçar recarregamento
-            globalState.occurrences = [];
+            .tab-button:last-child {
+                border-bottom: none;
+            }
             
-            return result;
-        } else {
-            throw new Error(result.message || 'Erro ao registrar ocorrência');
-        }
-        
-    } catch (error) {
-        console.error('Erro ao adicionar ocorrência:', error);
-        showNotification('Erro ao registrar ocorrência: ' + error.message, 'error');
-        throw error;
-    } finally {
-        showLoading(false);
-    }
-}
-
-/**
- * Testa a conexão com o servidor
- */
-async function testConnection() {
-    try {
-        const result = await apiCall('testConnection', {
-            method: 'GET',
-            data: { action: 'testConnection' },
-            retries: 1,
-            timeout: 10000
-        });
-        
-        return result.status === 'success';
-    } catch (error) {
-        console.error('Teste de conexão falhou:', error);
-        return false;
-    }
-}
-
-// ===== FUNÇÕES DE UI =====
-
-/**
- * Mostra/esconde o overlay de loading
- */
-function showLoading(show) {
-    const overlay = document.getElementById('loadingOverlay');
-    if (overlay) {
-        if (show) {
-            overlay.classList.add('show');
-        } else {
-            overlay.classList.remove('show');
-        }
-    }
-}
-
-/**
- * Mostra notificação para o usuário
- */
-function showNotification(message, type = 'info', duration = 5000) {
-    const container = document.getElementById('notificationContainer');
-    if (!container) return;
-    
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    
-    const icon = type === 'success' ? 'fas fa-check-circle' :
-                 type === 'error' ? 'fas fa-exclamation-circle' :
-                 type === 'warning' ? 'fas fa-exclamation-triangle' :
-                 'fas fa-info-circle';
-    
-    notification.innerHTML = `
-        <i class="${icon}"></i>
-        <span>${message}</span>
-    `;
-    
-    container.appendChild(notification);
-    
-    // Mostrar notificação
-    setTimeout(() => notification.classList.add('show'), 100);
-    
-    // Remover notificação
-    setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
+            .actions {
+                flex-direction: column;
             }
-        }, 300);
-    }, duration);
-}
-
-/**
- * Popula o dropdown de turmas
- */
-function populateClassDropdowns() {
-    const classSelects = document.querySelectorAll('#class, #searchClass');
-    
-    classSelects.forEach(select => {
-        // Limpar opções existentes (exceto a primeira)
-        while (select.children.length > 1) {
-            select.removeChild(select.lastChild);
-        }
-        
-        // Adicionar turmas
-        CONFIG.CLASSES.forEach(className => {
-            const option = document.createElement('option');
-            option.value = className;
-            option.textContent = className;
-            select.appendChild(option);
-        });
-    });
-}
-
-/**
- * Popula o dropdown de alunos baseado na turma selecionada
- */
-async function populateStudentDropdown(className) {
-    const studentSelect = document.getElementById('student');
-    if (!studentSelect) return;
-    
-    // Limpar opções existentes
-    studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
-    studentSelect.disabled = true;
-    
-    if (!className) {
-        studentSelect.innerHTML = '<option value="">Primeiro selecione uma turma</option>';
-        return;
-    }
-    
-    try {
-        const students = await loadStudentsByClass(className);
-        
-        // Limpar e popular
-        studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
-        
-        students.forEach(student => {
-            const option = document.createElement('option');
-            option.value = student;
-            option.textContent = student;
-            studentSelect.appendChild(option);
-        });
-        
-        studentSelect.disabled = false;
-        
-    } catch (error) {
-        studentSelect.innerHTML = '<option value="">Erro ao carregar alunos</option>';
-        console.error('Erro ao popular dropdown de alunos:', error);
-    }
-}
-
-/**
- * Atualiza as estatísticas na dashboard
- */
-async function updateDashboardStats() {
-    try {
-        const stats = await loadStatistics();
-        
-        // Atualizar valores
-        document.getElementById('totalOccurrences').textContent = stats.totalOccurrences || 0;
-        document.getElementById('totalClasses').textContent = stats.totalClasses || 0;
-        document.getElementById('totalTeachers').textContent = stats.totalTeachers || 0;
-        document.getElementById('mostAffectedClass').textContent = stats.mostAffectedClass || 'N/A';
-        
-        // Atualizar gráfico de irregularidades
-        updateIrregularityChart(stats.irregularityCounts || {});
-        
-        // Atualizar gráficos de relatórios
-        updateReportsCharts(stats);
-        
-    } catch (error) {
-        console.error('Erro ao atualizar estatísticas:', error);
-    }
-}
-
-/**
- * Atualiza o gráfico de irregularidades
- */
-function updateIrregularityChart(irregularityCounts) {
-    const ctx = document.getElementById('irregularityChart');
-    if (!ctx) return;
-    
-    // Destruir gráfico existente
-    if (globalState.charts.irregularity) {
-        globalState.charts.irregularity.destroy();
-    }
-    
-    const labels = Object.keys(irregularityCounts);
-    const data = Object.values(irregularityCounts);
-    
-    if (labels.length === 0) {
-        // Mostrar mensagem de "sem dados"
-        ctx.getContext('2d').clearRect(0, 0, ctx.width, ctx.height);
-        return;
-    }
-    
-    globalState.charts.irregularity = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: labels,
-            datasets: [{
-                data: data,
-                backgroundColor: [
-                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-                    '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
-                ],
-                borderWidth: 2,
-                borderColor: '#fff'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 10,
-                        usePointStyle: true
-                    }
-                }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .reports-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .logo {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .table-container {
+                font-size: 14px;
+            }
+            
+            .registros-table th,
+            .registros-table td {
+                padding: 10px 8px;
             }
         }
-    });
-}
 
-/**
- * Atualiza os gráficos de relatórios
- */
-function updateReportsCharts(stats) {
-    // Gráfico por turma
-    updateClassChart(stats.classCounts || {});
-    
-    // Gráfico por professor
-    updateProfessorChart(stats.professorCounts || {});
-}
-
-/**
- * Atualiza o gráfico por turma
- */
-function updateClassChart(classCounts) {
-    const ctx = document.getElementById('classChart');
-    if (!ctx) return;
-    
-    if (globalState.charts.class) {
-        globalState.charts.class.destroy();
-    }
-    
-    const labels = Object.keys(classCounts);
-    const data = Object.values(classCounts);
-    
-    if (labels.length === 0) return;
-    
-    globalState.charts.class = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Ocorrências por Turma',
-                data: data,
-                backgroundColor: 'rgba(26, 115, 232, 0.8)',
-                borderColor: 'rgba(26, 115, 232, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1
-                    }
-                },
-                x: {
-                    ticks: {
-                        maxRotation: 45
-                    }
-                }
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+            
+            .card-body {
+                padding: 20px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10px;
+            }
+            
+            .notification {
+                max-width: calc(100vw - 40px);
+                margin: 0 20px 10px 0;
             }
         }
-    });
-}
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Carregando...</p>
+        </div>
+    </div>
 
-/**
- * Atualiza o gráfico por professor
- */
-function updateProfessorChart(professorCounts) {
-    const ctx = document.getElementById('professorChart');
-    if (!ctx) return;
-    
-    if (globalState.charts.professor) {
-        globalState.charts.professor.destroy();
-    }
-    
-    const labels = Object.keys(professorCounts);
-    const data = Object.values(professorCounts);
-    
-    if (labels.length === 0) return;
-    
-    globalState.charts.professor = new Chart(ctx, {
-        type: 'horizontalBar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Ocorrências por Professor',
-                data: data,
-                backgroundColor: 'rgba(46, 204, 113, 0.8)',
-                borderColor: 'rgba(46, 204, 113, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                x: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1
-                    }
-                }
-            }
-        }
-    });
-}
-
-/**
- * Carrega e exibe registros na tabela
- */
-async function loadAndDisplayRecords(filters = {}) {
-    try {
-        showLoading(true);
-        
-        let occurrences = globalState.occurrences;
-        
-        // Carregar se não estiver em cache
-        if (occurrences.length === 0) {
-            occurrences = await loadAllOccurrences();
-        }
-        
-        // Aplicar filtros
-        let filteredOccurrences = occurrences;
-        
-        if (filters.class) {
-            filteredOccurrences = filteredOccurrences.filter(occ => 
-                occ.class && occ.class.toLowerCase().includes(filters.class.toLowerCase())
-            );
-        }
-        
-        if (filters.student) {
-            filteredOccurrences = filteredOccurrences.filter(occ => 
-                occ.student && occ.student.toLowerCase().includes(filters.student.toLowerCase())
-            );
-        }
-        
-        if (filters.professor) {
-            filteredOccurrences = filteredOccurrences.filter(occ => 
-                occ.professor && occ.professor.toLowerCase().includes(filters.professor.toLowerCase())
-            );
-        }
-        
-        // Exibir na tabela
-        displayRecordsTable(filteredOccurrences);
-        
-    } catch (error) {
-        console.error('Erro ao carregar registros:', error);
-        showNotification('Erro ao carregar registros: ' + error.message, 'error');
-    } finally {
-        showLoading(false);
-    }
-}
-
-/**
- * Exibe registros na tabela
- */
-function displayRecordsTable(occurrences) {
-    const tbody = document.getElementById('registrosTableBody');
-    if (!tbody) return;
-    
-    if (occurrences.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="no-data">Nenhum registro encontrado</td></tr>';
-        return;
-    }
-    
-    tbody.innerHTML = occurrences.map(occ => `
-        <tr>
-            <td>${occ.date || 'N/A'}</td>
-            <td>${occ.professor || 'N/A'}</td>
-            <td>${occ.class || 'N/A'}</td>
-            <td>${occ.student || 'N/A'}</td>
-            <td>${occ.irregularities || 'Nenhuma'}</td>
-            <td>
-                <button class="btn-action btn-edit" onclick="editRecord('${occ.id}')">
-                    <i class="fas fa-edit"></i> Editar
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Sistema de Ocorrências</h1>
+                    <p>Gestão Escolar Inteligente</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button id="refreshBtn" class="btn btn-secondary">
+                    <i class="fas fa-sync-alt"></i>
+                    Atualizar
                 </button>
-                <button class="btn-action btn-delete" onclick="deleteRecord('${occ.id}')">
-                    <i class="fas fa-trash"></i> Excluir
-                </button>
-            </td>
-        </tr>
-    `).join('');
-}
+            </div>
+        </div>
+    </header>
 
-/**
- * Gerencia as abas
- */
-function setupTabs() {
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const tabContents = document.querySelectorAll('.tab-content');
-    
-    tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const targetTab = button.getAttribute('data-tab');
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <!-- Dashboard Stats -->
+            <section class="dashboard">
+                <div class="stats-card">
+                    <h2><i class="fas fa-chart-bar"></i> Estatísticas do Sistema</h2>
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalOccurrences">0</div>
+                            <div class="stat-label">Total de Ocorrências</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalClasses">0</div>
+                            <div class="stat-label">Turmas Ativas</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalTeachers">0</div>
+                            <div class="stat-label">Professores</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="mostAffectedClass">N/A</div>
+                            <div class="stat-label">Turma Mais Afetada</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3><i class="fas fa-pie-chart"></i> Irregularidades Mais Comuns</h3>
+                    <canvas id="irregularityChart" width="300" height="200"></canvas>
+                </div>
+            </section>
+
+            <!-- Navigation Tabs -->
+            <div class="tabs">
+                <button class="tab-button active" data-tab="registro">
+                    <i class="fas fa-plus-circle"></i>
+                    Novo Registro
+                </button>
+                <button class="tab-button" data-tab="consulta">
+                    <i class="fas fa-search"></i>
+                    Consultar Registros
+                </button>
+                <button class="tab-button" data-tab="relatorios">
+                    <i class="fas fa-chart-line"></i>
+                    Relatórios
+                </button>
+            </div>
+
+            <!-- Tab Content: Novo Registro -->
+            <div id="registro" class="tab-content active">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-edit"></i>
+                        Registrar Nova Ocorrência
+                    </div>
+                    <div class="card-body">
+                        <form id="occurrenceForm">
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="professor" class="required">Professor</label>
+                                        <input type="text" id="professor" name="professor" required 
+                                               placeholder="Nome do professor">
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="date" class="required">Data da Ocorrência</label>
+                                        <input type="date" id="date" name="date" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="class" class="required">Turma</label>
+                                        <select id="class" name="class" required>
+                                            <option value="">Selecione uma turma</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="student" class="required">Aluno</label>
+                                        <select id="student" name="student" required disabled>
+                                            <option value="">Primeiro selecione uma turma</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Irregularidades Observadas</label>
+                                <div class="checkbox-container" id="irregularitiesContainer">
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="irr1" name="irregularities" value="Atraso">
+                                        <label for="irr1">Atraso</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="irr2" name="irregularities" value="Falta">
+                                        <label for="irr2">Falta</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="irr3" name="irregularities" value="Comportamento inadequado">
+                                        <label for="irr3">Comportamento inadequado</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="irr4" name="irregularities" value="Não fez tarefa">
+                                        <label for="irr4">Não fez tarefa</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="irr5" name="irregularities" value="Desrespeito">
+                                        <label for="irr5">Desrespeito</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="irr6" name="irregularities" value="Uso de celular">
+                                        <label for="irr6">Uso de celular</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="irr7" name="irregularities" value="Conversa excessiva">
+                                        <label for="irr7">Conversa excessiva</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="irr8" name="irregularities" value="Material incompleto">
+                                        <label for="irr8">Material incompleto</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="description">Descrição Detalhada</label>
+                                <textarea id="description" name="description" 
+                                          placeholder="Descreva a ocorrência com detalhes..."></textarea>
+                            </div>
+
+                            <div class="actions">
+                                <button type="submit" class="btn btn-primary" id="submitBtn">
+                                    <i class="fas fa-save"></i>
+                                    Registrar Ocorrência
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="clearBtn">
+                                    <i class="fas fa-eraser"></i>
+                                    Limpar Formulário
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Consultar Registros -->
+            <div id="consulta" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-search"></i>
+                        Consultar Registros de Ocorrências
+                    </div>
+                    <div class="card-body">
+                        <div class="search-filters">
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="searchClass">Filtrar por Turma</label>
+                                        <select id="searchClass">
+                                            <option value="">Todas as turmas</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="searchStudent">Filtrar por Aluno</label>
+                                        <input type="text" id="searchStudent" placeholder="Nome do aluno">
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="searchProfessor">Filtrar por Professor</label>
+                                        <input type="text" id="searchProfessor" placeholder="Nome do professor">
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <button class="btn btn-primary" id="searchBtn" style="margin-top: 32px;">
+                                        <i class="fas fa-search"></i>
+                                        Buscar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-container">
+                            <table class="registros-table" id="registrosTable">
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Professor</th>
+                                        <th>Turma</th>
+                                        <th>Aluno</th>
+                                        <th>Irregularidades</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="registrosTableBody">
+                                    <tr>
+                                        <td colspan="6" class="no-data">Nenhum registro encontrado</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Relatórios -->
+            <div id="relatorios" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-line"></i>
+                        Relatórios e Estatísticas
+                    </div>
+                    <div class="card-body">
+                        <div class="reports-grid">
+                            <div class="report-item">
+                                <h3><i class="fas fa-users"></i> Por Turma</h3>
+                                <canvas id="classChart" width="400" height="200"></canvas>
+                            </div>
+                            <div class="report-item">
+                                <h3><i class="fas fa-chalkboard-teacher"></i> Por Professor</h3>
+                                <canvas id="professorChart" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="export-actions">
+                            <button class="btn btn-secondary" id="exportBtn">
+                                <i class="fas fa-download"></i>
+                                Exportar Relatório
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
+
+    <!-- Modal for Edit/Delete -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Editar Ocorrência</h3>
+                <button class="modal-close" id="modalClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Modal content will be dynamically loaded -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Sistema de Registro de Ocorrências Escolares - Frontend
+         * JavaScript com requisições robustas e tratamento de erros
+         */
+
+        // ===== CONFIGURAÇÕES =====
+        const CONFIG = {
+            // URL do Google Apps Script - SUBSTITUA PELA SUA URL
+            API_URL: 'https://script.google.com/macros/s/SEU_SCRIPT_ID/exec',
             
-            // Remover classe active de todos os botões e conteúdos
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            tabContents.forEach(content => content.classList.remove('active'));
+            // Configurações de retry
+            MAX_RETRIES: 3,
+            RETRY_DELAY: 1000, // 1 segundo
+            REQUEST_TIMEOUT: 30000, // 30 segundos
             
-            // Adicionar classe active ao botão clicado e conteúdo correspondente
-            button.classList.add('active');
-            const targetContent = document.getElementById(targetTab);
-            if (targetContent) {
-                targetContent.classList.add('active');
+            // Turmas disponíveis
+            CLASSES: [
+                "6° ANO A MANHA", "6° ANO B MANHA", "6° ANO C MANHA", "6° ANO D MANHA",
+                "6° ANO E TARDE", "6° ANO F TARDE",
+                "7° ANO A TARDE", "7° ANO B TARDE", "7° ANO C TARDE", "7° ANO D TARDE",
+                "7° ANO E TARDE", "7° ANO F TARDE",
+                "8° ANO A TARDE", "8° ANO B TARDE", "8° ANO C TARDE", "8° ANO D TARDE",
+                "8° ANO E TARDE",
+                "9° ANO A TARDE", "9° ANO B TARDE", "9° ANO C TARDE", "9° ANO D TARDE",
+                "1ª SERIE A MANHA", "1ª SERIE B MANHA", "1ª SERIE C MANHA", "1ª SERIE D MANHA",
+                "1ª SERIE E MANHA", "1ª SERIE F MANHA", "1ª SERIE G TARDE", "1ª SERIE H NOITE",
+                "1ª SERIE I NOITE",
+                "2ª SERIE A MANHA", "2ª SERIE B MANHA", "2ª SERIE C MANHA", "2ª SERIE D MANHA",
+                "2ª SERIE E MANHA", "2ª SERIE F NOITE", "2ª SERIE G NOITE", "2ª SERIE H NOITE",
+                "3ª SERIE A MANHA", "3ª SERIE B MANHA", "3ª SERIE C MANHA", "3ª SERIE D NOITE",
+                "3ª SERIE E NOITE", "3ª SERIE F NOITE"
+            ]
+        };
+
+        // ===== ESTADO GLOBAL =====
+        let globalState = {
+            students: {},
+            occurrences: [],
+            statistics: {},
+            charts: {}
+        };
+
+        // ===== UTILITÁRIOS DE REQUISIÇÃO =====
+
+        /**
+         * Função utilitária para fazer requisições robustas
+         */
+        async function apiCall(endpoint, options = {}) {
+            const {
+                method = 'GET',
+                data = null,
+                retries = CONFIG.MAX_RETRIES,
+                timeout = CONFIG.REQUEST_TIMEOUT
+            } = options;
+
+            let lastError;
+            
+            for (let attempt = 1; attempt <= retries; attempt++) {
+                try {
+                    console.log(`Tentativa ${attempt}/${retries} para ${endpoint}`);
+                    
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), timeout);
+                    
+                    const requestOptions = {
+                        method: method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        signal: controller.signal
+                    };
+                    
+                    if (data && method !== 'GET') {
+                        requestOptions.body = JSON.stringify(data);
+                    }
+                    
+                    let url = CONFIG.API_URL;
+                    if (method === 'GET' && data) {
+                        const params = new URLSearchParams(data);
+                        url += '?' + params.toString();
+                    }
+                    
+                    const response = await fetch(url, requestOptions);
+                    clearTimeout(timeoutId);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const result = await response.json();
+                    
+                    if (result.status === 'error') {
+                        throw new Error(result.message || 'Erro desconhecido do servidor');
+                    }
+                    
+                    console.log(`Sucesso na tentativa ${attempt} para ${endpoint}:`, result);
+                    return result;
+                    
+                } catch (error) {
+                    lastError = error;
+                    console.warn(`Tentativa ${attempt} falhou para ${endpoint}:`, error.message);
+                    
+                    if (attempt < retries) {
+                        const delay = CONFIG.RETRY_DELAY * attempt;
+                        console.log(`Aguardando ${delay}ms antes da próxima tentativa...`);
+                        await sleep(delay);
+                    }
+                }
+            }
+            
+            throw new Error(`Falha após ${retries} tentativas: ${lastError.message}`);
+        }
+
+        /**
+         * Utilitário para aguardar um tempo
+         */
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // ===== FUNÇÕES DE API =====
+
+        /**
+         * Carrega alunos de uma turma
+         */
+        async function loadStudentsByClass(className) {
+            try {
+                showLoading(true);
                 
-                // Carregar dados específicos da aba
-                if (targetTab === 'consulta') {
-                    loadAndDisplayRecords();
-                } else if (targetTab === 'relatorios') {
-                    updateDashboardStats();
+                if (globalState.students[className]) {
+                    console.log(`Usando cache para turma: ${className}`);
+                    return globalState.students[className];
                 }
+                
+                const result = await apiCall('getStudentsByClass', {
+                    method: 'GET',
+                    data: { action: 'getStudentsByClass', class: className }
+                });
+                
+                if (result.status === 'success') {
+                    globalState.students[className] = result.data.students;
+                    return result.data.students;
+                } else {
+                    throw new Error(result.message || 'Erro ao carregar alunos');
+                }
+                
+            } catch (error) {
+                console.error('Erro ao carregar alunos:', error);
+                showNotification('Erro ao carregar lista de alunos: ' + error.message, 'error');
+                return [];
+            } finally {
+                showLoading(false);
             }
-        });
-    });
-}
+        }
 
-/**
- * Configura o formulário de ocorrência
- */
-function setupOccurrenceForm() {
-    const form = document.getElementById('occurrenceForm');
-    const classSelect = document.getElementById('class');
-    const clearBtn = document.getElementById('clearBtn');
-    
-    // Listener para mudança de turma
-    if (classSelect) {
-        classSelect.addEventListener('change', (e) => {
-            populateStudentDropdown(e.target.value);
-        });
-    }
-    
-    // Listener para envio do formulário
-    if (form) {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = new FormData(form);
-            const data = {};
-            
-            // Coletar dados básicos
-            for (let [key, value] of formData.entries()) {
-                if (key !== 'irregularities') {
-                    data[key] = value;
+        /**
+         * Carrega todas as ocorrências
+         */
+        async function loadAllOccurrences() {
+            try {
+                showLoading(true);
+                
+                const result = await apiCall('getAllOccurrences', {
+                    method: 'GET',
+                    data: { action: 'getAllOccurrences' }
+                });
+                
+                if (result.status === 'success') {
+                    globalState.occurrences = result.data.occurrences;
+                    return result.data.occurrences;
+                } else {
+                    throw new Error(result.message || 'Erro ao carregar ocorrências');
+                }
+                
+            } catch (error) {
+                console.error('Erro ao carregar ocorrências:', error);
+                showNotification('Erro ao carregar registros: ' + error.message, 'error');
+                return [];
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        /**
+         * Carrega estatísticas do sistema
+         */
+        async function loadStatistics() {
+            try {
+                const result = await apiCall('getStatistics', {
+                    method: 'GET',
+                    data: { action: 'getStatistics' }
+                });
+                
+                if (result.status === 'success') {
+                    globalState.statistics = result.data;
+                    return result.data;
+                } else {
+                    throw new Error(result.message || 'Erro ao carregar estatísticas');
+                }
+                
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
+                showNotification('Erro ao carregar estatísticas: ' + error.message, 'error');
+                return {};
+            }
+        }
+
+        /**
+         * Adiciona uma nova ocorrência
+         */
+        async function addOccurrence(occurrenceData) {
+            try {
+                showLoading(true);
+                
+                const result = await apiCall('addOccurrence', {
+                    method: 'POST',
+                    data: {
+                        action: 'addOccurrence',
+                        ...occurrenceData
+                    }
+                });
+                
+                if (result.status === 'success') {
+                    showNotification('Ocorrência registrada com sucesso!', 'success');
+                    
+                    // Limpar cache para forçar recarregamento
+                    globalState.occurrences = [];
+                    
+                    return result;
+                } else {
+                    throw new Error(result.message || 'Erro ao registrar ocorrência');
+                }
+                
+            } catch (error) {
+                console.error('Erro ao adicionar ocorrência:', error);
+                showNotification('Erro ao registrar ocorrência: ' + error.message, 'error');
+                throw error;
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        /**
+         * Testa a conexão com o servidor
+         */
+        async function testConnection() {
+            try {
+                const result = await apiCall('testConnection', {
+                    method: 'GET',
+                    data: { action: 'testConnection' },
+                    retries: 1,
+                    timeout: 10000
+                });
+                
+                return result.status === 'success';
+            } catch (error) {
+                console.error('Teste de conexão falhou:', error);
+                return false;
+            }
+        }
+
+        // ===== FUNÇÕES DE UI =====
+
+        /**
+         * Mostra/esconde o overlay de loading
+         */
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                if (show) {
+                    overlay.classList.add('show');
+                } else {
+                    overlay.classList.remove('show');
                 }
             }
+        }
+
+        /**
+         * Mostra notificação para o usuário
+         */
+        function showNotification(message, type = 'info', duration = 5000) {
+            const container = document.getElementById('notificationContainer');
+            if (!container) return;
             
-            // Coletar irregularidades selecionadas
-            const irregularities = [];
-            const checkboxes = form.querySelectorAll('input[name="irregularities"]:checked');
-            checkboxes.forEach(checkbox => {
-                irregularities.push(checkbox.value);
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            const icon = type === 'success' ? 'fas fa-check-circle' :
+                         type === 'error' ? 'fas fa-exclamation-circle' :
+                         type === 'warning' ? 'fas fa-exclamation-triangle' :
+                         'fas fa-info-circle';
+            
+            notification.innerHTML = `
+                <i class="${icon}"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(notification);
+            
+            // Mostrar notificação
+            setTimeout(() => notification.classList.add('show'), 100);
+            
+            // Remover notificação
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, duration);
+        }
+
+        /**
+         * Popula o dropdown de turmas
+         */
+        function populateClassDropdowns() {
+            const classSelects = document.querySelectorAll('#class, #searchClass');
+            
+            classSelects.forEach(select => {
+                // Limpar opções existentes (exceto a primeira)
+                while (select.children.length > 1) {
+                    select.removeChild(select.lastChild);
+                }
+                
+                // Adicionar turmas
+                CONFIG.CLASSES.forEach(className => {
+                    const option = document.createElement('option');
+                    option.value = className;
+                    option.textContent = className;
+                    select.appendChild(option);
+                });
             });
-            data.irregularities = irregularities.join(', ');
+        }
+
+        /**
+         * Popula o dropdown de alunos baseado na turma selecionada
+         */
+        async function populateStudentDropdown(className) {
+            const studentSelect = document.getElementById('student');
+            if (!studentSelect) return;
             
-            // Validar dados obrigatórios
-            if (!data.professor || !data.date || !data.class || !data.student) {
-                showNotification('Por favor, preencha todos os campos obrigatórios.', 'warning');
+            // Limpar opções existentes
+            studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
+            studentSelect.disabled = true;
+            
+            if (!className) {
+                studentSelect.innerHTML = '<option value="">Primeiro selecione uma turma</option>';
                 return;
             }
             
             try {
-                await addOccurrence(data);
-                form.reset();
+                const students = await loadStudentsByClass(className);
                 
-                // Resetar dropdown de alunos
-                const studentSelect = document.getElementById('student');
-                if (studentSelect) {
-                    studentSelect.innerHTML = '<option value="">Primeiro selecione uma turma</option>';
-                    studentSelect.disabled = true;
-                }
+                // Limpar e popular
+                studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
                 
-                // Atualizar estatísticas
-                updateDashboardStats();
+                students.forEach(student => {
+                    const option = document.createElement('option');
+                    option.value = student;
+                    option.textContent = student;
+                    studentSelect.appendChild(option);
+                });
+                
+                studentSelect.disabled = false;
                 
             } catch (error) {
-                // Erro já tratado na função addOccurrence
+                studentSelect.innerHTML = '<option value="">Erro ao carregar alunos</option>';
+                console.error('Erro ao popular dropdown de alunos:', error);
             }
-        });
-    }
-    
-    // Listener para botão de limpar
-    if (clearBtn) {
-        clearBtn.addEventListener('click', () => {
-            form.reset();
-            const studentSelect = document.getElementById('student');
-            if (studentSelect) {
-                studentSelect.innerHTML = '<option value="">Primeiro selecione uma turma</option>';
-                studentSelect.disabled = true;
-            }
-        });
-    }
-}
-
-/**
- * Configura os filtros de busca
- */
-function setupSearchFilters() {
-    const searchBtn = document.getElementById('searchBtn');
-    
-    if (searchBtn) {
-        searchBtn.addEventListener('click', () => {
-            const filters = {
-                class: document.getElementById('searchClass').value,
-                student: document.getElementById('searchStudent').value,
-                professor: document.getElementById('searchProfessor').value
-            };
-            
-            loadAndDisplayRecords(filters);
-        });
-    }
-    
-    // Busca em tempo real
-    const searchInputs = document.querySelectorAll('#searchStudent, #searchProfessor');
-    searchInputs.forEach(input => {
-        let timeout;
-        input.addEventListener('input', () => {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => {
-                const filters = {
-                    class: document.getElementById('searchClass').value,
-                    student: document.getElementById('searchStudent').value,
-                    professor: document.getElementById('searchProfessor').value
-                };
-                loadAndDisplayRecords(filters);
-            }, 500);
-        });
-    });
-    
-    // Filtro por turma
-    const searchClass = document.getElementById('searchClass');
-    if (searchClass) {
-        searchClass.addEventListener('change', () => {
-            const filters = {
-                class: searchClass.value,
-                student: document.getElementById('searchStudent').value,
-                professor: document.getElementById('searchProfessor').value
-            };
-            loadAndDisplayRecords(filters);
-        });
-    }
-}
-
-/**
- * Configura botões de ação
- */
-function setupActionButtons() {
-    const refreshBtn = document.getElementById('refreshBtn');
-    const exportBtn = document.getElementById('exportBtn');
-    
-    if (refreshBtn) {
-        refreshBtn.addEventListener('click', async () => {
-            // Limpar cache
-            globalState.students = {};
-            globalState.occurrences = [];
-            globalState.statistics = {};
-            
-            // Recarregar dados
-            await updateDashboardStats();
-            
-            // Se estiver na aba de consulta, recarregar registros
-            const consultaTab = document.getElementById('consulta');
-            if (consultaTab && consultaTab.classList.contains('active')) {
-                await loadAndDisplayRecords();
-            }
-            
-            showNotification('Dados atualizados com sucesso!', 'success');
-        });
-    }
-    
-    if (exportBtn) {
-        exportBtn.addEventListener('click', () => {
-            exportToCSV();
-        });
-    }
-}
-
-/**
- * Exporta dados para CSV
- */
-function exportToCSV() {
-    if (globalState.occurrences.length === 0) {
-        showNotification('Nenhum dado para exportar.', 'warning');
-        return;
-    }
-    
-    const headers = ['Data', 'Professor', 'Turma', 'Aluno', 'Irregularidades', 'Descrição'];
-    const csvContent = [
-        headers.join(','),
-        ...globalState.occurrences.map(occ => [
-            occ.date || '',
-            `"${occ.professor || ''}"`,
-            `"${occ.class || ''}"`,
-            `"${occ.student || ''}"`,
-            `"${occ.irregularities || ''}"`,
-            `"${(occ.description || '').replace(/"/g, '""')}"`
-        ].join(','))
-    ].join('\n');
-    
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    
-    link.setAttribute('href', url);
-    link.setAttribute('download', `ocorrencias_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    showNotification('Relatório exportado com sucesso!', 'success');
-}
-
-/**
- * Editar registro (placeholder)
- */
-function editRecord(id) {
-    showNotification('Funcionalidade de edição em desenvolvimento.', 'info');
-}
-
-/**
- * Excluir registro (placeholder)
- */
-function deleteRecord(id) {
-    if (confirm('Tem certeza que deseja excluir este registro?')) {
-        showNotification('Funcionalidade de exclusão em desenvolvimento.', 'info');
-    }
-}
-
-/**
- * Configura a data padrão como hoje
- */
-function setupDefaultDate() {
-    const dateInput = document.getElementById('date');
-    if (dateInput) {
-        const today = new Date().toISOString().split('T')[0];
-        dateInput.value = today;
-    }
-}
-
-/**
- * Verifica a conexão com o servidor
- */
-async function checkConnection() {
-    const isConnected = await testConnection();
-    
-    if (!isConnected) {
-        showNotification(
-            'Não foi possível conectar ao servidor. Verifique a URL da API nas configurações.',
-            'error',
-            10000
-        );
-    }
-    
-    return isConnected;
-}
-
-// ===== INICIALIZAÇÃO =====
-
-/**
- * Inicializa a aplicação
- */
-async function initializeApp() {
-    try {
-        console.log('Inicializando aplicação...');
-        
-        // Verificar conexão
-        const connected = await checkConnection();
-        
-        if (connected) {
-            // Configurar componentes
-            populateClassDropdowns();
-            setupTabs();
-            setupOccurrenceForm();
-            setupSearchFilters();
-            setupActionButtons();
-            setupDefaultDate();
-            
-            // Carregar dados iniciais
-            await updateDashboardStats();
-            
-            console.log('Aplicação inicializada com sucesso!');
-            showNotification('Sistema carregado com sucesso!', 'success');
-        } else {
-            console.warn('Aplicação inicializada em modo offline');
         }
-        
-    } catch (error) {
-        console.error('Erro ao inicializar aplicação:', error);
-        showNotification('Erro ao inicializar sistema: ' + error.message, 'error');
-    }
-}
 
-// ===== EVENT LISTENERS =====
+        /**
+         * Atualiza as estatísticas na dashboard
+         */
+        async function updateDashboardStats() {
+            try {
+                const stats = await loadStatistics();
+                
+                // Atualizar valores
+                document.getElementById('totalOccurrences').textContent = stats.totalOccurrences || 0;
+                document.getElementById('totalClasses').textContent = stats.totalClasses || 0;
+                document.getElementById('totalTeachers').textContent = stats.totalTeachers || 0;
+                document.getElementById('mostAffectedClass').textContent = stats.mostAffectedClass || 'N/A';
+                
+                // Atualizar gráfico de irregularidades
+                updateIrregularityChart(stats.irregularityCounts || {});
+                
+                // Atualizar gráficos de relatórios
+                updateReportsCharts(stats);
+                
+            } catch (error) {
+                console.error('Erro ao atualizar estatísticas:', error);
+            }
+        }
 
-// Inicializar quando o DOM estiver carregado
-document.addEventListener('DOMContentLoaded', initializeApp);
+        /**
+         * Atualiza o gráfico de irregularidades
+         */
+        function updateIrregularityChart(irregularityCounts) {
+            const ctx = document.getElementById('irregularityChart');
+            if (!ctx) return;
+            
+            // Destruir gráfico existente
+            if (globalState.charts.irregularity) {
+                globalState.charts.irregularity.destroy();
+            }
+            
+            const labels = Object.keys(irregularityCounts);
+            const data = Object.values(irregularityCounts);
+            
+            if (labels.length === 0) {
+                // Mostrar mensagem de "sem dados"
+                ctx.getContext('2d').clearRect(0, 0, ctx.width, ctx.height);
+                return;
+            }
+            
+            globalState.charts.irregularity = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                            '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 10,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+        }
 
-// Tratar erros globais
-window.addEventListener('error', (event) => {
-    console.error('Erro global capturado:', event.error);
-    showNotification('Ocorreu um erro inesperado. Tente recarregar a página.', 'error');
-});
+        /**
+         * Atualiza os gráficos de relatórios
+         */
+        function updateReportsCharts(stats) {
+            // Gráfico por turma
+            updateClassChart(stats.classCounts || {});
+            
+            // Gráfico por professor
+            updateProfessorChart(stats.professorCounts || {});
+        }
 
-// Tratar promessas rejeitadas
-window.addEventListener('unhandledrejection', (event) => {
-    console.error('Promise rejeitada:', event.reason);
-    showNotification('Erro de comunicação com o servidor.', 'error');
-});
+        /**
+         * Atualiza o gráfico por turma
+         */
+        function updateClassChart(classCounts) {
+            const ctx = document.getElementById('classChart');
+            if (!ctx) return;
+            
+            if (globalState.charts.class) {
+                globalState.charts.class.destroy();
+            }
+            
+            const labels = Object.keys(classCounts);
+            const data = Object.values(classCounts);
+            
+            if (labels.length === 0) return;
+            
+            globalState.charts.class = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Ocorrências por Turma',
+                        data: data,
+                        backgroundColor: 'rgba(26, 115, 232, 0.8)',
+                        borderColor: 'rgba(26, 115, 232, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+        }
 
-// Expor funções globais necessárias
-window.editRecord = editRecord;
-window.deleteRecord = deleteRecord;
+        /**
+         * Atualiza o gráfico por professor
+         */
+        function updateProfessorChart(professorCounts) {
+            const ctx = document.getElementById('professorChart');
+            if (!ctx) return;
+            
+            if (globalState.charts.professor) {
+                globalState.charts.professor.destroy();
+            }
+            
+            const labels = Object.keys(professorCounts);
+            const data = Object.values(professorCounts);
+            
+            if (labels.length === 0) return;
+            
+            globalState.charts.professor = new Chart(ctx, {
+                type: 'horizontalBar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Ocorrências por Professor',
+                        data: data,
+                        backgroundColor: 'rgba(46, 204, 113, 0.8)',
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
 
+        /**
+         * Carrega и exibe registros na tabela
+         */
+        async function loadAndDisplayRecords(filters = {}) {
+            try {
+                showLoading(true);
+                
+                let occurrences = globalState.occurrences;
+                
+                // Carregar se não estiver em cache
+                if (occurrences.length === 0) {
+                    occurrences = await loadAllOccurrences();
+                }
+                
+                // Aplicar filtros
+                let filteredOccurrences = occurrences;
+                
+                if (filters.class) {
+                    filteredOccurrences = filteredOccurrences.filter(occ => 
+                        occ.class && occ.class.toLowerCase().includes(filters.class.toLowerCase())
+                    );
+                }
+                
+                if (filters.student) {
+                    filteredOccurrences = filteredOccurrences.filter(occ => 
+                        occ.student && occ.student.toLowerCase().includes(filters.student.toLowerCase())
+                    );
+                }
+                
+                if (filters.professor) {
+                    filteredOccurrences = filteredOccurrences.filter(occ => 
+                        occ.professor && occ.professor.toLowerCase().includes(filters.professor.toLowerCase())
+                    );
+                }
+                
+                // Exibir na tabela
+                displayRecordsTable(filteredOccurrences);
+                
+            } catch (error) {
+                console.error('Erro ao carregar registros:', error);
+                showNotification('Erro ao carregar registros: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        /**
+         * Exibe registros na tabela
+         */
+        function displayRecordsTable(occurrences) {
+            const tbody = document.getElementById('registrosTableBody');
+            if (!tbody) return;
+            
+            if (occurrences.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="no-data">Nenhum registro encontrado</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = occurrences.map(occ => `
+                <tr>
+                    <td>${occ.date || 'N/A'}</td>
+                    <td>${occ.professor || 'N/A'}</td>
+                    <td>${occ.class || 'N/A'}</td>
+                    <td>${occ.student || 'N/A'}</td>
+                    <td>${occ.irregularities || 'Nenhuma'}</td>
+                    <td>
+                        <button class="btn-action btn-edit" onclick="editRecord('${occ.id}')">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="btn-action btn-delete" onclick="deleteRecord('${occ.id}')">
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        /**
+         * Gerencia as abas
+         */
+        function setupTabs() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetTab = button.getAttribute('data-tab');
+                    
+                    // Remover classe active de todos os botões e conteúdos
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Adicionar classe active ao botão clicado e conteúdo correspondente
+                    button.classList.add('active');
+                    const targetContent = document.getElementById(targetTab);
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                        
+                        // Carregar dados específicos da aba
+                        if (targetTab === 'consulta') {
+                            loadAndDisplayRecords();
+                        } else if (targetTab === 'relatorios') {
+                            updateDashboardStats();
+                        }
+                    }
+                });
+            });
+        }
+
+        /**
+         * Configura o formulário de ocorrência
+         */
+        function setupOccurrenceForm() {
+            const form = document.getElementById('occurrenceForm');
+            const classSelect = document.getElementById('class');
+            const clearBtn = document.getElementById('clearBtn');
+            
+            // Listener para mudança de turma
+            if (classSelect) {
+                classSelect.addEventListener('change', (e) => {
+                    populateStudentDropdown(e.target.value);
+                });
+            }
+            
+            // Listener para envio do formulário
+            if (form) {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(form);
+                    const data = {};
+                    
+                    // Coletar dados básicos
+                    for (let [key, value] of formData.entries()) {
+                        if (key !== 'irregularities') {
+                            data[key] = value;
+                        }
+                    }
+                    
+                    // Coletar irregularidades selecionadas
+                    const irregularities = [];
+                    const checkboxes = form.querySelectorAll('input[name="irregularities"]:checked');
+                    checkboxes.forEach(checkbox => {
+                        irregularities.push(checkbox.value);
+                    });
+                    data.irregularities = irregularities.join(', ');
+                    
+                    // Validar dados obrigatórios
+                    if (!data.professor || !data.date || !data.class || !data.student) {
+                        showNotification('Por favor, preencha todos os campos obrigatórios.', 'warning');
+                        return;
+                    }
+                    
+                    try {
+                        await addOccurrence(data);
+                        form.reset();
+                        
+                        // Resetar dropdown de alunos
+                        const studentSelect = document.getElementById('student');
+                        if (studentSelect) {
+                            studentSelect.innerHTML = '<option value="">Primeiro selecione uma turma</option>';
+                            studentSelect.disabled = true;
+                        }
+                        
+                        // Atualizar estatísticas
+                        updateDashboardStats();
+                        
+                    } catch (error) {
+                        // Erro já tratado na função addOccurrence
+                    }
+                });
+            }
+            
+            // Listener para botão de limpar
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    form.reset();
+                    const studentSelect = document.getElementById('student');
+                    if (studentSelect) {
+                        studentSelect.innerHTML = '<option value="">Primeiro selecione uma turma</option>';
+                        studentSelect.disabled = true;
+                    }
+                });
+            }
+        }
+
+        /**
+         * Configura os filtros de busca
+         */
+        function setupSearchFilters() {
+            const searchBtn = document.getElementById('searchBtn');
+            
+            if (searchBtn) {
+                searchBtn.addEventListener('click', () => {
+                    const filters = {
+                        class: document.getElementById('searchClass').value,
+                        student: document.getElementById('searchStudent').value,
+                        professor: document.getElementById('searchProfessor').value
+                    };
+                    
+                    loadAndDisplayRecords(filters);
+                });
+            }
+            
+            // Busca em tempo real
+            const searchInputs = document.querySelectorAll('#searchStudent, #searchProfessor');
+            searchInputs.forEach(input => {
+                let timeout;
+                input.addEventListener('input', () => {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        const filters = {
+                            class: document.getElementById('searchClass').value,
+                            student: document.getElementById('searchStudent').value,
+                            professor: document.getElementById('searchProfessor').value
+                        };
+                        loadAndDisplayRecords(filters);
+                    }, 500);
+                });
+            });
+            
+            // Filtro por turma
+            const searchClass = document.getElementById('searchClass');
+            if (searchClass) {
+                searchClass.addEventListener('change', () => {
+                    const filters = {
+                        class: searchClass.value,
+                        student: document.getElementById('searchStudent').value,
+                        professor: document.getElementById('searchProfessor').value
+                    };
+                    loadAndDisplayRecords(filters);
+                });
+            }
+        }
+
+        /**
+         * Configura botões de ação
+         */
+        function setupActionButtons() {
+            const refreshBtn = document.getElementById('refreshBtn');
+            const exportBtn = document.getElementById('exportBtn');
+            
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', async () => {
+                    // Limpar cache
+                    globalState.students = {};
+                    globalState.occurrences = [];
+                    globalState.statistics = {};
+                    
+                    // Recarregar dados
+                    await updateDashboardStats();
+                    
+                    // Se estiver na aba de consulta, recarregar registros
+                    const consultaTab = document.getElementById('consulta');
+                    if (consultaTab && consultaTab.classList.contains('active')) {
+                        await loadAndDisplayRecords();
+                    }
+                    
+                    showNotification('Dados atualizados com sucesso!', 'success');
+                });
+            }
+            
+            if (exportBtn) {
+                exportBtn.addEventListener('click', () => {
+                    exportToCSV();
+                });
+            }
+        }
+
+        /**
+         * Exporta dados para CSV
+         */
+        function exportToCSV() {
+            if (globalState.occurrences.length === 0) {
+                showNotification('Nenhum dado para exportar.', 'warning');
+                return;
+            }
+            
+            const headers = ['Data', 'Professor', 'Turma', 'Aluno', 'Irregularidades', 'Descrição'];
+            const csvContent = [
+                headers.join(','),
+                ...globalState.occurrences.map(occ => [
+                    occ.date || '',
+                    `"${occ.professor || ''}"`,
+                    `"${occ.class || ''}"`,
+                    `"${occ.student || ''}"`,
+                    `"${occ.irregularities || ''}"`,
+                    `"${(occ.description || '').replace(/"/g, '""')}"`
+                ].join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `ocorrencias_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('Relatório exportado com sucesso!', 'success');
+        }
+
+        /**
+         * Editar registro (placeholder)
+         */
+        function editRecord(id) {
+            showNotification('Funcionalidade de edição em desenvolvimento.', 'info');
+        }
+
+        /**
+         * Excluir registro (placeholder)
+         */
+        function deleteRecord(id) {
+            if (confirm('Tem certeza que deseja excluir este registro?')) {
+                showNotification('Funcionalidade de exclusão em desenvolvimento.', 'info');
+            }
+        }
+
+        /**
+         * Configura a data padrão como hoje
+         */
+        function setupDefaultDate() {
+            const dateInput = document.getElementById('date');
+            if (dateInput) {
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.value = today;
+            }
+        }
+
+        /**
+         * Verifica a conexão com o servidor
+         */
+        async function checkConnection() {
+            const isConnected = await testConnection();
+            
+            if (!isConnected) {
+                showNotification(
+                    'Não foi possível conectar ao servidor. Verifique a URL da API nas configurações.',
+                    'error',
+                    10000
+                );
+            }
+            
+            return isConnected;
+        }
+
+        // ===== INICIALIZAÇÃO =====
+
+        /**
+         * Inicializa a aplicação
+         */
+        async function initializeApp() {
+            try {
+                console.log('Inicializando aplicação...');
+                
+                // Verificar conexão
+                const connected = await checkConnection();
+                
+                if (connected) {
+                    // Configurar componentes
+                    populateClassDropdowns();
+                    setupTabs();
+                    setupOccurrenceForm();
+                    setupSearchFilters();
+                    setupActionButtons();
+                    setupDefaultDate();
+                    
+                    // Carregar dados iniciais
+                    await updateDashboardStats();
+                    
+                    console.log('Aplicação inicializada com sucesso!');
+                    showNotification('Sistema carregado com sucesso!', 'success');
+                } else {
+                    console.warn('Aplicação inicializada em modo offline');
+                }
+                
+            } catch (error) {
+                console.error('Erro ao inicializar aplicação:', error);
+                showNotification('Erro ao inicializar sistema: ' + error.message, 'error');
+            }
+        }
+
+        // ===== EVENT LISTENERS =====
+
+        // Inicializar quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', initializeApp);
+
+        // Tratar erros globais
+        window.addEventListener('error', (event) => {
+            console.error('Erro global capturado:', event.error);
+            showNotification('Ocorreu um erro inesperado. Tente recarregar a página.', 'error');
+        });
+
+        // Tratar promessas rejeitadas
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('Promise rejeitada:', event.reason);
+            showNotification('Erro de comunicação com o servidor.', 'error');
+        });
+
+        // Expor funções globais necessárias
+        window.editRecord = editRecord;
+        window.deleteRecord = deleteRecord;
+    </script>
+</body>
+</html>
