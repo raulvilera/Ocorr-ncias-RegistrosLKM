@@ -343,6 +343,20 @@
         .download-btn:hover {
             background-color: #45a049;
         }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,.3);
+            border-radius: 50%;
+            border-top-color: #001f3f;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -539,6 +553,7 @@
         // URLs do Google Apps Script Web App
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5w7k1M5zU8Q2UJd1RkZQ7Q4V5X4Q3Q2Q1Q0Q0Q0/exec';
         const SPREADSHEET_ID = '1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio';
+        const SHEET_NAME = 'OCORRENCIASDOSPROFESSORES';
 
         // Variáveis globais
         let alunos = [];
@@ -546,8 +561,9 @@
         let turmas = [];
         let alunosSelecionados = [];
         let currentAlunoData = null;
+        let alunosDaTurmaAtual = [];
 
-        // Funções de mapeamento (simulando backend)
+        // Funções de mapeamento
         function _getClassRanges() {
             return {
                 "6° ANO A MANHA": "C3:C46",
@@ -686,7 +702,7 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             
-            // Verificação simples de e-mail e senha (em produção, isso deve ser feito no backend)
+            // Verificação simples de e-mail e senha
             if (email === 'gestao@escola.com' && password === 'gestao123') {
                 showGestaoInterface(email);
                 carregarDadosIniciais();
@@ -701,44 +717,118 @@
         }
 
         // Carregar dados iniciais
-        function carregarDadosIniciais() {
-            // Carregar professores
-            professores = getAllTeachers();
-            const professorSelect = document.getElementById('professorNome');
-            professorSelect.innerHTML = '<option value="">Selecione o professor</option>';
-            professores.forEach(professor => {
-                const option = document.createElement('option');
-                option.value = professor;
-                option.textContent = professor;
-                professorSelect.appendChild(option);
-            });
+        async function carregarDadosIniciais() {
+            try {
+                // Carregar professores
+                professores = getAllTeachers();
+                const professorSelect = document.getElementById('professorNome');
+                professorSelect.innerHTML = '<option value="">Selecione o professor</option>';
+                professores.forEach(professor => {
+                    const option = document.createElement('option');
+                    option.value = professor;
+                    option.textContent = professor;
+                    professorSelect.appendChild(option);
+                });
 
-            // Carregar turmas
-            turmas = Object.keys(_getClassRanges());
+                // Carregar turmas
+                turmas = Object.keys(_getClassRanges());
+                const turmaSelect = document.getElementById('professorTurma');
+                turmaSelect.innerHTML = '<option value="">Selecione a turma</option>';
+                turmas.forEach(turma => {
+                    const option = document.createElement('option');
+                    option.value = turma;
+                    option.textContent = turma;
+                    turmaSelect.appendChild(option);
+                });
+
+                // Carregar todos os alunos das turmas
+                await carregarTodosAlunos();
+            } catch (error) {
+                console.error('Erro ao carregar dados iniciais:', error);
+                alert('Erro ao carregar dados. Tente novamente.');
+            }
+        }
+
+        // Carregar todos os alunos de todas as turmas
+        async function carregarTodosAlunos() {
+            try {
+                alunos = [];
+                const classRanges = _getClassRanges();
+                const turmasList = Object.keys(classRanges);
+                
+                for (const turma of turmasList) {
+                    const range = classRanges[turma];
+                    const response = await fetch(`${SCRIPT_URL}?action=getAlunosByTurma&spreadsheetId=${SPREADSHEET_ID}&range=${range}&turma=${encodeURIComponent(turma)}`);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.alunos && data.alunos.length > 0) {
+                            // Adicionar alunos com informações da turma
+                            data.alunos.forEach(alunoNome => {
+                                if (alunoNome && alunoNome.trim() !== '') {
+                                    alunos.push({
+                                        nome: alunoNome.trim(),
+                                        turma: turma,
+                                        ra: '' // O RA será carregado posteriormente se necessário
+                                    });
+                                }
+                            });
+                        }
+                    }
+                }
+                
+                console.log('Alunos carregados:', alunos);
+            } catch (error) {
+                console.error('Erro ao carregar alunos:', error);
+                alert('Erro ao carregar lista de alunos.');
+            }
+        }
+
+        // Carregar alunos de uma turma específica (para professores)
+        async function carregarAlunosTurma() {
             const turmaSelect = document.getElementById('professorTurma');
-            turmaSelect.innerHTML = '<option value="">Selecione a turma</option>';
-            turmas.forEach(turma => {
-                const option = document.createElement('option');
-                option.value = turma;
-                option.textContent = turma;
-                turmaSelect.appendChild(option);
-            });
-
-            // Simular carregamento de alunos (em produção, isso viria do backend)
-            setTimeout(() => {
-                alunos = [
-                    { nome: "ANA CAROLINA SILVA", turma: "6° ANO A MANHA", ra: "12345" },
-                    { nome: "PEDRO HENRIQUE OLIVEIRA", turma: "6° ANO A MANHA", ra: "12346" },
-                    { nome: "MARIA EDUARDA SANTOS", turma: "6° ANO B MANHA", ra: "12347" },
-                    { nome: "JOÃO VITOR COSTA", turma: "6° ANO B MANHA", ra: "12348" },
-                    { nome: "LUCAS GABRIEL PEREIRA", turma: "7° ANO A TARDE", ra: "12349" },
-                    { nome: "SOFIA ALMEIDA", turma: "7° ANO A TARDE", ra: "12350" },
-                    { nome: "ENZO FERNANDES", turma: "8° ANO A TARDE", ra: "12351" },
-                    { nome: "LAURA MENDES", turma: "8° ANO A TARDE", ra: "12352" },
-                    { nome: "GUILHERME RODRIGUES", turma: "9° ANO A TARDE", ra: "12353" },
-                    { nome: "ISABELLA MARTINS", turma: "9° ANO A TARDE", ra: "12354" }
-                ];
-            }, 500);
+            const turma = turmaSelect.value;
+            
+            if (!turma) {
+                alunosDaTurmaAtual = [];
+                return;
+            }
+            
+            try {
+                const classRanges = _getClassRanges();
+                const range = classRanges[turma];
+                
+                if (!range) {
+                    alert('Intervalo não encontrado para esta turma.');
+                    return;
+                }
+                
+                // Mostrar indicador de carregamento
+                turmaSelect.disabled = true;
+                turmaSelect.style.backgroundImage = "url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTAiIGN5PSIxMCIgcj0iNyIgc3Ryb2tlPSIjMDAxZjNmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1kYXNoYXJyYXk9IjMyIiBzdHJva2UtZGFzaG9mZnNldD0iMCI+CiAgPGFuaW1hdGVUcmFuc2Zvcm0gYXR0cmlidXRlTmFtZT0idHJhbnNmb3JtIiB0eXBlPSJyb3RhdGUiIGZyb209IjAgMTAgMTAiIHRvPSIzNjAgMTAgMTAiIGR1cj0iMXMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIiAvPgo8L2NpcmNsZT4KPC9zdmc+')";
+                turmaSelect.style.backgroundRepeat = "no-repeat";
+                turmaSelect.style.backgroundPosition = "right 8px center";
+                turtaSelect.style.backgroundSize = "20px";
+                
+                const response = await fetch(`${SCRIPT_URL}?action=getAlunosByTurma&spreadsheetId=${SPREADSHEET_ID}&range=${range}&turma=${encodeURIComponent(turma)}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    alunosDaTurmaAtual = data.alunos || [];
+                    console.log(`Alunos da turma ${turma}:`, alunosDaTurmaAtual);
+                } else {
+                    alert('Erro ao carregar alunos da turma.');
+                    alunosDaTurmaAtual = [];
+                }
+            } catch (error) {
+                console.error('Erro ao carregar alunos da turma:', error);
+                alert('Erro ao carregar alunos da turma.');
+                alunosDaTurmaAtual = [];
+            } finally {
+                // Restaurar estado normal do select
+                turmaSelect.disabled = false;
+                turmaSelect.style.backgroundImage = "none";
+            }
         }
 
         // Função para mostrar interface de gestão
@@ -768,12 +858,12 @@
             document.getElementById('downloadPdfBtn').style.display = 'none';
         }
 
-        // Autocomplete para alunos
+        // Autocomplete para alunos (Gestão)
         function autocompleteAluno(valor) {
             const autocompleteList = document.getElementById("autocomplete-list");
             autocompleteList.innerHTML = "";
             
-            if (!valor) return;
+            if (!valor || valor.length < 2) return;
             
             const filteredAlunos = alunos.filter(aluno => 
                 aluno.nome.toLowerCase().includes(valor.toLowerCase())
@@ -785,7 +875,7 @@
                 div.addEventListener("click", function() {
                     document.getElementById("aluno").value = aluno.nome;
                     document.getElementById("serie").value = aluno.turma;
-                    document.getElementById("ra").value = aluno.ra;
+                    document.getElementById("ra").value = aluno.ra || "Não disponível";
                     autocompleteList.innerHTML = "";
                     currentAlunoData = aluno;
                 });
@@ -806,7 +896,7 @@
         }
 
         // Cadastrar ocorrência (Gestão)
-        function cadastrarOcorrencia() {
+        async function cadastrarOcorrencia() {
             const aluno = document.getElementById('aluno').value;
             const serie = document.getElementById('serie').value;
             const professor = document.getElementById('professor').value;
@@ -832,67 +922,69 @@
             const dataRegistro = `${data.toLocaleDateString()} ${data.toLocaleTimeString()}`;
             
             const dados = {
-                nome: aluno,
-                serie: serie,
+                aluno: aluno,
+                turma: serie,
                 professor: professor,
                 ra: ra,
                 disciplina: disciplina,
                 dataRegistro: dataRegistro,
+                classificacao: classificacao,
                 descricao: descricao,
-                dataRetorno: dataRetorno || 'N/A'
+                dataRetorno: dataRetorno || 'N/A',
+                tipoUsuario: 'gestao'
             };
             
-            // Simulação de envio para o Google Apps Script
-            console.log('Dados da ocorrência (Gestão):', dados);
-            
-            // Aqui você faria a chamada real para o Google Apps Script
-            // fetch(SCRIPT_URL, {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify({
-            //         action: 'cadastrarOcorrenciaGestao',
-            //         spreadsheetId: SPREADSHEET_ID,
-            //         data: dados
-            //     })
-            // })
-            
-            // Mostrar mensagem de sucesso
-            document.getElementById('successMessage').style.display = 'block';
-            
-            // Limpar formulário após 2 segundos
-            setTimeout(() => {
-                document.getElementById('successMessage').style.display = 'none';
-                document.getElementById('aluno').value = '';
-                document.getElementById('serie').value = '';
-                document.getElementById('professor').value = '';
-                document.getElementById('ra').value = '';
-                document.getElementById('disciplina').value = '';
-                document.getElementById('classificacao').value = '';
-                document.getElementById('dataRetorno').value = '';
-                document.getElementById('descricao').value = '';
-                document.getElementById('suspensionField').style.display = 'none';
-            }, 2000);
+            try {
+                // Enviar para o Google Apps Script
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'cadastrarOcorrencia',
+                        spreadsheetId: SPREADSHEET_ID,
+                        sheetName: SHEET_NAME,
+                        data: dados
+                    })
+                });
+                
+                if (response.ok) {
+                    // Mostrar mensagem de sucesso
+                    document.getElementById('successMessage').style.display = 'block';
+                    
+                    // Limpar formulário após 2 segundos
+                    setTimeout(() => {
+                        document.getElementById('successMessage').style.display = 'none';
+                        document.getElementById('aluno').value = '';
+                        document.getElementById('serie').value = '';
+                        document.getElementById('professor').value = '';
+                        document.getElementById('ra').value = '';
+                        document.getElementById('disciplina').value = '';
+                        document.getElementById('classificacao').value = '';
+                        document.getElementById('dataRetorno').value = '';
+                        document.getElementById('descricao').value = '';
+                        document.getElementById('suspensionField').style.display = 'none';
+                    }, 2000);
+                } else {
+                    alert('Erro ao registrar ocorrência. Tente novamente.');
+                }
+            } catch (error) {
+                console.error('Erro ao cadastrar ocorrência:', error);
+                alert('Erro ao registrar ocorrência. Tente novamente.');
+            }
         }
 
-        // Carregar alunos da turma selecionada
-        function carregarAlunosTurma() {
-            const turma = document.getElementById('professorTurma').value;
-            if (!turma) return;
-            
-            // Filtrar alunos pela turma selecionada
-            const alunosTurma = alunos.filter(aluno => aluno.turma === turma);
-            
-            // Armazenar alunos da turma para uso no modal
-            window.alunosTurmaAtual = alunosTurma;
-        }
-
-        // Abrir modal de seleção de alunos
+        // Abrir modal de seleção de alunos (Professor)
         function abrirModalAlunos() {
             const turma = document.getElementById('professorTurma').value;
             if (!turma) {
                 alert('Por favor, selecione uma turma primeiro.');
+                return;
+            }
+            
+            if (alunosDaTurmaAtual.length === 0) {
+                alert('Nenhum aluno encontrado para esta turma.');
                 return;
             }
             
@@ -901,15 +993,17 @@
             studentList.innerHTML = '';
             
             // Adicionar alunos à lista
-            window.alunosTurmaAtual.forEach(aluno => {
-                const studentItem = document.createElement('div');
-                studentItem.className = 'student-item';
-                studentItem.innerHTML = `
-                    <input type="checkbox" id="aluno-${aluno.ra}" value="${aluno.nome}" 
-                        ${alunosSelecionados.includes(aluno.nome) ? 'checked' : ''}>
-                    <label for="aluno-${aluno.ra}">${aluno.nome} (RA: ${aluno.ra})</label>
-                `;
-                studentList.appendChild(studentItem);
+            alunosDaTurmaAtual.forEach(aluno => {
+                if (aluno && aluno.trim() !== '') {
+                    const studentItem = document.createElement('div');
+                    studentItem.className = 'student-item';
+                    studentItem.innerHTML = `
+                        <input type="checkbox" id="aluno-${aluno.replace(/\s+/g, '-')}" value="${aluno}" 
+                            ${alunosSelecionados.includes(aluno) ? 'checked' : ''}>
+                        <label for="aluno-${aluno.replace(/\s+/g, '-')}">${aluno}</label>
+                    `;
+                    studentList.appendChild(studentItem);
+                }
             });
             
             modal.style.display = 'block';
@@ -931,6 +1025,7 @@
             
             if (alunosSelecionados.length === 0) {
                 selectedStudentsDiv.innerHTML = '<p>Nenhum aluno selecionado</p>';
+                document.getElementById('alunoOcorrencia').value = '';
             } else {
                 alunosSelecionados.forEach(aluno => {
                     const span = document.createElement('span');
@@ -938,6 +1033,7 @@
                     span.textContent = aluno;
                     selectedStudentsDiv.appendChild(span);
                 });
+                document.getElementById('alunoOcorrencia').value = alunosSelecionados.join(', ');
             }
             
             // Fechar o modal
@@ -945,7 +1041,7 @@
         }
 
         // Registrar ocorrência (Professor)
-        function registrarOcorrenciaProfessor() {
+        async function registrarOcorrenciaProfessor() {
             const professor = document.getElementById('professorNome').value;
             const turma = document.getElementById('professorTurma').value;
             const dataOcorrencia = document.getElementById('dataOcorrencia').value;
@@ -971,43 +1067,52 @@
                 turma: turma,
                 alunos: alunosSelecionados.join(', '),
                 irregularidades: irregularidades.join(', '),
-                descricao: descricao
+                descricao: descricao,
+                tipoUsuario: 'professor'
             };
             
-            // Simulação de envio para o Google Apps Script
-            console.log('Dados da ocorrência (Professor):', dados);
-            
-            // Aqui você faria a chamada real para o Google Apps Script
-            // fetch(SCRIPT_URL, {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify({
-            //         action: 'cadastrarOcorrenciaProfessor',
-            //         spreadsheetId: SPREADSHEET_ID,
-            //         data: dados
-            //     })
-            // })
-            
-            // Mostrar mensagem de sucesso
-            document.getElementById('professorSuccessMessage').style.display = 'block';
-            
-            // Limpar formulário após 2 segundos
-            setTimeout(() => {
-                document.getElementById('professorSuccessMessage').style.display = 'none';
-                document.getElementById('professorNome').value = '';
-                document.getElementById('professorTurma').value = '';
-                document.getElementById('dataOcorrencia').value = '';
-                document.querySelectorAll('input[name="irregularidades"]:checked').forEach(input => {
-                    input.checked = false;
+            try {
+                // Enviar para o Google Apps Script
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'cadastrarOcorrencia',
+                        spreadsheetId: SPREADSHEET_ID,
+                        sheetName: SHEET_NAME,
+                        data: dados
+                    })
                 });
-                document.getElementById('descricaoOcorrencia').value = '';
                 
-                // Limpar alunos selecionados
-                alunosSelecionados = [];
-                document.getElementById('selectedStudents').innerHTML = '';
-            }, 2000);
+                if (response.ok) {
+                    // Mostrar mensagem de sucesso
+                    document.getElementById('professorSuccessMessage').style.display = 'block';
+                    
+                    // Limpar formulário após 2 segundos
+                    setTimeout(() => {
+                        document.getElementById('professorSuccessMessage').style.display = 'none';
+                        document.getElementById('professorNome').value = '';
+                        document.getElementById('professorTurma').value = '';
+                        document.getElementById('dataOcorrencia').value = '';
+                        document.querySelectorAll('input[name="irregularidades"]:checked').forEach(input => {
+                            input.checked = false;
+                        });
+                        document.getElementById('descricaoOcorrencia').value = '';
+                        
+                        // Limpar alunos selecionados
+                        alunosSelecionados = [];
+                        document.getElementById('selectedStudents').innerHTML = '';
+                        document.getElementById('alunoOcorrencia').value = '';
+                    }, 2000);
+                } else {
+                    alert('Erro ao registrar ocorrência. Tente novamente.');
+                }
+            } catch (error) {
+                console.error('Erro ao registrar ocorrência:', error);
+                alert('Erro ao registrar ocorrência. Tente novamente.');
+            }
         }
 
         // Gerar PDF
@@ -1024,7 +1129,7 @@
                 doc.setFontSize(12);
                 doc.text(`Aluno: ${currentAlunoData.nome}`, 20, 30);
                 doc.text(`Turma: ${currentAlunoData.turma}`, 20, 40);
-                doc.text(`RA: ${currentAlunoData.ra}`, 20, 50);
+                doc.text(`RA: ${currentAlunoData.ra || 'Não disponível'}`, 20, 50);
             }
             
             // Adicionar data e hora
@@ -1051,19 +1156,6 @@
                     fecharModalAlunos();
                 }
             };
-            
-            // Ajustar largura dos campos com base no conteúdo
-            const inputs = document.querySelectorAll('input, select, textarea');
-            inputs.forEach(input => {
-                input.addEventListener('focus', function() {
-                    this.style.width = '100%';
-                    this.style.minWidth = '200px';
-                });
-                
-                input.addEventListener('blur', function() {
-                    this.style.width = '100%';
-                });
-            });
         });
     </script>
 </body>
