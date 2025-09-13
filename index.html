@@ -199,6 +199,13 @@
             resize: vertical;
         }
 
+        /* Campos com tamanho ajustável */
+        .size-to-content {
+            width: auto !important;
+            min-width: 100px;
+            max-width: 100%;
+        }
+
         /* Estilização especial para campos de data */
         input[type="date"], input[type="time"] {
             position: relative;
@@ -509,6 +516,10 @@
                 flex-direction: column;
                 gap: 10px;
             }
+
+            .size-to-content {
+                width: 100% !important;
+            }
         }
     </style>
 </head>
@@ -519,11 +530,11 @@
             <h2>2025 - Cadastro de Ocorrências</h2>
             <div class="form-group">
                 <label for="email">E-mail:</label>
-                <input type="email" id="email" placeholder="Digite seu e-mail">
+                <input type="email" id="email" placeholder="Digite seu e-mail" class="size-to-content">
             </div>
             <div class="form-group">
                 <label for="password">Senha:</label>
-                <input type="password" id="password" placeholder="Digite sua senha">
+                <input type="password" id="password" placeholder="Digite sua senha" class="size-to-content">
             </div>
             <button class="login-btn" onclick="login()">Entrar</button>
         </div>
@@ -550,33 +561,33 @@
                     <div class="form-field">
                         <label for="aluno">ALUNO:</label>
                         <div class="autocomplete">
-                            <input type="text" id="aluno" oninput="autocompleteAluno(this.value)">
+                            <input type="text" id="aluno" oninput="autocompleteAluno(this.value)" class="size-to-content">
                             <div id="autocomplete-list" class="autocomplete-items"></div>
                         </div>
                     </div>
                     <div class="form-field">
                         <label for="serie">SÉRIE/TURMA:</label>
-                        <input type="text" id="serie" readonly>
+                        <input type="text" id="serie" readonly class="size-to-content">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-field">
                         <label for="professor">PROFESSOR:</label>
-                        <input type="text" id="professor">
+                        <input type="text" id="professor" class="size-to-content">
                     </div>
                     <div class="form-field">
                         <label for="ra">RA:</label>
-                        <input type="text" id="ra" readonly>
+                        <input type="text" id="ra" readonly class="size-to-content">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-field">
                         <label for="disciplina">DISCIPLINA:</label>
-                        <input type="text" id="disciplina">
+                        <input type="text" id="disciplina" class="size-to-content">
                     </div>
                     <div class="form-field">
                         <label for="classificacao">CLASSIFICAÇÃO:</label>
-                        <select id="classificacao" onchange="toggleSuspensionField()">
+                        <select id="classificacao" onchange="toggleSuspensionField()" class="size-to-content">
                             <option value="">Selecione</option>
                             <option value="OCORRÊNCIA">OCORRÊNCIA</option>
                             <option value="SUSPENSÃO">SUSPENSÃO</option>
@@ -586,13 +597,13 @@
                 <div class="form-row" id="suspensionField" style="display: none;">
                     <div class="form-field">
                         <label for="dataRetorno">DATA DE RETORNO:</label>
-                        <input type="date" id="dataRetorno">
+                        <input type="date" id="dataRetorno" class="size-to-content">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-field">
                         <label for="descricao">DESCRIÇÃO:</label>
-                        <textarea id="descricao"></textarea>
+                        <textarea id="descricao" class="size-to-content"></textarea>
                     </div>
                 </div>
                 <button class="submit-btn" onclick="cadastrarOcorrencia()">Cadastrar Ocorrência</button>
@@ -614,13 +625,13 @@
                     <div class="form-row">
                         <div class="form-field">
                             <label for="professorNome">NOME DO PROFESSOR:</label>
-                            <select id="professorNome">
+                            <select id="professorNome" class="size-to-content">
                                 <option value="">Selecione o professor</option>
                             </select>
                         </div>
                         <div class="form-field">
                             <label for="professorTurma">TURMA:</label>
-                            <select id="professorTurma" onchange="carregarAlunosTurma()">
+                            <select id="professorTurma" onchange="carregarAlunosTurma()" class="size-to-content">
                                 <option value="">Selecione a turma</option>
                             </select>
                         </div>
@@ -628,12 +639,12 @@
                     <div class="form-row">
                         <div class="form-field">
                             <label for="alunoOcorrencia">ALUNO(S) ENVOLVIDO(S):</label>
-                            <input type="text" id="alunoOcorrencia" readonly onclick="abrirModalAlunos()">
+                            <input type="text" id="alunoOcorrencia" readonly onclick="abrirModalAlunos()" class="size-to-content">
                             <div id="selectedStudents" class="selected-students"></div>
                         </div>
                         <div class="form-field">
                             <label for="dataOcorrencia">DATA DA OCORRÊNCIA:</label>
-                            <input type="date" id="dataOcorrencia">
+                            <input type="date" id="dataOcorrencia" class="size-to-content">
                         </div>
                     </div>
                 </div>
@@ -676,7 +687,7 @@
                     <h3>3. DESCRIÇÃO DA OCORRÊNCIA</h3>
                     <div class="form-row">
                         <div class="form-field">
-                            <textarea id="descricaoOcorrencia" placeholder="Descreva detalhadamente a ocorrência..."></textarea>
+                            <textarea id="descricaoOcorrencia" placeholder="Descreva detalhadamente a ocorrência..." class="size-to-content"></textarea>
                         </div>
                     </div>
                 </div>
@@ -850,6 +861,54 @@
             ];
         }
 
+        // Função para ajustar o tamanho dos campos conforme o conteúdo
+        function adjustFieldSizes() {
+            const fields = document.querySelectorAll('.size-to-content');
+            fields.forEach(field => {
+                // Para campos de texto, textarea e select
+                if (field.tagName === 'INPUT' || field.tagName === 'TEXTAREA' || field.tagName === 'SELECT') {
+                    // Criar um elemento temporário para medir o texto
+                    const tempElement = document.createElement('div');
+                    tempElement.style.position = 'absolute';
+                    tempElement.style.left = '-9999px';
+                    tempElement.style.whiteSpace = 'nowrap';
+                    tempElement.style.font = window.getComputedStyle(field).font;
+                    
+                    // Obter o valor do campo ou o texto selecionado para selects
+                    let text = field.value;
+                    if (field.tagName === 'SELECT') {
+                        const selectedOption = field.options[field.selectedIndex];
+                        text = selectedOption ? selectedOption.text : '';
+                    }
+                    
+                    // Se não houver texto, usar o placeholder
+                    if (!text && field.placeholder) {
+                        text = field.placeholder;
+                    }
+                    
+                    tempElement.textContent = text || ' ';
+                    document.body.appendChild(tempElement);
+                    
+                    // Ajustar a largura com base no conteúdo
+                    const width = Math.max(tempElement.scrollWidth + 30, 100); // Mínimo de 100px
+                    field.style.width = `${width}px`;
+                    
+                    document.body.removeChild(tempElement);
+                }
+            });
+        }
+
+        // Observar mudanças nos campos para ajustar dinamicamente
+        function setupFieldObservers() {
+            const fields = document.querySelectorAll('.size-to-content');
+            fields.forEach(field => {
+                field.addEventListener('input', adjustFieldSizes);
+                if (field.tagName === 'SELECT') {
+                    field.addEventListener('change', adjustFieldSizes);
+                }
+            });
+        }
+
         // Função de login
         function login() {
             const email = document.getElementById('email').value;
@@ -867,6 +926,9 @@
             } else {
                 alert('E-mail ou senha incorretos. Tente novamente.');
             }
+            
+            // Ajustar tamanhos dos campos após login
+            setTimeout(adjustFieldSizes, 100);
         }
 
         // Carregar dados iniciais
@@ -896,6 +958,9 @@
 
                 // Carregar todos os alunos das turmas
                 await carregarTodosAlunos();
+                
+                // Ajustar tamanhos dos campos após carregar dados
+                setTimeout(adjustFieldSizes, 100);
             } catch (error) {
                 console.error('Erro ao carregar dados iniciais:', error);
                 alert('Erro ao carregar dados. Tente novamente.');
@@ -981,6 +1046,9 @@
                 // Restaurar estado normal do select
                 turmaSelect.disabled = false;
                 turmaSelect.style.backgroundImage = "none";
+                
+                // Ajustar tamanhos dos campos após carregar
+                setTimeout(adjustFieldSizes, 100);
             }
         }
 
@@ -991,6 +1059,12 @@
             document.getElementById('gestaoContainer').style.display = 'block';
             document.getElementById('professorContainer').style.display = 'none';
             document.getElementById('userName').textContent = email;
+            
+            // Configurar observadores e ajustar tamanhos
+            setTimeout(() => {
+                setupFieldObservers();
+                adjustFieldSizes();
+            }, 100);
         }
 
         // Função para mostrar interface do professor
@@ -1000,6 +1074,12 @@
             document.getElementById('gestaoContainer').style.display = 'none';
             document.getElementById('professorContainer').style.display = 'block';
             document.getElementById('userName').textContent = email;
+            
+            // Configurar observadores e ajustar tamanhos
+            setTimeout(() => {
+                setupFieldObservers();
+                adjustFieldSizes();
+            }, 100);
         }
 
         // Função de logout
@@ -1031,6 +1111,9 @@
                     document.getElementById("ra").value = aluno.ra || "Não disponível";
                     autocompleteList.innerHTML = "";
                     currentAlunoData = aluno;
+                    
+                    // Ajustar tamanhos após seleção
+                    adjustFieldSizes();
                 });
                 autocompleteList.appendChild(div);
             });
@@ -1046,6 +1129,9 @@
             } else {
                 suspensionField.style.display = 'none';
             }
+            
+            // Ajustar tamanhos após mudança
+            adjustFieldSizes();
         }
 
         // Cadastrar ocorrência (Gestão)
@@ -1118,6 +1204,9 @@
                         document.getElementById('dataRetorno').value = '';
                         document.getElementById('descricao').value = '';
                         document.getElementById('suspensionField').style.display = 'none';
+                        
+                        // Ajustar tamanhos após limpar
+                        adjustFieldSizes();
                     }, 2000);
                 } else {
                     alert('Erro ao registrar ocorrência. Tente novamente.');
@@ -1191,6 +1280,9 @@
             
             // Fechar o modal
             fecharModalAlunos();
+            
+            // Ajustar tamanhos após seleção
+            adjustFieldSizes();
         }
 
         // Registrar ocorrência (Professor)
@@ -1258,6 +1350,9 @@
                         alunosSelecionados = [];
                         document.getElementById('selectedStudents').innerHTML = '';
                         document.getElementById('alunoOcorrencia').value = '';
+                        
+                        // Ajustar tamanhos após limpar
+                        adjustFieldSizes();
                     }, 2000);
                 } else {
                     alert('Erro ao registrar ocorrência. Tente novamente.');
@@ -1324,6 +1419,12 @@
                     this.showPicker ? this.showPicker() : null;
                 });
             });
+            
+            // Configurar observadores e ajustar tamanhos após carregamento
+            setTimeout(() => {
+                setupFieldObservers();
+                adjustFieldSizes();
+            }, 500);
         });
     </script>
 </body>
