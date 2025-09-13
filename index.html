@@ -903,15 +903,15 @@
         const SHEET_NAME = 'OCORRENCIASDOSPROFESSORES';
 
         // Variáveis globais
-        let alunos = [];
         let professores = [];
         let turmas = [];
+        let alunos = [];
+        let alunosDaTurmaAtual = [];
         let alunosSelecionados = [];
         let currentAlunoData = null;
-        let alunosDaTurmaAtual = [];
         let historyRefreshInterval = null;
 
-        // Funções de mapeamento
+        // Função para obter mapeamento de turmas
         function _getClassRanges() {
             return {
                 "6° ANO A MANHA": "C3:C46",
@@ -944,7 +944,7 @@
                 "1ª SERIE H NOITE": "EH3:EH46",
                 "1ª SERIE I NOITE": "EM3:EM46",
                 "2ª SERIE A MANHA": "ER3:ER46",
-                "2ª SERie B MANHA": "EW3:EW46",
+                "2ª SERIE B MANHA": "EW3:EW46",
                 "2ª SERIE C MANHA": "FB3:FB46",
                 "2ª SERIE D MANHA": "FG3:FG46",
                 "2ª SERIE E MANHA": "FL3:FL46",
@@ -960,6 +960,7 @@
             };
         }
 
+        // Função para obter lista de professores
         function getAllTeachers() {
             return [
                 "ALEX LUTH PEREIRA MARANHAO",
@@ -970,7 +971,7 @@
                 "ANDREIA DOS SANTOS FREITAS",
                 "ANDREIA MADUREIRA REIS",
                 "ANTONIO CARLOS DE OLIVEIRA",
-                "ANTONIO RAMS DE ARAUJO",
+                "ANTONIO RAMOS DE ARAUJO",
                 "ANTONIO WILTON WANDERLEY CABRAL",
                 "AUGUSTO LINO PESSOA NETO",
                 "AUREA MARIA DE JESUS MARQUES",
@@ -1332,7 +1333,7 @@
             adjustFieldSizes();
         }
 
-        // Cadastrar ocorrência (Gestão)
+        // CORRIGIDO: Cadastrar ocorrência (Gestão) - função completa
         async function cadastrarOcorrencia() {
             const aluno = document.getElementById('aluno').value;
             const serie = document.getElementById('serie').value;
@@ -1354,24 +1355,17 @@
                 return;
             }
             
-            // Dados para enviar para a planilha
-            const data = new Date();
-            const dataRegistro = `${data.toLocaleDateString()} ${data.toLocaleTimeString()}`;
-            
-            const payload = {
-                aluno: aluno,
-                turma: serie,
-                professor: professor,
-                ra: ra,
-                disciplina: disciplina,
-                dataRegistro: dataRegistro,
-                classificacao: classificacao,
-                descricao: descricao,
-                dataRetorno: dataRetorno || 'N/A',
-                tipoUsuario: 'gestao'
-            };
-            
             try {
+                // Preparar dados para envio
+                const payload = {
+                    DATA: new Date().toISOString().split('T')[0],
+                    PROFESSOR: professor,
+                    TURMA: serie,
+                    ALUNO: aluno,
+                    IRREGULARIDADES: classificacao,
+                    DESCRICAO: descricao
+                };
+                
                 // Enviar para o Google Apps Script
                 const response = await fetch(`${SCRIPT_URL}?endpoint=occurrences`, {
                     method: "POST",
@@ -1394,55 +1388,50 @@
                         document.getElementById('classificacao').value = '';
                         document.getElementById('dataRetorno').value = '';
                         document.getElementById('descricao').value = '';
+                        
+                        // Esconder campo de suspensão
                         document.getElementById('suspensionField').style.display = 'none';
                         
                         // Ajustar tamanhos após limpar
                         adjustFieldSizes();
                     }, 2000);
                 } else {
-                    alert('Erro ao registrar ocorrência. Tente novamente.');
+                    alert('Erro ao cadastrar ocorrência. Tente novamente.');
                 }
             } catch (error) {
                 console.error('Erro ao cadastrar ocorrência:', error);
-                alert('Erro ao registrar ocorrência. Tente novamente.');
+                alert('Erro ao cadastrar ocorrência. Tente novamente.');
             }
         }
 
-        // Abrir modal de seleção de alunos (Professor)
+        // Abrir modal de seleção de alunos
         function abrirModalAlunos() {
-            const turma = document.getElementById('professorTurma').value;
-            if (!turma) {
-                alert('Por favor, selecione uma turma primeiro.');
-                return;
-            }
-            
             if (alunosDaTurmaAtual.length === 0) {
-                alert('Nenhum aluno encontrado para esta turma.');
+                alert('Selecione uma turma primeiro.');
                 return;
             }
             
             const modal = document.getElementById('alunosModal');
             const studentList = document.getElementById('studentList');
+            
+            // Limpar lista anterior
             studentList.innerHTML = '';
             
-            // Adicionar alunos à lista
+            // Adicionar alunos da turma atual
             alunosDaTurmaAtual.forEach(aluno => {
-                if (aluno && aluno.trim() !== '') {
-                    const studentItem = document.createElement('div');
-                    studentItem.className = 'student-item';
-                    studentItem.innerHTML = `
-                        <input type="checkbox" id="aluno-${aluno.replace(/\s+/g, '-')}" value="${aluno}" 
-                            ${alunosSelecionados.includes(aluno) ? 'checked' : ''}>
-                        <label for="aluno-${aluno.replace(/\s+/g, '-')}">${aluno}</label>
-                    `;
-                    studentList.appendChild(studentItem);
-                }
+                const studentItem = document.createElement('div');
+                studentItem.className = 'student-item';
+                studentItem.innerHTML = `
+                    <input type="checkbox" id="student_${aluno}" value="${aluno}">
+                    <label for="student_${aluno}">${aluno}</label>
+                `;
+                studentList.appendChild(studentItem);
             });
             
             modal.style.display = 'block';
         }
 
-        // Fechar modal de alunos
+        // Fechar modal de seleção de alunos
         function fecharModalAlunos() {
             document.getElementById('alunosModal').style.display = 'none';
         }
@@ -1452,51 +1441,52 @@
             const checkboxes = document.querySelectorAll('#studentList input[type="checkbox"]:checked');
             alunosSelecionados = Array.from(checkboxes).map(cb => cb.value);
             
-            // Atualizar campo de alunos selecionados
+            // Atualizar campo de texto
+            document.getElementById('alunoOcorrencia').value = alunosSelecionados.join(', ');
+            
+            // Atualizar área de alunos selecionados
             const selectedStudentsDiv = document.getElementById('selectedStudents');
             selectedStudentsDiv.innerHTML = '';
             
-            if (alunosSelecionados.length === 0) {
-                selectedStudentsDiv.innerHTML = '<p>Nenhum aluno selecionado</p>';
-                document.getElementById('alunoOcorrencia').value = '';
-            } else {
-                alunosSelecionados.forEach(aluno => {
-                    const span = document.createElement('span');
-                    span.className = 'selected-student';
-                    span.textContent = aluno;
-                    selectedStudentsDiv.appendChild(span);
-                });
-                document.getElementById('alunoOcorrencia').value = alunosSelecionados.join(', ');
-            }
+            alunosSelecionados.forEach(aluno => {
+                const studentTag = document.createElement('span');
+                studentTag.className = 'selected-student';
+                studentTag.textContent = aluno;
+                selectedStudentsDiv.appendChild(studentTag);
+            });
             
-            // Fechar o modal
+            // Fechar modal
             fecharModalAlunos();
             
-            // Ajustar tamanhos após seleção
+            // Ajustar tamanhos
             adjustFieldSizes();
         }
 
-        // Registrar ocorrência (Professor)
+        // Registrar ocorrência do professor
         async function registrarOcorrenciaProfessor() {
             const professor = document.getElementById('professorNome').value;
             const turma = document.getElementById('professorTurma').value;
             const dataOcorrencia = document.getElementById('dataOcorrencia').value;
+            const descricao = document.getElementById('descricaoOcorrencia').value;
             
-            // Obter irregularidades selecionadas - CORREÇÃO DA SINTAXE
+            // Obter irregularidades selecionadas
             const irregularidades = [];
             document.querySelectorAll('input[name="irregularidades"]:checked').forEach(input => {
                 irregularidades.push(input.value);
             });
             
-            const descricao = document.getElementById('descricaoOcorrencia').value;
-            
             // Validação básica
-            if (!professor || !turma || alunosSelecionados.length === 0 || !dataOcorrencia || irregularidades.length === 0 || !descricao) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
+            if (!professor || !turma || !dataOcorrencia || !descricao || alunosSelecionados.length === 0) {
+                alert('Por favor, preencha todos os campos obrigatórios e selecione pelo menos um aluno.');
                 return;
             }
             
-            // Dados para enviar para a planilha
+            if (irregularidades.length === 0) {
+                alert('Por favor, selecione pelo menos um tipo de irregularidade.');
+                return;
+            }
+            
+            // Preparar dados para envio
             const payload = {
                 DATA: dataOcorrencia,
                 PROFESSOR: professor,
