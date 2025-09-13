@@ -518,6 +518,8 @@
 
         .student-list {
             margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
         }
 
         .student-item {
@@ -768,7 +770,7 @@
                         <div class="form-field">
                             <label>DOCUMENTO:</label>
                             <div class="document-container">
-                                <iframe class="document-iframe" src="https://script.google.com/macros/s/AKfycbyepY4Hw-ABC-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec"></iframe>
+                                <iframe class="document-iframe" id="documentIframe" src="about:blank"></iframe>
                             </div>
                         </div>
                         <div class="document-download">
@@ -1681,6 +1683,9 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('dataOcorrencia').value = today;
             
+            // Carregar o documento no iframe
+            document.getElementById('documentIframe').src = SCRIPT_URL;
+            
             // Fechar modal ao clicar fora dele
             window.onclick = function(event) {
                 const modal = document.getElementById('alunosModal');
@@ -1710,6 +1715,57 @@
                 adjustFieldSizes();
             }, 500);
         });
+
+        // Funções corrigidas
+        async function carregarProfessores() {
+            try {
+                professores = getAllTeachers();
+                const select = document.getElementById('professorNome');
+                select.innerHTML = '<option value="">Selecione o professor</option>';
+                professores.forEach(prof => {
+                    const option = document.createElement('option');
+                    option.value = prof;
+                    option.textContent = prof;
+                    select.appendChild(option);
+                });
+            } catch (err) {
+                console.error("Erro ao carregar professores:", err);
+            }
+        }
+
+        async function carregarTurmas() {
+            try {
+                turmas = Object.keys(_getClassRanges());
+                const select = document.getElementById('professorTurma');
+                select.innerHTML = '<option value="">Selecione a turma</option>';
+                turmas.forEach(turma => {
+                    const option = document.createElement('option');
+                    option.value = turma;
+                    option.textContent = turma;
+                    select.appendChild(option);
+                });
+            } catch (err) {
+                console.error("Erro ao carregar turmas:", err);
+            }
+        }
+
+        function preencherModalAlunos(alunos) {
+            const studentList = document.getElementById('studentList');
+            studentList.innerHTML = '';
+            
+            alunos.forEach(aluno => {
+                if (aluno && aluno.trim() !== '') {
+                    const studentItem = document.createElement('div');
+                    studentItem.className = 'student-item';
+                    studentItem.innerHTML = `
+                        <input type="checkbox" id="aluno-${aluno.replace(/\s+/g, '-')}" value="${aluno}" 
+                            ${alunosSelecionados.includes(aluno) ? 'checked' : ''}>
+                        <label for="aluno-${aluno.replace(/\s+/g, '-')}">${aluno}</label>
+                    `;
+                    studentList.appendChild(studentItem);
+                }
+            });
+        }
     </script>
 </body>
 </html>
