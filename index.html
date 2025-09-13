@@ -291,11 +291,95 @@
             display: none;
         }
 
+        .professor-content {
+            display: flex;
+            gap: 30px;
+        }
+
         .occurrence-form {
             background-color: #f5f5f5; /* Fundo mais claro para o formulário */
             padding: 25px;
             border-radius: 12px;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            flex: 2;
+        }
+
+        /* Nova seção de histórico */
+        .history-container {
+            flex: 1;
+            background-color: #f5f5f5;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .history-title {
+            background: linear-gradient(135deg, #001f3f 0%, #003366 100%);
+            color: white;
+            padding: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            font-size: 18px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .history-item {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #2a5298;
+        }
+
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+
+        .history-date {
+            font-weight: bold;
+            color: #001f3f;
+        }
+
+        .history-professor {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .history-students {
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .history-description {
+            color: #444;
+            font-size: 0.95em;
+            line-height: 1.4;
+        }
+
+        .history-irregularidades {
+            margin-top: 8px;
+            font-size: 0.85em;
+            color: #2a5298;
+            font-style: italic;
+        }
+
+        .loading-history {
+            text-align: center;
+            padding: 20px;
+            color: #666;
         }
 
         /* Seções em alto relevo com distanciamento de 8mm (30px) e sombreamento branco */
@@ -496,6 +580,17 @@
         }
 
         /* Responsividade */
+        @media (max-width: 1024px) {
+            .professor-content {
+                flex-direction: column;
+            }
+            
+            .history-container {
+                max-height: none;
+                margin-top: 30px;
+            }
+        }
+
         @media (max-width: 768px) {
             .login-form {
                 width: 90%;
@@ -632,83 +727,99 @@
             <div class="form-title">
                 REGISTRO DE OCORRÊNCIAS - PROFESSOR
             </div>
-            <div class="occurrence-form">
-                <div class="form-section">
-                    <h3>1. IDENTIFICAÇÃO DA OCORRÊNCIA</h3>
-                    <div class="form-row">
-                        <div class="form-field">
-                            <label for="professorNome">NOME DO PROFESSOR:</label>
-                            <select id="professorNome" class="size-to-content">
-                                <option value="">Selecione o professor</option>
-                            </select>
+            
+            <div class="professor-content">
+                <div class="occurrence-form">
+                    <div class="form-section">
+                        <h3>1. IDENTIFICAÇÃO DA OCORRÊNCIA</h3>
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label for="professorNome">NOME DO PROFESSOR:</label>
+                                <select id="professorNome" class="size-to-content">
+                                    <option value="">Selecione o professor</option>
+                                </select>
+                            </div>
+                            <div class="form-field">
+                                <label for="professorTurma">TURMA:</label>
+                                <select id="professorTurma" onchange="carregarAlunosTurma()" class="size-to-content">
+                                    <option value="">Selecione a turma</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="form-field">
-                            <label for="professorTurma">TURMA:</label>
-                            <select id="professorTurma" onchange="carregarAlunosTurma()" class="size-to-content">
-                                <option value="">Selecione a turma</option>
-                            </select>
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label for="alunoOcorrencia">ALUNO(S) ENVOLVIDO(S):</label>
+                                <input type="text" id="alunoOcorrencia" readonly onclick="abrirModalAlunos()" class="size-to-content">
+                                <div id="selectedStudents" class="selected-students"></div>
+                            </div>
+                            <div class="form-field">
+                                <label for="dataOcorrencia">DATA DA OCORRÊNCIA:</label>
+                                <input type="date" id="dataOcorrencia" class="size-to-content">
+                            </div>
                         </div>
                     </div>
-                    <div class="form-row">
-                        <div class="form-field">
-                            <label for="alunoOcorrencia">ALUNO(S) ENVOLVIDO(S):</label>
-                            <input type="text" id="alunoOcorrencia" readonly onclick="abrirModalAlunos()" class="size-to-content">
-                            <div id="selectedStudents" class="selected-students"></div>
+
+                    <div class="form-section">
+                        <h3>2. TIPO DE IRREGULARIDADE</h3>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="irregularidade1" name="irregularidades" value="Indisciplina">
+                                <label for="irregularidade1">Indisciplina</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="irregularidade2" name="irregularidades" value="Uso de celular">
+                                <label for="irregularidade2">Uso de celular</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="irregularidade3" name="irregularidades" value="Conversa paralela">
+                                <label for="irregularidade3">Conversa paralela</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="irregularidade4" name="irregularidades" value="Agressão verbal">
+                                <label for="irregularidade4">Agressão verbal</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="irregularidade5" name="irregularidades" value="Agressão física">
+                                <label for="irregularidade5">Agressão física</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="irregularidade6" name="irregularidades" value="Danos ao patrimônio">
+                                <label for="irregularidade6">Danos ao patrimônio</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="irregularidade7" name="irregularidades" value="Outros">
+                                <label for="irregularidade7">Outros</label>
+                            </div>
                         </div>
-                        <div class="form-field">
-                            <label for="dataOcorrencia">DATA DA OCORRÊNCIA:</label>
-                            <input type="date" id="dataOcorrencia" class="size-to-content">
+                    </div>
+
+                    <div class="form-section">
+                        <h3>3. DESCRIÇÃO DA OCORRÊNCIA</h3>
+                        <div class="form-row">
+                            <div class="form-field">
+                                <textarea id="descricaoOcorrencia" placeholder="Descreva detalhadamente a ocorrência..." class="size-to-content"></textarea>
+                            </div>
                         </div>
+                    </div>
+
+                    <button class="submit-btn" onclick="registrarOcorrenciaProfessor()">Registrar Ocorrência</button>
+                    
+                    <div class="success-message" id="professorSuccessMessage">
+                        OCORRÊNCIA REGISTRADA COM SUCESSO
                     </div>
                 </div>
 
-                <div class="form-section">
-                    <h3>2. TIPO DE IRREGULARIDADE</h3>
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="irregularidade1" name="irregularidades" value="Indisciplina">
-                            <label for="irregularidade1">Indisciplina</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="irregularidade2" name="irregularidades" value="Uso de celular">
-                            <label for="irregularidade2">Uso de celular</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="irregularidade3" name="irregularidades" value="Conversa paralela">
-                            <label for="irregularidade3">Conversa paralela</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="irregularidade4" name="irregularidades" value="Agressão verbal">
-                            <label for="irregularidade4">Agressão verbal</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="irregularidade5" name="irregularidades" value="Agressão física">
-                            <label for="irregularidade5">Agressão física</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="irregularidade6" name="irregularidades" value="Danos ao patrimônio">
-                            <label for="irregularidade6">Danos ao patrimônio</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="irregularidade7" name="irregularidades" value="Outros">
-                            <label for="irregularidade7">Outros</label>
+                <!-- Nova seção de histórico de agendamento -->
+                <div class="history-container">
+                    <div class="history-title">
+                        HISTÓRICO DE AGENDAMENTO
+                    </div>
+                    <div id="historyList" class="history-list">
+                        <div class="loading-history">
+                            <div class="loading"></div>
+                            <p>Carregando histórico...</p>
                         </div>
                     </div>
-                </div>
-
-                <div class="form-section">
-                    <h3>3. DESCRIÇÃO DA OCORRÊNCIA</h3>
-                    <div class="form-row">
-                        <div class="form-field">
-                            <textarea id="descricaoOcorrencia" placeholder="Descreva detalhadamente a ocorrência..." class="size-to-content"></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <button class="submit-btn" onclick="registrarOcorrenciaProfessor()">Registrar Ocorrência</button>
-                
-                <div class="success-message" id="professorSuccessMessage">
-                    OCORRÊNCIA REGISTRADA COM SUCESSO
                 </div>
             </div>
         </div>
@@ -739,6 +850,7 @@
         let alunosSelecionados = [];
         let currentAlunoData = null;
         let alunosDaTurmaAtual = [];
+        let historyRefreshInterval = null;
 
         // Funções de mapeamento
         function _getClassRanges() {
@@ -1073,6 +1185,12 @@
             document.getElementById('professorContainer').style.display = 'none';
             document.getElementById('userName').textContent = email;
             
+            // Parar o intervalo de atualização do histórico se estiver ativo
+            if (historyRefreshInterval) {
+                clearInterval(historyRefreshInterval);
+                historyRefreshInterval = null;
+            }
+            
             // Configurar observadores e ajustar tamanhos
             setTimeout(() => {
                 setupFieldObservers();
@@ -1088,6 +1206,15 @@
             document.getElementById('professorContainer').style.display = 'block';
             document.getElementById('userName').textContent = email;
             
+            // Iniciar o carregamento do histórico
+            carregarHistoricoOcorrencias();
+            
+            // Configurar intervalo para atualizar o histórico a cada 30 segundos
+            if (historyRefreshInterval) {
+                clearInterval(historyRefreshInterval);
+            }
+            historyRefreshInterval = setInterval(carregarHistoricoOcorrencias, 30000);
+            
             // Configurar observadores e ajustar tamanhos
             setTimeout(() => {
                 setupFieldObservers();
@@ -1102,6 +1229,12 @@
             document.getElementById('email').value = '';
             document.getElementById('password').value = '';
             document.getElementById('downloadPdfBtn').style.display = 'none';
+            
+            // Parar o intervalo de atualização do histórico se estiver ativo
+            if (historyRefreshInterval) {
+                clearInterval(historyRefreshInterval);
+                historyRefreshInterval = null;
+            }
         }
 
         // Autocomplete para alunos (Gestão)
@@ -1348,6 +1481,9 @@
                     // Mostrar mensagem de sucesso
                     document.getElementById('professorSuccessMessage').style.display = 'block';
                     
+                    // Atualizar o histórico após registrar uma nova ocorrência
+                    carregarHistoricoOcorrencias();
+                    
                     // Limpar formulário após 2 segundos
                     setTimeout(() => {
                         document.getElementById('professorSuccessMessage').style.display = 'none';
@@ -1373,6 +1509,67 @@
             } catch (error) {
                 console.error('Erro ao registrar ocorrência:', error);
                 alert('Erro ao registrar ocorrência. Tente novamente.');
+            }
+        }
+
+        // Carregar histórico de ocorrências
+        async function carregarHistoricoOcorrencias() {
+            const historyList = document.getElementById('historyList');
+            
+            try {
+                // Mostrar indicador de carregamento
+                historyList.innerHTML = `
+                    <div class="loading-history">
+                        <div class="loading"></div>
+                        <p>Carregando histórico...</p>
+                    </div>
+                `;
+                
+                // Buscar ocorrências do Google Sheets
+                const response = await fetch(`${SCRIPT_URL}?action=getOcorrencias&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.ocorrencias && data.ocorrencias.length > 0) {
+                        // Ordenar por data (mais recente primeiro)
+                        data.ocorrencias.sort((a, b) => new Date(b.data) - new Date(a.data));
+                        
+                        // Limitar a 20 registros
+                        const ocorrencias = data.ocorrencias.slice(0, 20);
+                        
+                        // Exibir as ocorrências
+                        historyList.innerHTML = '';
+                        
+                        ocorrencias.forEach(ocorrencia => {
+                            const historyItem = document.createElement('div');
+                            historyItem.className = 'history-item';
+                            
+                            // Formatar a data
+                            const dataOcorrencia = new Date(ocorrencia.data);
+                            const dataFormatada = dataOcorrencia.toLocaleDateString('pt-BR');
+                            
+                            historyItem.innerHTML = `
+                                <div class="history-item-header">
+                                    <span class="history-date">${dataFormatada}</span>
+                                    <span class="history-professor">${ocorrencia.professor || 'N/A'}</span>
+                                </div>
+                                <div class="history-students">Aluno(s): ${ocorrencia.alunos || 'N/A'}</div>
+                                <div class="history-description">${ocorrencia.descricao || 'Sem descrição'}</div>
+                                ${ocorrencia.irregularidades ? `<div class="history-irregularidades">Irregularidades: ${ocorrencia.irregularidades}</div>` : ''}
+                            `;
+                            
+                            historyList.appendChild(historyItem);
+                        });
+                    } else {
+                        historyList.innerHTML = '<div class="loading-history"><p>Nenhuma ocorrência registrada ainda.</p></div>';
+                    }
+                } else {
+                    historyList.innerHTML = '<div class="loading-history"><p>Erro ao carregar histórico.</p></div>';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar histórico:', error);
+                historyList.innerHTML = '<div class="loading-history"><p>Erro ao carregar histórico.</p></div>';
             }
         }
 
