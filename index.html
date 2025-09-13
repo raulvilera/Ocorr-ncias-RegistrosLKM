@@ -944,7 +944,7 @@
                 "1ª SERIE H NOITE": "EH3:EH46",
                 "1ª SERIE I NOITE": "EM3:EM46",
                 "2ª SERIE A MANHA": "ER3:ER46",
-                "2ª SERIE B MANHA": "EW3:EW46",
+                "2ª SERie B MANHA": "EW3:EW46",
                 "2ª SERIE C MANHA": "FB3:FB46",
                 "2ª SERIE D MANHA": "FG3:FG46",
                 "2ª SERIE E MANHA": "FL3:FL46",
@@ -1073,7 +1073,7 @@
                     tempElement.textContent = text || ' ';
                     document.body.appendChild(tempElement);
                     
-                    // Ajustar a largura com base nel conteúdo
+                    // Ajustar a largura com base no conteúdo
                     const width = Math.max(tempElement.scrollWidth + 30, 100); // Mínimo de 100px
                     field.style.width = `${width}px`;
                     
@@ -1159,30 +1159,39 @@
                 const turmasList = Object.keys(classRanges);
                 
                 for (const turma of turmasList) {
-                    const range = classRanges[turma];
-                    const response = await fetch(`${SCRIPT_URL}?action=getAlunosByTurma&spreadsheetId=${SPREADSHEET_ID}&range=${range}&turma=${encodeURIComponent(turma)}`);
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.alunos && data.alunos.length > 0) {
-                            // Adicionar alunos com informações da turma
-                            data.alunos.forEach(alunoNome => {
-                                if (alunoNome && alunoNome.trim() !== '') {
-                                    alunos.push({
-                                        nome: alunoNome.trim(),
-                                        turma: turma,
-                                        ra: '' // O RA será carregado posteriormente se necessário
-                                    });
-                                }
+                    const alunosTurma = await carregarAlunosPorTurma(turma);
+                    alunosTurma.forEach(alunoNome => {
+                        if (alunoNome && alunoNome.trim() !== '') {
+                            alunos.push({
+                                nome: alunoNome.trim(),
+                                turma: turma,
+                                ra: '' // O RA será carregado posteriormente se necessário
                             });
                         }
-                    }
+                    });
                 }
                 
                 console.log('Alunos carregados:', alunos);
             } catch (error) {
                 console.error('Erro ao carregar alunos:', error);
                 alert('Erro ao carregar lista de alunos.');
+            }
+        }
+
+        // Carregar alunos de uma turma específica
+        async function carregarAlunosPorTurma(turma) {
+            try {
+                const res = await fetch(`${'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec'}?endpoint=students&turma=${encodeURIComponent(turma)}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    return data.students || [];
+                } else {
+                    console.error('Erro ao carregar alunos da turma:', turma);
+                    return [];
+                }
+            } catch (error) {
+                console.error('Erro ao carregar alunos da turma:', error);
+                return [];
             }
         }
 
@@ -1197,14 +1206,6 @@
             }
             
             try {
-                const classRanges = _getClassRanges();
-                const range = classRanges[turma];
-                
-                if (!range) {
-                    alert('Intervalo não encontrado para esta turma.');
-                    return;
-                }
-                
                 // Mostrar indicador de carregamento
                 turmaSelect.disabled = true;
                 turmaSelect.style.backgroundImage = "url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTAiIGN5PSIxMCIgcj0iNyIgc3Ryb2tlPSIjMDAxZjNmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1kYXNoYXJyYXk9IjMyIiBzdHJva2UtZGFzaG9mZnNldD0iMCI+CiAgPGFuaW1hdGVUcmFuc2Zvcm0gYXR0cmlidXRlTmFtZT0idHJhbnNmb3JtIiB0eXBlPSJyb3RhdGUiIGZyb209IjAgMTAgMTAiIHRvPSIzNjAgMTAgMTAiIGR1cj0iMXMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIiAvPgo8L2NpcmNsZT4KPC9zdmc+')";
@@ -1212,16 +1213,8 @@
                 turmaSelect.style.backgroundPosition = "right 8px center";
                 turmaSelect.style.backgroundSize = "20px";
                 
-                const response = await fetch(`${SCRIPT_URL}?action=getAlunosByTurma&spreadsheetId=${SPREADSHEET_ID}&range=${range}&turma=${encodeURIComponent(turma)}`);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    alunosDaTurmaAtual = data.alunos || [];
-                    console.log(`Alunos da turma ${turma}:`, alunosDaTurmaAtual);
-                } else {
-                    alert('Erro ao carregar alunos da turma.');
-                    alunosDaTurmaAtual = [];
-                }
+                alunosDaTurmaAtual = await carregarAlunosPorTurma(turma);
+                console.log(`Alunos da turma ${turma}:`, alunosDaTurmaAtual);
             } catch (error) {
                 console.error('Erro ao carregar alunos da turma:', error);
                 alert('Erro ao carregar alunos da turma.');
@@ -1365,7 +1358,7 @@
             const data = new Date();
             const dataRegistro = `${data.toLocaleDateString()} ${data.toLocaleTimeString()}`;
             
-            const dados = {
+            const payload = {
                 aluno: aluno,
                 turma: serie,
                 professor: professor,
@@ -1380,17 +1373,10 @@
             
             try {
                 // Enviar para o Google Apps Script
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'cadastrarOcorrencia',
-                        spreadsheetId: SPREADSHEET_ID,
-                        sheetName: SHEET_NAME,
-                        data: dados
-                    })
+                const response = await fetch(`${'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec'}?endpoint=occurrences`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
                 });
                 
                 if (response.ok) {
@@ -1496,7 +1482,7 @@
             const turma = document.getElementById('professorTurma').value;
             const dataOcorrencia = document.getElementById('dataOcorrencia').value;
             
-            // Obter irregularidades selecionadas
+            // Obter irregularidades selecionadas - CORREÇÃO DA SINTAXE
             const irregularidades = [];
             document.querySelectorAll('input[name="irregularidades"]:checked').forEach(input => {
                 irregularidades.push(input.value);
@@ -1511,7 +1497,7 @@
             }
             
             // Dados para enviar para a planilha
-            const dados = {
+            const payload = {
                 DATA: dataOcorrencia,
                 PROFESSOR: professor,
                 TURMA: turma,
@@ -1522,17 +1508,10 @@
             
             try {
                 // Enviar para o Google Apps Script
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'cadastrarOcorrenciaProfessor',
-                        spreadsheetId: SPREADSHEET_ID,
-                        sheetName: SHEET_NAME,
-                        data: dados
-                    })
+                const response = await fetch(`${'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec'}?endpoint=occurrences`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
                 });
                 
                 if (response.ok) {
@@ -1584,17 +1563,16 @@
                 `;
                 
                 // Buscar ocorrências do Google Sheets
-                const response = await fetch(`${SCRIPT_URL}?action=getOcorrencias&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`);
-                
-                if (response.ok) {
-                    const data = await response.json();
+                const res = await fetch(`${'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec'}?endpoint=occurrences`);
+                if (res.ok) {
+                    const data = await res.json();
                     
-                    if (data.ocorrencias && data.ocorrencias.length > 0) {
+                    if (data.occurrences && data.occurrences.length > 0) {
                         // Ordenar por data (mais recente primeiro)
-                        data.ocorrencias.sort((a, b) => new Date(b.data) - new Date(a.data));
+                        data.occurrences.sort((a, b) => new Date(b.data) - new Date(a.data));
                         
                         // Limitar a 20 registros
-                        const ocorrencias = data.ocorrencias.slice(0, 20);
+                        const ocorrencias = data.occurrences.slice(0, 20);
                         
                         // Exibir as ocorrências
                         historyList.innerHTML = '';
@@ -1684,7 +1662,7 @@
             document.getElementById('dataOcorrencia').value = today;
             
             // Carregar o documento no iframe
-            document.getElementById('documentIframe').src = SCRIPT_URL;
+            document.getElementById('documentIframe').src = 'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec';
             
             // Fechar modal ao clicar fora dele
             window.onclick = function(event) {
@@ -1716,55 +1694,76 @@
             }, 500);
         });
 
-        // Funções corrigidas
+        // Funções adicionais para carregar dados
         async function carregarProfessores() {
             try {
-                professores = getAllTeachers();
-                const select = document.getElementById('professorNome');
-                select.innerHTML = '<option value="">Selecione o professor</option>';
-                professores.forEach(prof => {
-                    const option = document.createElement('option');
-                    option.value = prof;
-                    option.textContent = prof;
-                    select.appendChild(option);
-                });
+                const res = await fetch(`${'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec'}?endpoint=teachers`);
+                if (res.ok) {
+                    const data = await res.json();
+                    professores = data.teachers;
+                    
+                    const professorSelect = document.getElementById('professorNome');
+                    professorSelect.innerHTML = '<option value="">Selecione o professor</option>';
+                    professores.forEach(professor => {
+                        const option = document.createElement('option');
+                        option.value = professor;
+                        option.textContent = professor;
+                        professorSelect.appendChild(option);
+                    });
+                } else {
+                    // Fallback para a lista fixa de professores
+                    professores = getAllTeachers();
+                }
             } catch (err) {
                 console.error("Erro ao carregar professores:", err);
+                professores = getAllTeachers();
             }
         }
 
         async function carregarTurmas() {
             try {
-                turmas = Object.keys(_getClassRanges());
-                const select = document.getElementById('professorTurma');
-                select.innerHTML = '<option value="">Selecione a turma</option>';
-                turmas.forEach(turma => {
-                    const option = document.createElement('option');
-                    option.value = turma;
-                    option.textContent = turma;
-                    select.appendChild(option);
-                });
+                const res = await fetch(`${'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec'}?endpoint=classes`);
+                if (res.ok) {
+                    const data = await res.json();
+                    turmas = data.classes;
+                    
+                    const turmaSelect = document.getElementById('professorTurma');
+                    turmaSelect.innerHTML = '<option value="">Selecione a turma</option>';
+                    turmas.forEach(turma => {
+                        const option = document.createElement('option');
+                        option.value = turma;
+                        option.textContent = turma;
+                        turmaSelect.appendChild(option);
+                    });
+                } else {
+                    // Fallback para a lista de turmas do mapeamento
+                    turmas = Object.keys(_getClassRanges());
+                }
             } catch (err) {
                 console.error("Erro ao carregar turmas:", err);
+                turmas = Object.keys(_getClassRanges());
             }
         }
 
-        function preencherModalAlunos(alunos) {
-            const studentList = document.getElementById('studentList');
-            studentList.innerHTML = '';
-            
-            alunos.forEach(aluno => {
-                if (aluno && aluno.trim() !== '') {
-                    const studentItem = document.createElement('div');
-                    studentItem.className = 'student-item';
-                    studentItem.innerHTML = `
-                        <input type="checkbox" id="aluno-${aluno.replace(/\s+/g, '-')}" value="${aluno}" 
-                            ${alunosSelecionados.includes(aluno) ? 'checked' : ''}>
-                        <label for="aluno-${aluno.replace(/\s+/g, '-')}">${aluno}</label>
-                    `;
-                    studentList.appendChild(studentItem);
+        // Função para deletar ocorrência (se necessário)
+        async function deletarOcorrencia(id) {
+            try {
+                const response = await fetch(`${'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec'}?endpoint=delete-occurrence`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id: id })
+                });
+                
+                if (response.ok) {
+                    alert('Ocorrência deletada com sucesso!');
+                    carregarHistoricoOcorrencias();
+                } else {
+                    alert('Erro ao deletar ocorrência.');
                 }
-            });
+            } catch (error) {
+                console.error('Erro ao deletar ocorrência:', error);
+                alert('Erro ao deletar ocorrência.');
+            }
         }
     </script>
 </body>
