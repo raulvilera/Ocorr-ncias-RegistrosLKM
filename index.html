@@ -8,6 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <style>
+        /* Estilos mantidos conforme solicitado */
         * {
             margin: 0;
             padding: 0;
@@ -1070,7 +1071,7 @@
                     tempElement.textContent = text || ' ';
                     document.body.appendChild(tempElement);
                     
-                    // Ajustar a largura com base no conteúdo
+                    // Ajustar a largura com base nel conteúdo
                     const width = Math.max(tempElement.scrollWidth + 30, 100); // Mínimo de 100px
                     field.style.width = `${width}px`;
                     
@@ -1509,13 +1510,12 @@
             
             // Dados para enviar para a planilha
             const dados = {
-                data: dataOcorrencia,
-                professor: professor,
-                turma: turma,
-                alunos: alunosSelecionados.join(', '),
-                irregularidades: irregularidades.join(', '),
-                descricao: descricao,
-                tipoUsuario: 'professor'
+                DATA: dataOcorrencia,
+                PROFESSOR: professor,
+                TURMA: turma,
+                ALUNO: alunosSelecionados.join(', '),
+                IRREGULARIDADES: irregularidades.join(', '),
+                DESCRICAO: descricao
             };
             
             try {
@@ -1526,7 +1526,7 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        action: 'cadastrarOcorrencia',
+                        action: 'cadastrarOcorrenciaProfessor',
                         spreadsheetId: SPREADSHEET_ID,
                         sheetName: SHEET_NAME,
                         data: dados
