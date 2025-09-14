@@ -8,6 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <style>
+        /* Estilos mantidos exatamente como fornecidos */
         * {
             margin: 0;
             padding: 0;
@@ -16,7 +17,7 @@
         }
 
         body {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: #e0e0e0;
             color: #333;
             min-height: 100vh;
         }
@@ -98,6 +99,7 @@
             display: none;
             flex-direction: column;
             min-height: 100vh;
+            background: #e0e0e0;
         }
 
         .header {
@@ -134,6 +136,7 @@
         .content {
             flex: 1;
             padding: 30px;
+            background: #e0e0e0;
         }
 
         /* Estilos específicos para a interface de gestão */
@@ -153,10 +156,14 @@
         }
 
         .gestao-form {
-            background-color: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .form-column {
+            flex: 1;
+            min-width: 400px;
         }
 
         .form-row {
@@ -194,9 +201,11 @@
             outline: none;
         }
 
+        /* Área de descrição com largura duplicada */
         .form-field textarea {
             min-height: 120px;
             resize: vertical;
+            min-width: 500px;
         }
 
         /* Campos com tamanho ajustável */
@@ -287,17 +296,106 @@
             display: none;
         }
 
+        .professor-content {
+            display: flex;
+            gap: 30px;
+        }
+
         .occurrence-form {
-            background-color: white;
+            background-color: #f5f5f5;
             padding: 25px;
             border-radius: 12px;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            flex: 2;
         }
 
+        /* Nova seção de histórico */
+        .history-container {
+            flex: 1;
+            background-color: #f5f5f5;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .history-title {
+            background: linear-gradient(135deg, #001f3f 0%, #003366 100%);
+            color: white;
+            padding: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            font-size: 18px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .history-item {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #2a5298;
+        }
+
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+
+        .history-date {
+            font-weight: bold;
+            color: #001f3f;
+        }
+
+        .history-professor {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .history-students {
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .history-description {
+            color: #444;
+            font-size: 0.95em;
+            line-height: 1.4;
+        }
+
+        .history-irregularidades {
+            margin-top: 8px;
+            font-size: 0.85em;
+            color: #2a5298;
+            font-style: italic;
+        }
+
+        .loading-history {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        /* Seções em alto relevo com distanciamento de 8mm (30px) e sombreamento branco */
         .form-section {
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #eee;
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 
+                        0 -4px 8px rgba(255, 255, 255, 0.8);
+            position: relative;
         }
 
         .form-section h3 {
@@ -486,7 +584,49 @@
             to { transform: rotate(360deg); }
         }
 
+        /* Estilos para a visualização do documento */
+        .document-view {
+            background-color: #f5f5f5;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        .document-container {
+            margin-top: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .document-iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+        }
+
+        .document-download {
+            text-align: center;
+            margin-top: 20px;
+        }
+
         /* Responsividade */
+        @media (max-width: 1024px) {
+            .professor-content {
+                flex-direction: column;
+            }
+            
+            .history-container {
+                max-height: none;
+                margin-top: 30px;
+            }
+
+            .gestao-form {
+                flex-direction: column;
+            }
+        }
+
         @media (max-width: 768px) {
             .login-form {
                 width: 90%;
@@ -499,6 +639,10 @@
             }
             
             .form-field {
+                min-width: 100%;
+            }
+            
+            .form-field textarea {
                 min-width: 100%;
             }
             
@@ -519,6 +663,10 @@
 
             .size-to-content {
                 width: 100% !important;
+            }
+
+            .form-column {
+                min-width: 100%;
             }
         }
     </style>
@@ -557,59 +705,76 @@
                 CADASTRO DE OCORRÊNCIAS - GESTÃO
             </div>
             <div class="gestao-form">
-                <div class="form-row">
-                    <div class="form-field">
-                        <label for="aluno">ALUNO:</label>
-                        <div class="autocomplete">
-                            <input type="text" id="aluno" oninput="autocompleteAluno(this.value)" class="size-to-content">
-                            <div id="autocomplete-list" class="autocomplete-items"></div>
+                <div class="form-column">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="aluno">ALUNO:</label>
+                            <div class="autocomplete">
+                                <input type="text" id="aluno" oninput="autocompleteAluno(this.value)" class="size-to-content">
+                                <div id="autocomplete-list" class="autocomplete-items"></div>
+                            </div>
+                        </div>
+                        <div class="form-field">
+                            <label for="serie">SÉRIE/TURMA:</label>
+                            <input type="text" id="serie" readonly class="size-to-content">
                         </div>
                     </div>
-                    <div class="form-field">
-                        <label for="serie">SÉRIE/TURMA:</label>
-                        <input type="text" id="serie" readonly class="size-to-content">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="professor">PROFESSOR:</label>
+                            <input type="text" id="professor" class="size-to-content">
+                        </div>
+                        <div class="form-field">
+                            <label for="ra">RA:</label>
+                            <input type="text" id="ra" readonly class="size-to-content">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="disciplina">DISCIPLINA:</label>
+                            <input type="text" id="disciplina" class="size-to-content">
+                        </div>
+                        <div class="form-field">
+                            <label for="classificacao">CLASSIFICAÇÃO:</label>
+                            <select id="classificacao" onchange="toggleSuspensionField()" class="size-to-content">
+                                <option value="">Selecione</option>
+                                <option value="OCORRÊNCIA">OCORRÊNCIA</option>
+                                <option value="SUSPENSÃO">SUSPENSÃO</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row" id="suspensionField" style="display: none;">
+                        <div class="form-field">
+                            <label for="dataRetorno">DATA DE RETORNO:</label>
+                            <input type="date" id="dataRetorno" class="size-to-content">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="descricao">DESCRIÇÃO:</label>
+                            <textarea id="descricao" class="size-to-content"></textarea>
+                        </div>
+                    </div>
+                    <button class="submit-btn" onclick="cadastrarOcorrencia()">Cadastrar Ocorrência</button>
+                    
+                    <div class="success-message" id="successMessage">
+                        OCORRÊNCIA REGISTRADA COM SUCESSO
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-field">
-                        <label for="professor">PROFESSOR:</label>
-                        <input type="text" id="professor" class="size-to-content">
+
+                <!-- Nova seção de visualização do documento -->
+                <div class="form-column">
+                    <div class="document-view">
+                        <div class="form-field">
+                            <label>DOCUMENTO:</label>
+                            <div class="document-container">
+                                <iframe class="document-iframe" src="https://docs.google.com/document/d/1dHwyN8mlb_4bltEksnoc3Yx5wUcDNgAkzqsluLPYeP8/preview"></iframe>
+                            </div>
+                        </div>
+                        <div class="document-download">
+                            <button class="download-btn" onclick="downloadDocument()">Baixar PDF</button>
+                        </div>
                     </div>
-                    <div class="form-field">
-                        <label for="ra">RA:</label>
-                        <input type="text" id="ra" readonly class="size-to-content">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-field">
-                        <label for="disciplina">DISCIPLINA:</label>
-                        <input type="text" id="disciplina" class="size-to-content">
-                    </div>
-                    <div class="form-field">
-                        <label for="classificacao">CLASSIFICAÇÃO:</label>
-                        <select id="classificacao" onchange="toggleSuspensionField()" class="size-to-content">
-                            <option value="">Selecione</option>
-                            <option value="OCORRÊNCIA">OCORRÊNCIA</option>
-                            <option value="SUSPENSÃO">SUSPENSÃO</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row" id="suspensionField" style="display: none;">
-                    <div class="form-field">
-                        <label for="dataRetorno">DATA DE RETORNO:</label>
-                        <input type="date" id="dataRetorno" class="size-to-content">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-field">
-                        <label for="descricao">DESCRIÇÃO:</label>
-                        <textarea id="descricao" class="size-to-content"></textarea>
-                    </div>
-                </div>
-                <button class="submit-btn" onclick="cadastrarOcorrencia()">Cadastrar Ocorrência</button>
-                
-                <div class="success-message" id="successMessage">
-                    OCORRÊNCIA REGISTRADA COM SUCESSO
                 </div>
             </div>
         </div>
@@ -619,83 +784,99 @@
             <div class="form-title">
                 REGISTRO DE OCORRÊNCIAS - PROFESSOR
             </div>
-            <div class="occurrence-form">
-                <div class="form-section">
-                    <h3>1. IDENTIFICAÇÃO DA OCORRÊNCIA</h3>
-                    <div class="form-row">
-                        <div class="form-field">
-                            <label for="professorNome">NOME DO PROFESSOR:</label>
-                            <select id="professorNome" class="size-to-content">
-                                <option value="">Selecione o professor</option>
-                            </select>
+            
+            <div class="professor-content">
+                <div class="occurrence-form">
+                    <div class="form-section">
+                        <h3>1. IDENTIFICAÇÃO DA OCORRÊNCIA</h3>
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label for="professorNome">NOME DO PROFESSOR:</label>
+                                <select id="professorNome" class="size-to-content">
+                                    <option value="">Selecione o professor</option>
+                                </select>
+                            </div>
+                            <div class="form-field">
+                                <label for="professorTurma">TURMA:</label>
+                                <select id="professorTurma" onchange="carregarAlunosTurma()" class="size-to-content">
+                                    <option value="">Selecione a turma</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="form-field">
-                            <label for="professorTurma">TURMA:</label>
-                            <select id="professorTurma" onchange="carregarAlunosTurma()" class="size-to-content">
-                                <option value="">Selecione a turma</option>
-                            </select>
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label for="alunoOcorrencia">ALUNO(S) ENVOLVIDO(S):</label>
+                                <input type="text" id="alunoOcorrencia" readonly onclick="abrirModalAlunos()" class="size-to-content">
+                                <div id="selectedStudents" class="selected-students"></div>
+                            </div>
+                            <div class="form-field">
+                                <label for="dataOcorrencia">DATA DA OCORRÊNCIA:</label>
+                                <input type="date" id="dataOcorrencia" class="size-to-content">
+                            </div>
                         </div>
                     </div>
-                    <div class="form-row">
-                        <div class="form-field">
-                            <label for="alunoOcorrencia">ALUNO(S) ENVOLVIDO(S):</label>
-                            <input type="text" id="alunoOcorrencia" readonly onclick="abrirModalAlunos()" class="size-to-content">
-                            <div id="selectedStudents" class="selected-students"></div>
+
+                    <div class="form-section">
+                        <h3>2. TIPO DE IRREGULARIDADE</h3>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="irregularidade1" name="irregularidades" value="Indisciplina">
+                                <label for="irregularidade1">Indisciplina</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="irregularidade2" name="irregularidades" value="Uso de celular">
+                                <label for="irregularidade2">Uso de celular</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="irregularidade3" name="irregularidades" value="Conversa paralela">
+                                <label for="irregularidade3">Conversa paralela</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="irregularidade4" name="irregularidades" value="Agressão verbal">
+                                <label for="irregularidade4">Agressão verbal</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="irregularidade5" name="irregularidades" value="Agressão física">
+                                <label for="irregularidade5">Agressão física</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="irregularidade6" name="irregularidades" value="Danos ao patrimônio">
+                                <label for="irregularidade6">Danos ao patrimônio</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="irregularidade7" name="irregularidades" value="Outros">
+                                <label for="irregularidade7">Outros</label>
+                            </div>
                         </div>
-                        <div class="form-field">
-                            <label for="dataOcorrencia">DATA DA OCORRÊNCIA:</label>
-                            <input type="date" id="dataOcorrencia" class="size-to-content">
+                    </div>
+
+                    <div class="form-section">
+                        <h3>3. DESCRIÇÃO DA OCORRÊNCIA</h3>
+                        <div class="form-row">
+                            <div class="form-field">
+                                <textarea id="descricaoOcorrencia" placeholder="Descreva detalhadamente a ocorrência..." class="size-to-content"></textarea>
+                            </div>
                         </div>
+                    </div>
+
+                    <button class="submit-btn" onclick="registrarOcorrenciaProfessor()">Registrar Ocorrência</button>
+                    
+                    <div class="success-message" id="professorSuccessMessage">
+                        OCORRÊNCIA REGISTRADA COM SUCESSO
                     </div>
                 </div>
 
-                <div class="form-section">
-                    <h3>2. TIPO DE IRREGULARIDADE</h3>
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="irregularidade1" name="irregularidades" value="Indisciplina">
-                            <label for="irregularidade1">Indisciplina</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="irregularidade2" name="irregularidades" value="Uso de celular">
-                            <label for="irregularidade2">Uso de celular</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="irregularidade3" name="irregularidades" value="Conversa paralela">
-                            <label for="irregularidade3">Conversa paralela</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="irregularidade4" name="irregularidades" value="Agressão verbal">
-                            <label for="irregularidade4">Agressão verbal</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="irregularidade5" name="irregularidades" value="Agressão física">
-                            <label for="irregularidade5">Agressão física</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="irregularidade6" name="irregularidades" value="Danos ao patrimônio">
-                            <label for="irregularidade6">Danos ao patrimônio</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="irregularidade7" name="irregularidades" value="Outros">
-                            <label for="irregularidade7">Outros</label>
+                <!-- Nova seção de histórico de agendamento -->
+                <div class="history-container">
+                    <div class="history-title">
+                        HISTÓRICO DE AGENDAMENTO
+                    </div>
+                    <div id="historyList" class="history-list">
+                        <div class="loading-history">
+                            <div class="loading"></div>
+                            <p>Carregando histórico...</p>
                         </div>
                     </div>
-                </div>
-
-                <div class="form-section">
-                    <h3>3. DESCRIÇÃO DA OCORRÊNCIA</h3>
-                    <div class="form-row">
-                        <div class="form-field">
-                            <textarea id="descricaoOcorrencia" placeholder="Descreva detalhadamente a ocorrência..." class="size-to-content"></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <button class="submit-btn" onclick="registrarOcorrenciaProfessor()">Registrar Ocorrência</button>
-                
-                <div class="success-message" id="professorSuccessMessage">
-                    OCORRÊNCIA REGISTRADA COM SUCESSO
                 </div>
             </div>
         </div>
@@ -715,7 +896,7 @@
 
     <script>
         // URLs do Google Apps Script Web App
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5w7k1M5zU8Q2UJd1RkZQ7Q4V5X4Q3Q2Q1Q0Q0Q0/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec';
         const SPREADSHEET_ID = '1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio';
         const SHEET_NAME = 'OCORRENCIASDOSPROFESSORES';
 
@@ -726,6 +907,7 @@
         let alunosSelecionados = [];
         let currentAlunoData = null;
         let alunosDaTurmaAtual = [];
+        let historyRefreshInterval = null;
 
         // Funções de mapeamento
         function _getClassRanges() {
@@ -786,7 +968,7 @@
                 "ANDREIA DOS SANTOS FREITAS",
                 "ANDREIA MADUREIRA REIS",
                 "ANTONIO CARLOS DE OLIVEIRA",
-                "ANTONIO RAMOS DE ARAUJO",
+                "ANTONIO RAMS DE ARAUJO",
                 "ANTONIO WILTON WANDERLEY CABRAL",
                 "AUGUSTO LINO PESSOA NETO",
                 "AUREA MARIA DE JESUS MARQUES",
@@ -1060,6 +1242,12 @@
             document.getElementById('professorContainer').style.display = 'none';
             document.getElementById('userName').textContent = email;
             
+            // Parar o intervalo de atualização do histórico se estiver ativo
+            if (historyRefreshInterval) {
+                clearInterval(historyRefreshInterval);
+                historyRefreshInterval = null;
+            }
+            
             // Configurar observadores e ajustar tamanhos
             setTimeout(() => {
                 setupFieldObservers();
@@ -1075,6 +1263,15 @@
             document.getElementById('professorContainer').style.display = 'block';
             document.getElementById('userName').textContent = email;
             
+            // Iniciar o carregamento do histórico
+            carregarHistoricoOcorrencias();
+            
+            // Configurar intervalo para atualizar o histórico a cada 30 segundos
+            if (historyRefreshInterval) {
+                clearInterval(historyRefreshInterval);
+            }
+            historyRefreshInterval = setInterval(carregarHistoricoOcorrencias, 30000);
+            
             // Configurar observadores e ajustar tamanhos
             setTimeout(() => {
                 setupFieldObservers();
@@ -1089,6 +1286,12 @@
             document.getElementById('email').value = '';
             document.getElementById('password').value = '';
             document.getElementById('downloadPdfBtn').style.display = 'none';
+            
+            // Parar o intervalo de atualização do histórico se estiver ativo
+            if (historyRefreshInterval) {
+                clearInterval(historyRefreshInterval);
+                historyRefreshInterval = null;
+            }
         }
 
         // Autocomplete para alunos (Gestão)
@@ -1161,16 +1364,12 @@
             const dataRegistro = `${data.toLocaleDateString()} ${data.toLocaleTimeString()}`;
             
             const dados = {
-                aluno: aluno,
-                turma: serie,
-                professor: professor,
-                ra: ra,
-                disciplina: disciplina,
-                dataRegistro: dataRegistro,
-                classificacao: classificacao,
-                descricao: descricao,
-                dataRetorno: dataRetorno || 'N/A',
-                tipoUsuario: 'gestao'
+                DATA: dataRegistro,
+                PROFESSOR: professor,
+                TURMA: serie,
+                ALUNO: aluno,
+                IRREGULARIDADES: classificacao,
+                DESCRICAO: descricao
             };
             
             try {
@@ -1305,15 +1504,18 @@
                 return;
             }
             
+            // Formatar data para o padrão brasileiro (DD/MM/AAAA)
+            const dataParts = dataOcorrencia.split('-');
+            const dataFormatada = `${dataParts[2]}/${dataParts[1]}/${dataParts[0]}`;
+            
             // Dados para enviar para a planilha
             const dados = {
-                data: dataOcorrencia,
-                professor: professor,
-                turma: turma,
-                alunos: alunosSelecionados.join(', '),
-                irregularidades: irregularidades.join(', '),
-                descricao: descricao,
-                tipoUsuario: 'professor'
+                DATA: dataFormatada,
+                PROFESSOR: professor,
+                TURMA: turma,
+                ALUNO: alunosSelecionados.join(', '),
+                IRREGULARIDADES: irregularidades.join(', '),
+                DESCRICAO: descricao
             };
             
             try {
@@ -1334,6 +1536,9 @@
                 if (response.ok) {
                     // Mostrar mensagem de sucesso
                     document.getElementById('professorSuccessMessage').style.display = 'block';
+                    
+                    // Atualizar o histórico após registrar uma nova ocorrência
+                    carregarHistoricoOcorrencias();
                     
                     // Limpar formulário após 2 segundos
                     setTimeout(() => {
@@ -1363,6 +1568,67 @@
             }
         }
 
+        // Carregar histórico de ocorrências
+        async function carregarHistoricoOcorrencias() {
+            const historyList = document.getElementById('historyList');
+            
+            try {
+                // Mostrar indicador de carregamento
+                historyList.innerHTML = `
+                    <div class="loading-history">
+                        <div class="loading"></div>
+                        <p>Carregando histórico...</p>
+                    </div>
+                `;
+                
+                // Buscar ocorrências do Google Sheets
+                const response = await fetch(`${SCRIPT_URL}?action=getOcorrencias&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.ocorrencias && data.ocorrencias.length > 0) {
+                        // Ordenar por data (mais recente primeiro)
+                        data.ocorrencias.sort((a, b) => new Date(b.data) - new Date(a.data));
+                        
+                        // Limitar a 20 registros
+                        const ocorrencias = data.ocorrencias.slice(0, 20);
+                        
+                        // Exibir as ocorrências
+                        historyList.innerHTML = '';
+                        
+                        ocorrencias.forEach(ocorrencia => {
+                            const historyItem = document.createElement('div');
+                            historyItem.className = 'history-item';
+                            
+                            // Formatar a data
+                            const dataOcorrencia = new Date(ocorrencia.data);
+                            const dataFormatada = dataOcorrencia.toLocaleDateString('pt-BR');
+                            
+                            historyItem.innerHTML = `
+                                <div class="history-item-header">
+                                    <span class="history-date">${dataFormatada}</span>
+                                    <span class="history-professor">${ocorrencia.professor || 'N/A'}</span>
+                                </div>
+                                <div class="history-students">Aluno(s): ${ocorrencia.alunos || 'N/A'}</div>
+                                <div class="history-description">${ocorrencia.descricao || 'Sem descrição'}</div>
+                                ${ocorrencia.irregularidades ? `<div class="history-irregularidades">Irregularidades: ${ocorrencia.irregularidades}</div>` : ''}
+                            `;
+                            
+                            historyList.appendChild(historyItem);
+                        });
+                    } else {
+                        historyList.innerHTML = '<div class="loading-history"><p>Nenhuma ocorrência registrada ainda.</p></div>';
+                    }
+                } else {
+                    historyList.innerHTML = '<div class="loading-history"><p>Erro ao carregar histórico.</p></div>';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar histórico:', error);
+                historyList.innerHTML = '<div class="loading-history"><p>Erro ao carregar histórico.</p></div>';
+            }
+        }
+
         // Gerar PDF
         function generatePDF() {
             const { jsPDF } = window.jspdf;
@@ -1389,6 +1655,24 @@
             
             // Baixar o PDF
             doc.save(fileName);
+        }
+
+        // Função para baixar o documento como PDF
+        function downloadDocument() {
+            // URL para exportar o documento do Google Docs como PDF
+            const documentId = '1dHwyN8mlb_4bltEksnoc3Yx5wUcDNgAkzqsluLPYeP8';
+            const downloadUrl = `https://docs.google.com/document/d/${documentId}/export?format=pdf`;
+            
+            // Criar um link temporário para iniciar o download
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.target = '_blank';
+            link.download = 'documento_ocorrencia.pdf';
+            
+            // Adicionar à página, clicar e remover
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         // Inicialização
