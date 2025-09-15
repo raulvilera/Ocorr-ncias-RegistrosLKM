@@ -1,1021 +1,733 @@
-<!DOCTYPE html> 
-<html lang="pt-BR"> 
-<head> 
-<meta charset="utf-8" /> 
-<meta name="viewport" content="width=device-width,initial-scale=1" /> 
-<title>Cadastro de Ocorrências - 2025</title> 
-<!-- jsPDF para geração local de PDF --> 
-<script 
-src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script
- > 
-<style> 
-/* ===== Reset/Base ===== */ 
-* { box-sizing: border-box; margin:0; padding:0; } 
-html,body{height:100%} 
-body{ 
-font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif; 
-background: linear-gradient(135deg,#9fe7ff 0%, #b9f7c9 60%, #baf3ff 100%); 
-color:#fff; font-weight:800; padding:18px; 
-} 
-.app{max-width:1200px;margin:0 auto;display:flex;flex
-direction:column;gap:18px} 
-header{display:flex;align-items:center;justify-content:space
-between;padding:18px;border-radius:14px;background:linear
-gradient(90deg,rgba(0,31,63,0.95),rgba(0,78,120,0.95));box-shadow:0 8px 30px 
-rgba(0,0,0,0.15)} 
-header h1{font-size:20px;margin:0} 
-.header-controls{display:flex;gap:10px;align-items:center} 
-.card{background:#2f3336;padding:18px;border-radius:12px;box-shadow:0 8px 
-30px rgba(0,0,0,0.15)} 
-.flex{display:flex;gap:18px;align-items:flex-start} 
-.col{display:flex;flex-direction:column;gap:12px} 
-label{display:block;margin-bottom:6px;font-size:13px} 
-input[type="text"],input[type="email"],input[type="password"],select,textarea,inp
- ut[type="date"]{ 
-width:100%;padding:10px 12px;border-radius:8px;border:none;font
-weight:800;font-size:14px;color:#111 
-} 
-textarea{min-height:110px;resize:vertical;padding-top:12px} 
-button{cursor:pointer;border:none;padding:10px 14px;border-radius:8px;font
-weight:900;box-shadow:0 6px 18px rgba(0,0,0,0.15)} 
-.btn-primary{background:linear-gradient(90deg,#1e3c72,#2a5298);color:#fff} 
-.btn-danger{background:linear-gradient(90deg,#e94b4b,#c62828);color:#fff} 
-.btn-success{background:linear-gradient(90deg,#4CAF50,#2E7D32);color:#fff} 
-.btn-secondary{background:linear-gradient(90deg,#6c757d,#5a6268);color:#fff} 
-.subtitle{font-size:14px;color:#d9f2ff;margin-bottom:6px} 
-.historyList{max-height:420px;overflow:auto;display:flex;flex
-direction:column;gap:10px;padding-right:6px} 
-.historyItem{background:rgba(255,255,255,0.06);border-left:5px solid 
-rgba(255,255,255,0.06);padding:12px;border-radius:8px;color:#fff;font
-weight:700} 
-.historyItem .meta{font-size:13px;color:#dbefff;font
-weight:800;display:flex;justify-content:space-between;gap:8px;align
-items:center} 
-.historyItem .desc{margin-top:8px;color:#e7f7ff;font-weight:600;font-size:14px} 
-.modal-root{position:fixed;inset:0;display:none;align-items:center;justify
-content:center;background:rgba(0,0,0,0.5);z-index:2000} 
-.modal{width:92%;max-width:780px;background:#fff;color:#111;border
-radius:12px;padding:14px;max-height:84vh;overflow:auto} 
-.studentList{display:flex;flex-direction:column;gap:8px} 
-.pill{background:linear
-gradient(90deg,#2a5298,#3a6bd1);color:#fff;padding:6px 10px;border
-radius:999px;font-weight:800;display:inline-block} 
-.muted{opacity:.9;font-weight:700;color:#e7f7ff} 
-.qnum{color:#ff3b3b;font-weight:900} 
-.login-options {display: flex; gap: 12px; margin-bottom: 18px;} 
-.login-option {flex: 1; text-align: center; padding: 12px; border-radius: 8px; 
-cursor: pointer; background: rgba(255,255,255,0.1);} 
-.login-option.active {background: linear-gradient(90deg, rgba(0,78,120,0.8), 
-rgba(0,120,120,0.8));} 
-.access-area {display: none;} 
-@media(max-width:980px){.flex{flex-direction:column}header{flex
-direction:column;gap:8px;align-items:flex-start} .login-options {flex-direction: 
-column;}} 
-/* loader animation */ 
-@keyframes spin{to{transform:rotate(360deg)}} 
-.loader{width:18px;height:18px;border:3px solid rgba(255,255,255,0.2);border
-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;display:inline
-block} 
-</style> 
-</head> 
-<body> 
-<div class="app"> 
-<!-- HEADER --> 
-<header> 
-<h1>2025 — Cadastro de Ocorrências</h1> 
-<div class="header-controls"> 
-<div id="userDisplay" class="muted">Não autenticado</div> 
-        <button id="btnLogout" class="btn-danger" style="display:none" 
-onclick="logout()">Sair</button> 
-        <button id="btnDownloadPdf" class="btn-success" style="display:none" 
-onclick="downloadDocument()">Baixar Template</button> 
-      </div> 
-    </header> 
- 
-    <!-- LOGIN --> 
-    <div id="loginScreen" class="card" style="display:block"> 
-      <div style="max-width:480px;margin:0 auto"> 
-        <div class="subtitle">Selecione o tipo de acesso</div> 
-         
-        <div class="login-options"> 
-          <div class="login-option active" id="optionGestao" 
-onclick="selectLoginOption('gestao')"> 
-            Acesso Gestão 
-          </div> 
-          <div class="login-option" id="optionProfessor" 
-onclick="selectLoginOption('professor')"> 
-            Acesso Professor 
-          </div> 
-        </div> 
-         
-        <div id="loginFormGestao" class="access-area"> 
-          <div style="margin-bottom:8px"> 
-            <label for="emailGestao">E-mail Gestão</label> 
-            <input id="emailGestao" type="email" placeholder="gestao@escola.com"> 
-          </div> 
-          <div style="margin-bottom:8px"> 
-            <label for="passwordGestao">Senha</label> 
-            <input id="passwordGestao" type="password" placeholder="senha"> 
-          </div> 
-          <div style="display:flex;gap:8px"> 
-            <button class="btn-primary" onclick="login('gestao')">Entrar como 
-Gestão</button> 
-            <button class="btn-danger" onclick="fillDemo('gestao')">Demo 
-Gestão</button> 
-          </div> 
-          <p class="muted" style="margin-top:10px;font-size:13px"> 
-            Use <strong>gestao@escola.com / gestao123</strong> para acesso à 
-gestão 
-          </p> 
-        </div> 
-         
-        <div id="loginFormProfessor" class="access-area"> 
-          <div style="margin-bottom:8px"> 
-            <label for="emailProfessor">E-mail Professor</label> 
-            <input id="emailProfessor" type="email" 
-placeholder="professor@escola.com"> 
-          </div> 
-          <div style="margin-bottom:8px"> 
-            <label for="passwordProfessor">Senha</label> 
-            <input id="passwordProfessor" type="password" placeholder="senha"> 
-          </div> 
-          <div style="display:flex;gap:8px"> 
-            <button class="btn-primary" onclick="login('professor')">Entrar como 
-Professor</button> 
-            <button class="btn-danger" onclick="fillDemo('professor')">Demo 
-Professor</button> 
-          </div> 
-          <p class="muted" style="margin-top:10px;font-size:13px"> 
-            Use <strong>professor@escola.com / prof123</strong> para acesso ao 
-professor 
-          </p> 
-        </div> 
-      </div> 
-    </div> 
- 
-    <!-- MAIN APP - GESTÃO --> 
-    <div id="mainAppGestao" style="display:none;flex-direction:column;gap:14px"> 
-      <div class="flex"> 
-        <!-- GESTÃO --> 
-        <div class="card col" style="flex:1"> 
-          <div class="subtitle">CADASTRO — GESTÃO</div> 
-          <div class="col"> 
-            <div> 
-              <label>Aluno</label> 
-              <input id="aluno_gestao" type="text" placeholder="Nome do aluno 
-(autocomplete)" oninput="autocompleteAluno(this.value)"> 
-              <div id="autocompleteList" style="position:relative;z-index:1000"></div> 
-            </div> 
-            <div style="display:flex;gap:8px"> 
-              <div style="flex:1"> 
-                <label>Série / Turma</label> 
-                <input id="serie_gestao" type="text" readonly> 
-              </div> 
-              <div style="flex:1"> 
-                <label>RA</label> 
-                <input id="ra_gestao" type="text" readonly> 
-              </div> 
-            </div> 
-            <div style="display:flex;gap:8px"> 
-              <div style="flex:1"> 
-                <label>Professor</label> 
-                <input id="professor_gestao" type="text"> 
-              </div> 
-              <div style="flex:1"> 
-                <label>Disciplina</label> 
-                <input id="disciplina_gestao" type="text"> 
-              </div> 
-            </div> 
-            <div style="display:flex;gap:8px"> 
-              <div style="flex:1"> 
-                <label>Classificação</label> 
-                <select id="classificacao_gestao" 
-onchange="toggleSuspension('gestao')"> 
-                  <option value="">Selecione</option> 
-                  <option value="OCORRÊNCIA">OCORRÊNCIA</option> 
-                  <option value="SUSPENSÃO">SUSPENSÃO</option> 
-                </select> 
-              </div> 
-              <div style="flex:1;display:none" id="suspensionRow_gestao"> 
-                <label>Data de retorno</label> 
-                <input id="dataRetorno_gestao" type="date"> 
-              </div> 
-            </div> 
-            <div> 
-              <label>Descrição</label> 
-              <textarea id="descricao_gestao" placeholder="Descrição 
-detalhada"></textarea> 
-            </div> 
- 
-            <div style="display:flex;gap:8px;margin-top:8px"> 
-              <button class="btn-primary" 
-onclick="cadastrarOcorrenciaGestao()">Registrar (Gestão)</button> 
-              <button class="btn-success" onclick="generatePDFLocal()">Gerar PDF 
-(local)</button> 
-            </div> 
- 
-            <div id="successGestao" style="display:none;margin
-top:10px;background:linear
-gradient(90deg,#4CAF50,#2E7D32);padding:10px;border
-radius:8px;color:#fff;font-weight:900"> 
-              Ocorrência registrada com sucesso! 
-            </div> 
-          </div> 
-        </div> 
-      </div> 
- 
-      <!-- HISTÓRICO GESTÃO --> 
-      <div class="card"> 
-        <div style="display:flex;justify-content:space-between;align-items:center"> 
-          <div class="subtitle">HISTÓRICO DE OCORRÊNCIAS - GESTÃO</div> 
-          <div style="display:flex;gap:8px;align-items:center"> 
-            <button class="btn-primary" 
-onclick="carregarHistoricoGestao()">Atualizar</button> 
-          </div> 
-        </div> 
-        <div style="margin-top:12px" id="historyListGestao" class="historyList"></div> 
-      </div> 
-    </div> <!-- mainAppGestao --> 
- 
-    <!-- MAIN APP - PROFESSOR --> 
-    <div id="mainAppProfessor" style="display:none;flex
-direction:column;gap:14px"> 
-      <div class="flex"> 
-        <!-- PROFESSOR --> 
-        <div class="card col" style="flex:1"> 
-          <div class="subtitle">REGISTRO — PROFESSOR</div> 
-          <div class="col"> 
-            <div style="display:flex;gap:8px"> 
-              <div style="flex:1"> 
-                <label>Professor</label> 
-                <select id="professor_select"></select> 
-              </div> 
-              <div style="flex:1"> 
-                <label>Turma</label> 
-                <select id="turma_select" onchange="onTurmaChange()"></select> 
-              </div> 
-            </div> 
- 
-            <div style="display:flex;gap:8px"> 
-              <div style="flex:2"> 
-                <label>Alunos (clique para selecionar)</label> 
-                <input id="alunos_selected_input" type="text" readonly 
-placeholder="Clique para selecionar" onclick="openStudentsModal()"> 
-                <div id="selectedPills" style="margin-top:8px"></div> 
-              </div> 
-              <div style="flex:1"> 
-                <label>Data</label> 
-                <input id="data_prof" type="date"> 
-              </div> 
-            </div> 
- 
-            <div> 
-              <label>Irregularidades</label> 
-              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"> 
-                <label style="display:inline
-block;background:#efefef;color:#111;padding:6px 10px;border
-radius:999px"><input type="checkbox" name="irreg" value="Indisciplina"> 
-Indisciplina</label> 
-                <label style="display:inline
-block;background:#efefef;color:#111;padding:6px 10px;border
-radius:999px"><input type="checkbox" name="irreg" value="Agressão"> 
-Agressão</label> 
-                <label style="display:inline
-block;background:#efefef;color:#111;padding:6px 10px;border
-radius:999px"><input type="checkbox" name="irreg" value="Uso de celular"> Uso 
-de celular</label> 
-                <label style="display:inline
-block;background:#efefef;color:#111;padding:6px 10px;border
-radius:999px"><input type="checkbox" name="irreg" value="Falta de material"> 
-Falta de material</label> 
-              </div> 
-            </div> 
- 
-            <div> 
-              <label>Descrição</label> 
-              <textarea id="descricao_prof" placeholder="Descreva a 
-ocorrência..."></textarea> 
-            </div> 
- 
-            <div style="display:flex;gap:8px;margin-top:8px"> 
-              <button class="btn-primary" 
-onclick="registrarOcorrenciaProfessor()">Registrar (Professor)</button> 
-              <button class="btn-danger" 
-onclick="clearProfessorForm()">Limpar</button> 
-            </div> 
- 
-            <div id="successProfessor" style="display:none;margin
-top:10px;background:linear
-gradient(90deg,#4CAF50,#2E7D32);padding:10px;border
-radius:8px;color:#fff;font-weight:900"> 
-              Ocorrência registrada com sucesso! 
-            </div> 
-          </div> 
-        </div> 
-      </div> 
- 
-      <!-- HISTÓRICO PROFESSOR --> 
-      <div class="card"> 
-        <div style="display:flex;justify-content:space-between;align-items:center"> 
-          <div class="subtitle">HISTÓRICO DE OCORRÊNCIAS - PROFESSOR</div> 
-          <div style="display:flex;gap:8px;align-items:center"> 
-            <button class="btn-primary" 
-onclick="carregarHistoricoProfessor()">Atualizar</button> 
-          </div> 
-        </div> 
-        <div style="margin-top:12px" id="historyListProfessor" 
-class="historyList"></div> 
-      </div> 
-    </div> <!-- mainAppProfessor --> 
- 
-    <!-- MODAL SELEÇÃO ALUNOS --> 
-    <div id="modalRoot" class="modal-root"> 
-      <div class="modal"> 
-        <header style="display:flex;justify-content:space-between;align
-items:center;margin-bottom:10px"> 
-          <strong>Selecionar alunos</strong> 
-          <button onclick="closeStudentsModal()" 
-style="background:transparent;border:none;font
-weight:900;cursor:pointer">✕</button> 
-        </header> 
- 
-        <div> 
-          <input id="studentSearch" type="text" placeholder="Filtrar alunos..." 
-style="width:100%;padding:8px;border-radius:8px;border:1px solid #ddd;margin
-bottom:10px" oninput="filterStudentList()"> 
-          <div id="studentList" class="studentList"></div> 
-        </div> 
- 
-        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px"> 
-          <button class="btn-primary" 
-onclick="confirmStudents()">Confirmar</button> 
-          <button class="btn-danger" 
-onclick="closeStudentsModal()">Cancelar</button> 
-</div> 
-</div> 
-</div> 
-</div> 
-<script> 
-/******************************* 
-* CONFIGURAÇÕES 
-*******************************/ 
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC
-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec'; 
-const SPREADSHEET_ID = 
-'1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio'; 
-const SHEET_NAME = 'OCORRENCIASDOSPROFESSORES'; 
-// estado 
-let allAlunos = []; 
-let alunosDaTurmaAtual = []; 
-let alunosSelecionados = []; 
-let professores = []; 
-let turmas = []; 
-let currentUserRole = null; 
-// inicial 
-document.addEventListener('DOMContentLoaded', () => { 
-document.getElementById('data_prof').value = new 
-Date().toISOString().split('T')[0]; 
-// Mostrar formulário de gestão por padrão 
-      selectLoginOption('gestao'); 
-    }); 
- 
-    // Selecionar opção de login 
-    function selectLoginOption(role) { 
-      document.querySelectorAll('.login-option').forEach(opt => 
-opt.classList.remove('active')); 
-      document.getElementById(`option${role.charAt(0).toUpperCase() + 
-role.slice(1)}`).classList.add('active'); 
-       
-      document.querySelectorAll('.access-area').forEach(area => area.style.display = 
-'none'); 
-      document.getElementById(`loginForm${role.charAt(0).toUpperCase() + 
-role.slice(1)}`).style.display = 'block'; 
-    } 
- 
-    // login por tipo de usuário 
-    function login(role){ 
-      let email, password; 
-       
-      if (role === 'gestao') { 
-        email = document.getElementById('emailGestao').value.trim(); 
-        password = document.getElementById('passwordGestao').value.trim(); 
-      } else { 
-        email = document.getElementById('emailProfessor').value.trim(); 
-        password = document.getElementById('passwordProfessor').value.trim(); 
-      } 
-       
-      if(role === 'gestao' && email === 'gestao@escola.com' && password === 
-'gestao123'){ 
-        showAppAs(role, email); 
-      } else if(role === 'professor' && email === 'professor@escola.com' && password 
-=== 'prof123'){ 
-        showAppAs(role, email); 
-      } else { 
-        alert('E-mail ou senha incorretos.'); 
-      } 
-    } 
-     
-    function fillDemo(role){  
-      if (role === 'gestao') { 
-        document.getElementById('emailGestao').value='gestao@escola.com';  
-        document.getElementById('passwordGestao').value='gestao123';  
-      } else { 
-        document.getElementById('emailProfessor').value='professor@escola.com';  
-        document.getElementById('passwordProfessor').value='prof123';  
-      } 
-    } 
- 
-    function showAppAs(role, email){ 
-      currentUserRole = role; 
-      document.getElementById('loginScreen').style.display = 'none'; 
-       
-      if (role === 'gestao') { 
-        document.getElementById('mainAppGestao').style.display = 'flex'; 
-        document.getElementById('mainAppProfessor').style.display = 'none'; 
-        carregarTodosAlunos(); 
-        carregarHistoricoGestao(); 
-      } else { 
-        document.getElementById('mainAppGestao').style.display = 'none'; 
-        document.getElementById('mainAppProfessor').style.display = 'flex'; 
-        carregarProfessoresETurmas(); 
-        carregarHistoricoProfessor(); 
-      } 
-       
-      document.getElementById('userDisplay').textContent = email + 
-(role==='gestao'?' (Gestão)':' (Professor)'); 
-      document.getElementById('btnLogout').style.display = 'inline-block'; 
-      document.getElementById('btnDownloadPdf').style.display = 'inline-block'; 
-    } 
- 
-    function logout(){ 
-      currentUserRole = null; 
-      document.getElementById('loginScreen').style.display = 'block'; 
-      document.getElementById('mainAppGestao').style.display = 'none'; 
-      document.getElementById('mainAppProfessor').style.display = 'none'; 
-      document.getElementById('userDisplay').textContent = 'Não autenticado'; 
-      document.getElementById('btnLogout').style.display = 'none'; 
-      document.getElementById('btnDownloadPdf').style.display = 'none'; 
-      alunosDaTurmaAtual = []; alunosSelecionados = []; 
-document.getElementById('selectedPills').innerHTML=''; 
-       
-      // Limpar formulários 
-      document.getElementById('emailGestao').value = ''; 
-      document.getElementById('passwordGestao').value = ''; 
-      document.getElementById('emailProfessor').value = ''; 
-      document.getElementById('passwordProfessor').value = ''; 
-    } 
- 
-    /******************************* 
-     * GET professores & turmas 
-     *******************************/ 
-    async function carregarProfessoresETurmas(){ 
-      try { 
-        // professores 
-        const r1 = await 
-fetch(`${'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC
-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec'}?endpoi
- nt=teachers`); 
-        const j1 = await r1.json(); 
-        if(j1 && j1.status === 'success' && Array.isArray(j1.teachers)) professores = 
-j1.teachers; 
-        else professores = getFallbackProfessores(); 
- 
-        const profSel = document.getElementById('professor_select'); 
-        profSel.innerHTML = '<option value="">-- selecione --</option>'; 
-        professores.forEach(p => { const o = document.createElement('option'); 
-o.value = p; o.textContent = p; profSel.appendChild(o) }); 
- 
-        // turmas 
-        const r2 = await 
-fetch(`${'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC
-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec'}?endpoi
- nt=classes`); 
-        const j2 = await r2.json(); 
-        if(j2 && j2.status === 'success' && Array.isArray(j2.classes)) turmas = 
-j2.classes; 
-        else turmas = Object.keys(_getClassRanges()); 
- 
-        const turmaSel = document.getElementById('turma_select'); 
-        turmaSel.innerHTML = '<option value="">-- selecione --</option>'; 
-        turmas.forEach(t => { const o = document.createElement('option'); o.value = t; 
-o.textContent = t; turmaSel.appendChild(o) }); 
-      } catch(err){ 
-        console.error('Erro carregar professores/turmas:', err); 
-        // fallback 
-        professores = getFallbackProfessores(); 
-        const profSel = document.getElementById('professor_select'); 
-        profSel.innerHTML = '<option value="">-- selecione --</option>'; 
-        professores.forEach(p => { const o = document.createElement('option'); 
-o.value = p; o.textContent = p; profSel.appendChild(o) }); 
-        turmas = Object.keys(_getClassRanges()); 
-        const turmaSel = document.getElementById('turma_select'); 
-        turmaSel.innerHTML = '<option value="">-- selecione --</option>'; 
-        turmas.forEach(t => { const o = document.createElement('option'); o.value = t; 
-o.textContent = t; turmaSel.appendChild(o) }); 
-      } 
-    } 
- 
-    /******************************* 
-     * GET students by class 
-     *******************************/ 
-    async function onTurmaChange(){ 
-      const turma = document.getElementById('turma_select').value; 
-      if(!turma){ alunosDaTurmaAtual = []; renderStudentList([]); return; } 
-      await carregarAlunosPorTurma(turma); 
-      renderStudentList(alunosDaTurmaAtual); 
-    } 
- 
-    async function carregarAlunosPorTurma(turma){ 
-      try { 
-        const resp = await 
-fetch(`${'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC
-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec'}?endpoi
- nt=students&turma=${encodeURIComponent(turma)}`); 
-        const json = await resp.json(); 
-        alunosDaTurmaAtual = json.students || json.studentsList || []; 
-        if(!Array.isArray(alunosDaTurmaAtual)) alunosDaTurmaAtual = []; 
-      } catch(err){ 
-        console.error('Erro get students:', err); 
-        alunosDaTurmaAtual = []; 
-      } 
-    } 
- 
-    /******************************* 
-     * carregarTodosAlunos (autocomplete gestor) 
-     *******************************/ 
-    async function carregarTodosAlunos(){ 
-      allAlunos = []; 
-      const classList = Object.keys(_getClassRanges()); 
-      for(const turma of classList){ 
-        try{ 
-          const r = await 
-fetch(`${'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC
-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec'}?endpoi
- nt=students&turma=${encodeURIComponent(turma)}`); 
-          const j = await r.json(); 
-          const list = j.students || []; 
-          list.forEach(nome => { if(nome && String(nome).trim()) 
-allAlunos.push({nome:String(nome).trim(), turma}) }); 
-        }catch(e){} 
-      } 
-      // dedupe 
-      const seen = new Set(); 
-      allAlunos = allAlunos.filter(a => { if(seen.has(a.nome)) return false; 
-seen.add(a.nome); return true; }); 
-    } 
- 
-    function autocompleteAluno(value){ 
-      const box = document.getElementById('autocompleteList'); box.innerHTML=''; 
-      if(!value || value.length < 2) return; 
-      const q = value.toLowerCase(); 
-      const matches = allAlunos.filter(a => 
-a.nome.toLowerCase().includes(q)).slice(0,12); 
-      matches.forEach(m => { 
-        const div = document.createElement('div'); 
-        
-div.style.background='#fff';div.style.color='#111';div.style.padding='8px';div.style.b
- orderRadius='6px';div.style.marginTop='6px';div.style.cursor='pointer'; 
-        div.textContent = `${m.nome} — ${m.turma}`; 
-        div.onclick = () => { document.getElementById('aluno_gestao').value = m.nome; 
-document.getElementById('serie_gestao').value = m.turma; box.innerHTML=''; }; 
-        box.appendChild(div); 
-      }); 
-    } 
- 
-    /******************************* 
-     * Modal alunos (professor) 
-     *******************************/ 
-    function openStudentsModal(){ 
-      if(!alunosDaTurmaAtual || alunosDaTurmaAtual.length === 0){ alert('Nenhum 
-aluno encontrado para a turma selecionada.'); return; } 
-      document.getElementById('modalRoot').style.display = 'flex'; 
-      renderStudentList(alunosDaTurmaAtual); 
-      document.getElementById('studentSearch').value = ''; 
-    } 
-    function closeStudentsModal(){ 
-document.getElementById('modalRoot').style.display = 'none'; } 
- 
-    function renderStudentList(list){ 
-      const container = document.getElementById('studentList'); 
-container.innerHTML = ''; 
-      list.forEach(nome => { 
-        const row = document.createElement('div'); 
-row.style.display='flex';row.style.justifyContent='space
-between';row.style.alignItems='center';row.style.padding='8px';row.style.borderBo
- ttom='1px solid #eee'; 
-        const lbl = document.createElement('div'); lbl.textContent = nome; 
-        const cb = document.createElement('input'); cb.type='checkbox'; cb.value = 
-nome; cb.checked = alunosSelecionados.includes(nome); 
-        cb.onchange = (e) => { if(e.target.checked){ 
-if(!alunosSelecionados.includes(nome)) alunosSelecionados.push(nome); } else 
-alunosSelecionados = alunosSelecionados.filter(x => x !== nome); }; 
-        row.appendChild(lbl); row.appendChild(cb); container.appendChild(row); 
-      }); 
-    } 
- 
-function filterStudentList(){ const q = 
-document.getElementById('studentSearch').value.toLowerCase(); const filtered = 
-alunosDaTurmaAtual.filter(s => s.toLowerCase().includes(q)); 
-renderStudentList(filtered); } 
-function confirmStudents(){ 
-document.getElementById('alunos_selected_input').value = 
-alunosSelecionados.join(', '); 
-const pills = document.getElementById('selectedPills'); pills.innerHTML = ''; 
-alunosSelecionados.forEach(a => { const el = document.createElement('div'); 
-el.className='pill'; el.textContent = a; pills.appendChild(el); }); 
-closeStudentsModal(); 
-} 
-/******************************* 
-* Toggle suspensão (gestão) 
-*******************************/ 
-function toggleSuspension(area){ 
-if(area === 'gestao'){ const val = 
-document.getElementById('classificacao_gestao').value; 
-document.getElementById('suspensionRow_gestao').style.display = (val === 
-'SUSPENSÃO') ? 'flex' : 'none'; } 
-} 
-/******************************* 
-* POST cadastrar ocorrência (gestão) 
-*******************************/ 
-async function cadastrarOcorrenciaGestao(){ 
-const aluno = document.getElementById('aluno_gestao').value.trim(); 
-const serie = document.getElementById('serie_gestao').value.trim(); 
-const professor = document.getElementById('professor_gestao').value.trim(); 
-      const disciplina = document.getElementById('disciplina_gestao').value.trim(); 
-      const classificacao = document.getElementById('classificacao_gestao').value; 
-      const descricao = document.getElementById('descricao_gestao').value.trim(); 
-      const dataRetorno = document.getElementById('dataRetorno_gestao').value || 
-null; 
- 
-      if(!aluno || !serie || !professor || !disciplina || !classificacao || !descricao){ 
-alert('Preencha todos os campos obrigatórios.'); return; } 
-      if(classificacao === 'SUSPENSÃO' && !dataRetorno){ alert('Informe data de 
-retorno para suspensão.'); return; } 
- 
-      const payload = { 
-        date: new Date().toISOString().split('T')[0], 
-        professor: professor, 
-        studentClass: serie, 
-        student: aluno, 
-        irregularities: classificacao + (dataRetorno ? (' - retorno: ' + dataRetorno) : ''), 
-        description: descricao 
-      }; 
- 
-      try { 
-        const resp = await 
-fetch(`${'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC
-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec'}?endpoi
- nt=occurrences`, { 
-          method:'POST', 
-          headers:{'Content-Type':'application/json'}, 
-          body: JSON.stringify(payload) 
-        }); 
-        const j = await resp.json(); 
-        if(j && j.status === 'success'){ 
-          document.getElementById('successGestao').style.display = 'block'; 
-          setTimeout(()=> document.getElementById('successGestao').style.display = 
-'none', 2200); 
-          // limpar 
-          document.getElementById('aluno_gestao').value=''; 
-document.getElementById('serie_gestao').value=''; 
-document.getElementById('ra_gestao').value=''; 
-document.getElementById('professor_gestao').value=''; 
-document.getElementById('disciplina_gestao').value=''; 
-document.getElementById('classificacao_gestao').value=''; 
-document.getElementById('descricao_gestao').value=''; 
-document.getElementById('suspensionRow_gestao').style.display='none'; 
-          carregarHistoricoGestao(); 
-        } else { 
-          alert('Erro ao registrar: ' + (j && j.message ? j.message : 'Resposta 
-inesperada')); 
-        } 
-      } catch(err){ 
-        console.error('Erro POST ocorrencia (gestao):', err); 
-        alert('Erro ao comunicar com o servidor (ver console).'); 
-      } 
-    } 
- 
-    /******************************* 
-     * POST registrar ocorrência (professor) 
-     *******************************/ 
-    async function registrarOcorrenciaProfessor(){ 
-      const professor = document.getElementById('professor_select').value; 
-      const turma = document.getElementById('turma_select').value; 
-      const dataOc = document.getElementById('data_prof').value; 
-      const descricao = document.getElementById('descricao_prof').value.trim(); 
-      if(!professor || !turma || !dataOc || alunosSelecionados.length === 0){ 
-alert('Preencha todos os campos obrigatórios e selecione ao menos um aluno.'); 
-return; } 
-      const irregs = 
-Array.from(document.querySelectorAll('input[name="irreg"]:checked')).map(x=>x.
- value); 
-      const payload = { date: dataOc, professor: professor, studentClass: turma, 
-student: alunosSelecionados.join(', '), irregularities: irregs.join(', '), description: 
-descricao }; 
-      try { 
-        const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences`, { 
-method:'POST', headers:{'Content-Type':'application/json'}, body: 
-JSON.stringify(payload) }); 
-        const j = await resp.json(); 
-        if(j && j.status === 'success'){ 
-          document.getElementById('successProfessor').style.display = 'block'; 
-          setTimeout(()=> document.getElementById('successProfessor').style.display 
-= 'none', 2200); 
-          clearProfessorForm(); 
-          carregarHistoricoProfessor(); 
-        } else { 
-          alert('Erro ao registrar: ' + (j && j.message ? j.message : 'Resposta 
-inesperada')); 
-        } 
-      } catch(err){ 
-        console.error('Erro POST ocorrencia (professor):', err); 
-        alert('Erro ao comunicar com o servidor (ver console).'); 
-      } 
-    } 
- 
-    function clearProfessorForm(){ 
-      document.getElementById('professor_select').value=''; 
-document.getElementById('turma_select').value=''; 
-document.getElementById('alunos_selected_input').value=''; 
-document.getElementById('selectedPills').innerHTML=''; 
-document.getElementById('descricao_prof').value=''; alunosSelecionados = []; 
-Array.from(document.querySelectorAll('input[name="irreg"]')).forEach(cb => 
-cb.checked=false); document.getElementById('data_prof').value = new 
-Date().toISOString().split('T')[0]; 
-    } 
- 
-    /******************************* 
-     * GET histórico (occurrences) 
-     *******************************/ 
-    async function carregarHistoricoGestao(){ 
-      const container = document.getElementById('historyListGestao'); 
-      container.innerHTML = `<div style="display:flex;align
-items:center;gap:8px"><div class="loader"></div><div 
-class="muted">Carregando histórico...</div></div>`; 
-      try { 
-        const resp = await 
-fetch(`${'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC
-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec'}?endpoi
- nt=occurrences`); 
-        const json = await resp.json(); 
-        const ocorrs = json.occurrences || []; 
-        container.innerHTML = ''; 
-        if(!ocorrs || ocorrs.length === 0){ container.innerHTML = '<div 
-class="muted">Nenhuma ocorrência encontrada.</div>'; return; } 
- 
-        // Exibe do mais recente para o mais antigo 
-        ocorrs.slice().reverse().forEach(r => { 
-          const id = r.id || r.ID || r.Id || null; 
-          const date = r.DATA || r.date || r.col1 || ''; 
-          const prof = r.PROFESSOR || r.professor || r.col2 || ''; 
-          const turma = r.TURMA || r.studentClass || r.col3 || ''; 
-          const aluno = r.ALUNO || r.student || r.col4 || ''; 
-          const irreg = r.IRREGULARIDADES || r.irregularities || r.col5 || ''; 
-          const desc = r.DESCRICAO || r.description || r.col6 || ''; 
- 
-          const div = document.createElement('div'); div.className='historyItem'; 
-          const meta = document.createElement('div'); meta.className='meta'; 
-          meta.innerHTML = `<div><strong>${date}</strong> — <span 
-class="muted">${prof}</span></div>`; 
-          const controls = document.createElement('div'); 
-          // botão gerar pdf via backend 
-          const pdfBtn = document.createElement('button'); 
-          pdfBtn.className='btn-success'; pdfBtn.style.fontSize='12px'; 
-pdfBtn.style.marginLeft='8px'; 
-          pdfBtn.textContent = 'Gerar PDF (template)'; 
-          pdfBtn.onclick = () => generatePdfFromBackend(id); 
-          // botão excluir 
-          const delBtn = document.createElement('button'); 
-          delBtn.className='btn-danger'; delBtn.style.fontSize='12px'; 
-delBtn.style.marginLeft='8px'; 
-          delBtn.textContent = 'Excluir'; 
-          delBtn.onclick = () => deleteOccurrence(id); 
- 
-          controls.appendChild(pdfBtn); controls.appendChild(delBtn); 
-          meta.appendChild(controls); 
- 
-          const ddesc = document.createElement('div'); ddesc.className='desc'; 
-          ddesc.innerHTML = `<strong>Aluno(s):</strong> ${aluno || 
-'N/A'}<br/><strong>Turma:</strong> ${turma || 
-'N/A'}<br/><strong>Irregularidades:</strong> ${irreg || 'N/A'}<br/><em>${desc || 
-''}</em>`; 
- 
-          // adicionar id visível (útil) 
-          const idLine = document.createElement('div'); idLine.style.marginTop='8px'; 
-idLine.style.fontSize='12px'; idLine.style.opacity='0.9'; idLine.innerHTML = `ID: 
-<span class="qnum">${id}</span>`; 
- 
-          div.appendChild(meta); div.appendChild(ddesc); div.appendChild(idLine); 
-          container.appendChild(div); 
-        }); 
-      } catch(err){ 
-        console.error('Erro carregarHistorico:', err); 
-        document.getElementById('historyListGestao').innerHTML = '<div 
-class="muted">Erro ao carregar histórico (ver console).</div>'; 
-      } 
-    } 
- 
-    async function carregarHistoricoProfessor(){ 
-      const container = document.getElementById('historyListProfessor'); 
-      container.innerHTML = `<div style="display:flex;align
-items:center;gap:8px"><div class="loader"></div><div 
-class="muted">Carregando histórico...</div></div>`; 
-      try { 
-        const resp = await 
-fetch(`${'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC
-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec'}?endpoi
- nt=occurrences`); 
-        const json = await resp.json(); 
-        const ocorrs = json.occurrences || []; 
-        container.innerHTML = ''; 
-        if(!ocorrs || ocorrs.length === 0){ container.innerHTML = '<div 
-class="muted">Nenhuma ocorrência encontrada.</div>'; return; } 
- 
-        // Exibe do mais recente para o mais antigo 
-        ocorrs.slice().reverse().forEach(r => { 
-          const id = r.id || r.ID || r.Id || null; 
-          const date = r.DATA || r.date || r.col1 || ''; 
-          const prof = r.PROFESSOR || r.professor || r.col2 || ''; 
-          const turma = r.TURMA || r.studentClass || r.col3 || ''; 
-          const aluno = r.ALUNO || r.student || r.col4 || ''; 
-          const irreg = r.IRREGULARIDADES || r.irregularities || r.col5 || ''; 
-          const desc = r.DESCRICAO || r.description || r.col6 || ''; 
- 
-          const div = document.createElement('div'); div.className='historyItem'; 
-          const meta = document.createElement('div'); meta.className='meta'; 
-          meta.innerHTML = `<div><strong>${date}</strong> — <span 
-class="muted">${prof}</span></div>`; 
-           
-          const ddesc = document.createElement('div'); ddesc.className='desc'; 
-          ddesc.innerHTML = `<strong>Aluno(s):</strong> ${aluno || 
-'N/A'}<br/><strong>Turma:</strong> ${turma || 
-'N/A'}<br/><strong>Irregularidades:</strong> ${irreg || 'N/A'}<br/><em>${desc || 
-''}</em>`; 
- 
-          // adicionar id visível (útil) 
-          const idLine = document.createElement('div'); idLine.style.marginTop='8px'; 
-idLine.style.fontSize='12px'; idLine.style.opacity='0.9'; idLine.innerHTML = `ID: 
-<span class="qnum">${id}</span>`; 
- 
-          div.appendChild(meta); div.appendChild(ddesc); div.appendChild(idLine); 
-          container.appendChild(div); 
-        }); 
-      } catch(err){ 
-        console.error('Erro carregarHistorico:', err); 
-        document.getElementById('historyListProfessor').innerHTML = '<div 
-class="muted">Erro ao carregar histórico (ver console).</div>'; 
-      } 
-    } 
- 
-    /******************************* 
-     * DELETE ocorrência (POST ?endpoint=delete-occurrence) 
-     *******************************/ 
-    async function deleteOccurrence(occurrenceId){ 
-      if(occurrenceId === null || occurrenceId === undefined){ alert('ID inválido para 
-exclusão.'); return; } 
-      if(!confirm('Confirma exclusão desta ocorrência (ID '+occurrenceId+')?')) return; 
-      try { 
-        const resp = await 
-fetch(`${'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC
-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec'}?endpoi
- nt=delete-occurrence`, { 
-          method:'POST', 
-          headers:{'Content-Type':'application/json'}, 
-          body: JSON.stringify({ occurrenceId }) 
-        }); 
-        const j = await resp.json(); 
-        if(j && j.status === 'success'){ alert('Ocorrência excluída.'); 
-carregarHistoricoGestao(); } 
-        else alert('Erro ao excluir: ' + (j && j.message ? j.message : 'Resposta 
-inesperada')); 
-      } catch(err){ console.error('Erro deleteOccurrence:', err); alert('Erro ao 
-comunicar com servidor.'); } 
-    } 
- 
-    /******************************* 
-     * Geração de PDF via backend 
-     *******************************/ 
-    async function generatePdfFromBackend(occurrenceId){ 
-      if(!occurrenceId){ alert('ID inválido para geração de PDF.'); return; } 
-      try { 
-        const resp = await 
-fetch(`${'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC
-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec'}?endpoi
- nt=generate-pdf`, { 
-          method:'POST', 
-          headers:{'Content-Type':'application/json'}, 
-          body: JSON.stringify({ occurrenceId }) 
-        }); 
-        const j = await resp.json(); 
-        if(j && j.status === 'success' && j.pdfUrl){ 
-          // abrir link em nova aba 
-          window.open(j.pdfUrl, '_blank'); 
-        } else { 
-          alert('Servidor não retornou URL do PDF. Resposta: ' + JSON.stringify(j)); 
-        } 
-      } catch(err){ 
-        console.error('Erro generatePdfFromBackend:', err); 
-        alert('Erro ao pedir geração de PDF. Verifique se o endpoint generate-pdf existe 
-no Apps Script.'); 
-      } 
-    } 
- 
-    /******************************* 
-     * fallback: gerar PDF localmente (apenas conteúdo simples) 
-     *******************************/ 
-    function generatePDFLocal(){ 
-      try { 
-        const { jsPDF } = window.jspdf; 
-        const doc = new jsPDF(); 
-        doc.setFontSize(16); 
-        doc.text('Registro de Ocorrência', 14, 20); 
-        const aluno = document.getElementById('aluno_gestao').value || ''; 
-        const turma = document.getElementById('serie_gestao').value || ''; 
-        const prof = document.getElementById('professor_gestao').value || ''; 
-        const desc = document.getElementById('descricao_gestao').value || ''; 
-        let y = 36; 
-        if(aluno){ doc.text(`Aluno: ${aluno}`, 14, y); y+=8; } 
-        if(turma){ doc.text(`Turma: ${turma}`, 14, y); y+=8; } 
-        if(prof){ doc.text(`Professor: ${prof}`, 14, y); y+=8; } 
-        doc.text('Descrição:', 14, y); y+=8; 
-        const split = doc.splitTextToSize(desc || 'Sem descrição', 180); 
-        doc.text(split, 14, y); 
-        doc.save(`ocorrencia_${Date.now()}.pdf`); 
-} catch(err){ console.error('Erro gerar PDF local:', err); alert('Erro ao gerar PDF 
-local (ver console).'); } 
-} 
-/******************************* 
-* utilitários / fallbacks 
-*******************************/ 
-function _getClassRanges(){ return { 
-"6° ANO A MANHA":"C3:C46","6° ANO B MANHA":"H3:H46","6° ANO C 
-MANHA":"M3:M46","6° ANO D MANHA":"R3:R46", 
-"6° ANO E TARDE":"W3:W46","6° ANO F TARDE":"AB3:AB46","7° ANO A 
-TARDE":"AG3:AG46","7° ANO B TARDE":"AL3:AL46", 
-"7° ANO C TARDE":"AQ3:AQ46","7° ANO D TARDE":"AV3:AV46","7° ANO E 
-TARDE":"BA3:BA46","7° ANO F TARDE":"BF3:BF46", 
-"8° ANO A TARDE":"BK3:BK46","8° ANO B TARDE":"BP3:BP46","8° ANO C 
-TARDE":"BU3:BU46","8° ANO D TARDE":"BZ3:BZ46", 
-"9° ANO A TARDE":"CE3:CE46","9° ANO B TARDE":"CJ3:CJ46","9° ANO C 
-TARDE":"CO3:CO46","9° ANO D TARDE":"CT3:CT46", 
-"1ª SERIE A MANHA":"CY3:CY46","1ª SERIE B MANHA":"DD3:DD46","1ª SERIE C 
-MANHA":"DI3:DI46","1ª SERIE D MANHA":"DN3:DN46", 
-"1ª SERIE E MANHA":"DS3:DS46","1ª SERIE F MANHA":"DX3:DX46","1ª SERIE G 
-TARDE":"EC3:EC46","1ª SERIE H NOITE":"EH3:EH46", 
-"1ª SERIE I NOITE":"EM3:EM46","2ª SERIE A MANHA":"ER3:ER46","2ª SERIE B 
-MANHA":"EW3:EW46","2ª SERIE C MANHA":"FB3:FB46", 
-"2ª SERIE D MANHA":"FG3:FG46","2ª SERIE E MANHA":"FL3:FL46","2ª SERIE F 
-NOITE":"FQ3:FQ46","2ª SERIE G NOITE":"FV3:FV46", 
-"2ª SERIE H NOITE":"GA3:GA46","3ª SERIE A MANHA":"GK3:GK46","3ª SERIE B 
-MANHA":"GP3:GP46","3ª SERIE C MANHA":"GU3:GU46", 
-"3ª SERIE D NOITE":"GZ3:GZ46","3ª SERIE E NOITE":"HE3:HE46","3ª SERIE F 
-NOITE":"HJ3:HJ46" 
-};} 
-    function getFallbackProfessores(){ 
-      return [ 
-        "ALEX LUTH PEREIRA MARANHAO","ALEXSANDRA PAULA VARELLA DE 
-SOUZA","ALISON VASCONCELOS BESERRA","AMAURI TEODORO DE OLIVEIRA", 
-        "ANA PAULA DOS SANTOS","ANDREIA DOS SANTOS FREITAS","ANDREIA 
-MADUREIRA REIS","ANTONIO CARLOS DE OLIVEIRA", 
-        "ANTONIO RAMOS DE ARAUJO","ANTONIO WILTON WANDERLEY 
-CABRAL","AUGUSTO LINO PESSOA NETO","AUREA MARIA DE JESUS MARQUES", 
-        "CAROLINA PERNOMIAN PARUSSOLOLO","CASSIA OLIVEIRA 
-ANTONIAZI","CLAUDINEIA DE AGUIAR LIMA","DANIEL DE FREITAS ALMEIDA", 
-        "DANIEL LOPES BARBOSA","DANIELA FERREIRA LIMA","DANIELLE LUCIA 
-BATISTA DE ALMEIDA","EDIANE VIEIRA DA SILVA", 
-        "EDILEUSA NUNES PEREIRA","EDUARDO HENRIQUE DA FONSECA","ELIANE 
-SANTOS SILVA","ELIAS MONTEIRO DA SILVA", 
-        "ELISABETE APARECIDA PIRES","ELZA DE FARIA PEREIRA","EMERSON GABLER 
-DE ALMEIDA","EUZELI ARAUJO DE OLIVEIRA", 
-        "FABIANO AUGUSTO PIEDADE","FABIO CAMILO","FERNANDO JOSE DA SILVA 
-FILHO","FLAVIA CRISTINA APARECIDA BICHLER", 
-        "FLAVIO CARDOSO FLEURY","FRANCISCA EDIVANIA DE MORAIS 
-COSTA","GABRIELA SERIGHELLI DE MELO","GELSON DE ALMEIDA BATISTA", 
-        "GENILTON DE OLIVEIRA SILVA","GIANI CRISTINA DO PRADO","INGRYD 
-CAROLINA SUGUIMOTO VIEIRA","IVANILDES DOS SANTOS OSHIKAWA", 
-        "JANINA DOS PASSOS BRAGA DE ALMEIDA","JOSE APARECIDO DA 
-SILVA","JUAREZ GOMES DE MAGALHAES FILHO","JUREMA SOLEDADE FURINI 
-SANTOS", 
-        "KATIUSCIA ALVES BOMFIM","LUANA CAROLINE ALVES LIMA","LUANA DE 
-FREITAS SILVA","LUCIANA NOVAIS CORREIA SANTOS", 
-        "LUCIANO MOREIRA DE AZEVEDO","MARCIEL DA SILVA","MARIA HELENA 
-CUNHA MORO","MARIA QUITÉRIA FERREIRA DOS SANTOS", 
-        "MARINA DA CONCEICAO FRANCISCO SILVA","MAURICIO DE BARROS 
-SANTOS","MICHELE DE PINHO MORAES","MOISES ANTONIO DE BARROS", 
-        "PAULA ARMANI VILA","PAULO ROBERTO DA SILVA ITO","PEDRO ZANOTTI 
-FILHO","RAUL PEREIRA VILERA JUNIOR", 
-"REGIANE CURTI DE SOUZA OLIVEIRA","REGINA DA SILSA CASTRO","RICARDO 
-AMERICO DA SILVA","ROBERTO SALGADO", 
-"RODRIGO VIEIRA","ROSANGELA CAFASSO MOREIRA","ROSIMERY DE SOUZA 
-PESSOA","ROSMARA DA SILSA CARDOSO", 
-"SANDRA CRISTINA MACEDO MORAES","SELMA GOMES DA SILSA","SERGIO 
-AGRIPINO VILLA NOVA","SOLANGE ALMEIDA DA SILSA", 
-"SUZINEIDE SILSA DE FREITAS","THIAGO FABIANO BRITO","TITTO AUGUSTO 
-NASCIMENTO SILSA","VANDERSON HYPPOLITO", 
-"VANESSA IVETE GOMES DOS SANTOS","VANIA PENHA DE BARROS","VIVIANE 
-LEAL CAMERA DE MORAES","WILSON RODRIGUES MOTA" 
-]; 
-} 
-</script> 
-</body> 
-</html> 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cadastro de Ocorrências - 2025 (Unificado)</title>
+
+  <!-- jsPDF para geração local de PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin:0; padding:0; }
+    html,body{height:100%}
+    body{
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      background: linear-gradient(135deg,#9fe7ff 0%, #b9f7c9 60%, #baf3ff 100%);
+      color:#fff; font-weight:800; padding:18px;
+    }
+    .app{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+    header{display:flex;align-items:center;justify-content:space-between;padding:18px;border-radius:14px;background:linear-gradient(90deg,rgba(0,31,63,0.95),rgba(0,78,120,0.95));box-shadow:0 8px 30px rgba(0,0,0,0.15)}
+    header h1{font-size:20px;margin:0}
+    .header-controls{display:flex;gap:10px;align-items:center}
+    .card{background:#2f3336;padding:18px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.15)}
+    .flex{display:flex;gap:18px;align-items:flex-start}
+    .col{display:flex;flex-direction:column;gap:12px}
+    label{display:block;margin-bottom:6px;font-size:13px}
+    input[type="text"],input[type="email"],input[type="password"],select,textarea,input[type="date"]{
+      width:100%;padding:10px 12px;border-radius:8px;border:none;font-weight:800;font-size:14px;color:#111
+    }
+    textarea{min-height:110px;resize:vertical;padding-top:12px}
+    button{cursor:pointer;border:none;padding:10px 14px;border-radius:8px;font-weight:900;box-shadow:0 6px 18px rgba(0,0,0,0.15)}
+    .btn-primary{background:linear-gradient(90deg,#1e3c72,#2a5298);color:#fff}
+    .btn-danger{background:linear-gradient(90deg,#e94b4b,#c62828);color:#fff}
+    .btn-success{background:linear-gradient(90deg,#4CAF50,#2E7D32);color:#fff}
+    .subtitle{font-size:14px;color:#d9f2ff;margin-bottom:6px}
+    .historyList{max-height:420px;overflow:auto;display:flex;flex-direction:column;gap:10px;padding-right:6px}
+    .historyItem{background:rgba(255,255,255,0.06);border-left:5px solid rgba(255,255,255,0.06);padding:12px;border-radius:8px;color:#fff;font-weight:700}
+    .historyItem .meta{font-size:13px;color:#dbefff;font-weight:800;display:flex;justify-content:space-between;gap:8px;align-items:center}
+    .historyItem .desc{margin-top:8px;color:#e7f7ff;font-weight:600;font-size:14px}
+    .modal-root{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);z-index:2000}
+    .modal{width:92%;max-width:780px;background:#fff;color:#111;border-radius:12px;padding:14px;max-height:84vh;overflow:auto}
+    .studentList{display:flex;flex-direction:column;gap:8px}
+    .pill{background:linear-gradient(90deg,#2a5298,#3a6bd1);color:#fff;padding:6px 10px;border-radius:999px;font-weight:800;display:inline-block}
+    .muted{opacity:.9;font-weight:700;color:#e7f2ff}
+    .qnum{color:#ff3b3b;font-weight:900}
+    .login-options {display: flex; gap: 12px; margin-bottom: 18px;}
+    .login-option {flex: 1; text-align: center; padding: 12px; border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.1);}
+    .login-option.active {background: linear-gradient(90deg, rgba(0,78,120,0.8), rgba(0,120,120,0.8));}
+    .access-area {display: none;}
+    @media(max-width:980px){.flex{flex-direction:column}header{flex-direction:column;gap:8px;align-items:flex-start} .login-options {flex-direction: column;}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loader{width:18px;height:18px;border:3px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;display:inline-block}
+    .small { font-weight:700; font-size:12px; opacity:0.95; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>2025 — Cadastro de Ocorrências</h1>
+      <div class="header-controls">
+        <div id="userDisplay" class="muted">Não autenticado</div>
+        <button id="btnLogout" class="btn-danger" style="display:none" onclick="logout()">Sair</button>
+      </div>
+    </header>
+
+    <!-- LOGIN -->
+    <div id="loginScreen" class="card" style="display:block">
+      <div style="max-width:480px;margin:0 auto">
+        <div class="subtitle">Selecione o tipo de acesso</div>
+
+        <div class="login-options">
+          <div class="login-option active" id="optionGestao" onclick="selectLoginOption('gestao')">Acesso Gestão</div>
+          <div class="login-option" id="optionProfessor" onclick="selectLoginOption('professor')">Acesso Professor</div>
+        </div>
+
+        <div id="loginFormGestao" class="access-area">
+          <div style="margin-bottom:8px">
+            <label for="emailGestao">E-mail Gestão</label>
+            <input id="emailGestao" type="email" placeholder="gestao@escola.com">
+          </div>
+          <div style="margin-bottom:8px">
+            <label for="passwordGestao">Senha</label>
+            <input id="passwordGestao" type="password" placeholder="senha">
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-primary" onclick="login('gestao')">Entrar como Gestão</button>
+            <button class="btn-danger" onclick="fillDemo('gestao')">Demo Gestão</button>
+          </div>
+          <p class="muted small" style="margin-top:10px">Use <strong>gestao@escola.com / gestao123</strong></p>
+        </div>
+
+        <div id="loginFormProfessor" class="access-area">
+          <div style="margin-bottom:8px">
+            <label for="emailProfessor">E-mail Professor</label>
+            <input id="emailProfessor" type="email" placeholder="professor@escola.com">
+          </div>
+          <div style="margin-bottom:8px">
+            <label for="passwordProfessor">Senha</label>
+            <input id="passwordProfessor" type="password" placeholder="senha">
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-primary" onclick="login('professor')">Entrar como Professor</button>
+            <button class="btn-danger" onclick="fillDemo('professor')">Demo Professor</button>
+          </div>
+          <p class="muted small" style="margin-top:10px">Use <strong>professor@escola.com / prof123</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN APP - GESTÃO -->
+    <div id="mainAppGestao" style="display:none;flex-direction:column;gap:14px">
+      <div class="flex">
+        <div class="card col" style="flex:1">
+          <div class="subtitle">CADASTRO — GESTÃO</div>
+          <div class="col">
+
+            <!-- Turma -> Aluno -->
+            <div style="display:flex;gap:8px">
+              <div style="flex:1">
+                <label>Turma</label>
+                <select id="turma_gestao" onchange="onTurmaChangeGestao()">
+                  <option value="">-- carregando --</option>
+                </select>
+              </div>
+              <div style="flex:1">
+                <label>Aluno</label>
+                <select id="aluno_gestao">
+                  <option value="">-- selecione turma --</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:8px">
+              <div style="flex:1">
+                <label>RA</label>
+                <input id="ra_gestao" type="text" readonly>
+              </div>
+              <div style="flex:1">
+                <label>Professor</label>
+                <input id="professor_gestao" type="text">
+              </div>
+            </div>
+
+            <div style="display:flex;gap:8px">
+              <div style="flex:1">
+                <label>Disciplina</label>
+                <input id="disciplina_gestao" type="text">
+              </div>
+              <div style="flex:1">
+                <label>Classificação</label>
+                <select id="classificacao_gestao" onchange="toggleSuspension('gestao')">
+                  <option value="">Selecione</option>
+                  <option value="OCORRÊNCIA">OCORRÊNCIA</option>
+                  <option value="SUSPENSÃO">SUSPENSÃO</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:8px;align-items:flex-end">
+              <div style="flex:1;display:none" id="suspensionRow_gestao">
+                <label>Data de retorno</label>
+                <input id="dataRetorno_gestao" type="date">
+              </div>
+              <div style="flex:1">
+                <label>Data</label>
+                <input id="data_gestao" type="date">
+              </div>
+            </div>
+
+            <div>
+              <label>Descrição</label>
+              <textarea id="descricao_gestao" placeholder="Descrição detalhada"></textarea>
+            </div>
+
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn-primary" onclick="cadastrarOcorrenciaGestao()">Registrar (Gestão)</button>
+              <button class="btn-success" onclick="generatePDFLocal()">Gerar PDF (local)</button>
+            </div>
+
+            <div id="successGestao" style="display:none;margin-top:10px;background:linear-gradient(90deg,#4CAF50,#2E7D32);padding:10px;border-radius:8px;color:#fff;font-weight:900">
+              Ocorrência registrada com sucesso!
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTÓRICO -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="subtitle">HISTÓRICO DE OCORRÊNCIAS - GESTÃO</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn-primary" onclick="carregarHistoricoGestao()">Atualizar</button>
+          </div>
+        </div>
+        <div style="margin-top:12px" id="historyListGestao" class="historyList"></div>
+      </div>
+    </div> <!-- mainAppGestao -->
+
+    <!-- MAIN APP - PROFESSOR -->
+    <div id="mainAppProfessor" style="display:none;flex-direction:column;gap:14px">
+      <div class="flex">
+        <div class="card col" style="flex:1">
+          <div class="subtitle">REGISTRO — PROFESSOR</div>
+          <div class="col">
+            <div style="display:flex;gap:8px">
+              <div style="flex:1">
+                <label>Professor</label>
+                <select id="professor_select"></select>
+              </div>
+              <div style="flex:1">
+                <label>Turma</label>
+                <select id="turma_select" onchange="onTurmaChange()"></select>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:8px">
+              <div style="flex:2">
+                <label>Alunos (clique para selecionar)</label>
+                <input id="alunos_selected_input" type="text" readonly placeholder="Clique para selecionar" onclick="openStudentsModal()">
+                <div id="selectedPills" style="margin-top:8px"></div>
+              </div>
+              <div style="flex:1">
+                <label>Data</label>
+                <input id="data_prof" type="date">
+              </div>
+            </div>
+
+            <div>
+              <label>Irregularidades</label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+                <label style="display:inline-block;background:#efefef;color:#111;padding:6px 10px;border-radius:999px"><input type="checkbox" name="irreg" value="Indisciplina"> Indisciplina</label>
+                <label style="display:inline-block;background:#efefef;color:#111;padding:6px 10px;border-radius:999px"><input type="checkbox" name="irreg" value="Agressão"> Agressão</label>
+                <label style="display:inline-block;background:#efefef;color:#111;padding:6px 10px;border-radius:999px"><input type="checkbox" name="irreg" value="Uso de celular"> Uso de celular</label>
+                <label style="display:inline-block;background:#efefef;color:#111;padding:6px 10px;border-radius:999px"><input type="checkbox" name="irreg" value="Falta de material"> Falta de material</label>
+              </div>
+            </div>
+
+            <div>
+              <label>Descrição</label>
+              <textarea id="descricao_prof" placeholder="Descreva a ocorrência..."></textarea>
+            </div>
+
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn-primary" onclick="registrarOcorrenciaProfessor()">Registrar (Professor)</button>
+              <button class="btn-danger" onclick="clearProfessorForm()">Limpar</button>
+            </div>
+
+            <div id="successProfessor" style="display:none;margin-top:10px;background:linear-gradient(90deg,#4CAF50,#2E7D32);padding:10px;border-radius:8px;color:#fff;font-weight:900">
+              Ocorrência registrada com sucesso!
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTÓRICO PROFESSOR -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="subtitle">HISTÓRICO DE OCORRÊNCIAS - PROFESSOR</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn-primary" onclick="carregarHistoricoProfessor()">Atualizar</button>
+          </div>
+        </div>
+        <div style="margin-top:12px" id="historyListProfessor" class="historyList"></div>
+      </div>
+    </div> <!-- mainAppProfessor -->
+
+    <!-- MODAL SELEÇÃO ALUNOS -->
+    <div id="modalRoot" class="modal-root">
+      <div class="modal">
+        <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <strong>Selecionar alunos</strong>
+          <button onclick="closeStudentsModal()" style="background:transparent;border:none;font-weight:900;cursor:pointer">✕</button>
+        </header>
+        <div>
+          <input id="studentSearch" type="text" placeholder="Filtrar alunos..." style="width:100%;padding:8px;border-radius:8px;border:1px solid #ddd;margin-bottom:10px" oninput="filterStudentList()">
+          <div id="studentList" class="studentList"></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+          <button class="btn-primary" onclick="confirmStudents()">Confirmar</button>
+          <button class="btn-danger" onclick="closeStudentsModal()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+/*******************************
+ * CONFIGURAÇÃO: substitua pelo URL do seu Web App (Apps Script)
+ *******************************/
+// Use o URL do deployment (Deploy > New deployment > Web app) - exemplo funcional que você mencionou:
+// const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec';
+const SCRIPT_URL = 'COLE_AQUI_SEU_URL_DO_APPS_SCRIPT';
+
+/* Planilhas/abas */
+const SHEET_GERAL = 'BANCODEDADOSGERAL';
+const SHEET_PRO = 'OCORRENCIASDOSPROFESSORES';
+const SHEET_GEST = 'BANCODEALUNOS';
+
+/* estado */
+let alunosDaTurmaAtual = [];
+let alunosSelecionados = [];
+let professores = [];
+let turmas = [];
+let currentUserRole = null;
+
+/* inicial */
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('data_prof').value = new Date().toISOString().split('T')[0];
+  document.getElementById('data_gestao').value = new Date().toISOString().split('T')[0];
+  selectLoginOption('gestao');
+});
+
+/* UI: login switch */
+function selectLoginOption(role){
+  document.querySelectorAll('.login-option').forEach(opt => opt.classList.remove('active'));
+  document.getElementById(`option${role.charAt(0).toUpperCase()+role.slice(1)}`).classList.add('active');
+  document.querySelectorAll('.access-area').forEach(a=>a.style.display='none');
+  document.getElementById(`loginForm${role.charAt(0).toUpperCase()+role.slice(1)}`).style.display='block';
+}
+
+/* login demo */
+function login(role){
+  let email = role==='gestao' ? document.getElementById('emailGestao').value.trim() : document.getElementById('emailProfessor').value.trim();
+  let pass  = role==='gestao' ? document.getElementById('passwordGestao').value.trim() : document.getElementById('passwordProfessor').value.trim();
+  if(role==='gestao' && email==='gestao@escola.com' && pass==='gestao123'){ showAppAs(role,email); }
+  else if(role==='professor' && email==='professor@escola.com' && pass==='prof123'){ showAppAs(role,email); }
+  else alert('E-mail ou senha incorretos.');
+}
+function fillDemo(role){
+  if(role==='gestao'){ document.getElementById('emailGestao').value='gestao@escola.com'; document.getElementById('passwordGestao').value='gestao123'; }
+  else { document.getElementById('emailProfessor').value='professor@escola.com'; document.getElementById('passwordProfessor').value='prof123'; }
+}
+function showAppAs(role,email){
+  currentUserRole = role;
+  document.getElementById('loginScreen').style.display='none';
+  if(role==='gestao'){ document.getElementById('mainAppGestao').style.display='flex'; document.getElementById('mainAppProfessor').style.display='none'; carregarProfessoresETurmas(); carregarHistoricoGestao(); }
+  else { document.getElementById('mainAppGestao').style.display='none'; document.getElementById('mainAppProfessor').style.display='flex'; carregarProfessoresETurmas(); carregarHistoricoProfessor(); }
+  document.getElementById('userDisplay').textContent = email + (role==='gestao'?' (Gestão)':' (Professor)');
+  document.getElementById('btnLogout').style.display='inline-block';
+}
+function logout(){
+  currentUserRole=null;
+  document.getElementById('loginScreen').style.display='block';
+  document.getElementById('mainAppGestao').style.display='none';
+  document.getElementById('mainAppProfessor').style.display='none';
+  document.getElementById('userDisplay').textContent='Não autenticado';
+  document.getElementById('btnLogout').style.display='none';
+  alunosDaTurmaAtual=[]; alunosSelecionados=[]; document.getElementById('selectedPills').innerHTML='';
+}
+
+/*******************************
+ * GET professores & turmas
+ *******************************/
+async function carregarProfessoresETurmas(){
+  try{
+    // teachers
+    const r1 = await fetch(`${SCRIPT_URL}?endpoint=teachers&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+    if(!r1.ok){ console.warn('teachers fetch status:', r1.status, await r1.text()); throw new Error('teachers fetch failed'); }
+    const j1 = await r1.json();
+    professores = (j1 && j1.status==='success' && Array.isArray(j1.teachers)) ? j1.teachers : getFallbackProfessores();
+
+    // populate professor select (professor area)
+    const profSel = document.getElementById('professor_select');
+    if(profSel){ profSel.innerHTML = '<option value=\"\">-- selecione --</option>'; professores.forEach(p=>{const o=document.createElement('option'); o.value=p; o.textContent=p; profSel.appendChild(o);}); }
+
+    // classes
+    const r2 = await fetch(`${SCRIPT_URL}?endpoint=classes&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+    if(!r2.ok){ console.warn('classes fetch status:', r2.status, await r2.text()); throw new Error('classes fetch failed'); }
+    const j2 = await r2.json();
+    turmas = (j2 && j2.status==='success' && Array.isArray(j2.classes)) ? j2.classes : Object.keys(_getClassRanges());
+
+    // populate turma selects (both)
+    ['turma_select','turma_gestao'].forEach(id=>{
+      const sel = document.getElementById(id);
+      if(!sel) return;
+      sel.innerHTML = '<option value=\"\">-- selecione --</option>';
+      turmas.forEach(t=>{ const o=document.createElement('option'); o.value=t; o.textContent=t; sel.appendChild(o); });
+    });
+
+  }catch(err){
+    console.error('Erro carregarProfessoresETurmas:', err);
+    // fallback
+    professores = getFallbackProfessores();
+    const profSel = document.getElementById('professor_select');
+    if(profSel){ profSel.innerHTML = '<option value=\"\">-- selecione --</option>'; professores.forEach(p=>{const o=document.createElement('option'); o.value=p; o.textContent=p; profSel.appendChild(o);}); }
+    turmas = Object.keys(_getClassRanges());
+    ['turma_select','turma_gestao'].forEach(id=>{
+      const sel = document.getElementById(id);
+      if(!sel) return;
+      sel.innerHTML = '<option value=\"\">-- selecione --</option>';
+      turmas.forEach(t=>{ const o=document.createElement('option'); o.value=t; o.textContent=t; sel.appendChild(o); });
+    });
+  }
+}
+
+/*******************************
+ * GET students by class
+ *******************************/
+async function carregarAlunosPorTurma(turma){
+  try{
+    const resp = await fetch(`${SCRIPT_URL}?endpoint=students&sheet=${encodeURIComponent(SHEET_GERAL)}&turma=${encodeURIComponent(turma)}`);
+    if(!resp.ok){
+      const body = await resp.text();
+      console.warn('carregarAlunosPorTurma não OK:', resp.status, body);
+      alunosDaTurmaAtual = [];
+      return;
+    }
+    const json = await resp.json();
+    alunosDaTurmaAtual = json.students || json.studentsList || [];
+    if(!Array.isArray(alunosDaTurmaAtual)) alunosDaTurmaAtual = [];
+  }catch(err){
+    console.error('Erro carregarAlunosPorTurma:', err);
+    alunosDaTurmaAtual = [];
+  }
+}
+
+/* professor area: quando turma muda */
+async function onTurmaChange(){
+  const turma = document.getElementById('turma_select').value;
+  if(!turma){ alunosDaTurmaAtual = []; renderStudentList([]); return; }
+  await carregarAlunosPorTurma(turma);
+  renderStudentList(alunosDaTurmaAtual);
+}
+
+/* gestao area: quando turma muda -> preencher select de aluno */
+async function onTurmaChangeGestao(){
+  const turma = document.getElementById('turma_gestao').value;
+  const sel = document.getElementById('aluno_gestao');
+  sel.innerHTML = '<option>Carregando...</option>';
+  if(!turma){ alunosDaTurmaAtual=[]; sel.innerHTML='<option value=\"\">-- selecione turma --</option>'; return; }
+  await carregarAlunosPorTurma(turma);
+  sel.innerHTML = '<option value=\"\">-- selecione --</option>';
+  alunosDaTurmaAtual.forEach(nome => { const o=document.createElement('option'); o.value=nome; o.textContent=nome; sel.appendChild(o); });
+  document.getElementById('ra_gestao').value = '';
+}
+
+/*******************************
+ * modal / seleção múltipla (professor)
+ *******************************/
+function renderStudentList(list){
+  const container = document.getElementById('studentList'); container.innerHTML='';
+  list.forEach(nome => {
+    const row = document.createElement('div'); row.style.display='flex';row.style.justifyContent='space-between';row.style.alignItems='center';row.style.padding='8px';row.style.borderBottom='1px solid #eee';
+    const lbl = document.createElement('div'); lbl.textContent = nome;
+    const cb = document.createElement('input'); cb.type='checkbox'; cb.value = nome; cb.checked = alunosSelecionados.includes(nome);
+    cb.onchange = (e) => { if(e.target.checked){ if(!alunosSelecionados.includes(nome)) alunosSelecionados.push(nome); } else alumnosSelecionados = alunosSelecionados.filter(x=>x!==nome); };
+    row.appendChild(lbl); row.appendChild(cb); container.appendChild(row);
+  });
+}
+function openStudentsModal(){
+  if(!alunosDaTurmaAtual || alunosDaTurmaAtual.length===0){ alert('Nenhum aluno encontrado para a turma selecionada.'); return; }
+  document.getElementById('modalRoot').style.display='flex';
+  renderStudentList(alunosDaTurmaAtual);
+  document.getElementById('studentSearch').value='';
+}
+function closeStudentsModal(){ document.getElementById('modalRoot').style.display='none'; }
+function filterStudentList(){ const q=document.getElementById('studentSearch').value.toLowerCase(); renderStudentList(alunosDaTurmaAtual.filter(s=>s.toLowerCase().includes(q))); }
+function confirmStudents(){ document.getElementById('alunos_selected_input').value = alunosSelecionados.join(', '); const pills=document.getElementById('selectedPills'); pills.innerHTML=''; alunosSelecionados.forEach(a=>{const el=document.createElement('div');el.className='pill';el.textContent=a;pills.appendChild(el);}); closeStudentsModal(); }
+
+/*******************************
+ * Toggle suspensão (gestão)
+ *******************************/
+function toggleSuspension(area){ if(area==='gestao'){ const val = document.getElementById('classificacao_gestao').value; document.getElementById('suspensionRow_gestao').style.display = (val==='SUSPENSÃO') ? 'flex' : 'none'; } }
+
+/*******************************
+ * POST cadastrar ocorrência (gestão)
+ *******************************/
+async function cadastrarOcorrenciaGestao(){
+  const aluno = document.getElementById('aluno_gestao').value.trim();
+  const serie = document.getElementById('turma_gestao').value.trim();
+  const professor = document.getElementById('professor_gestao').value.trim();
+  const disciplina = document.getElementById('disciplina_gestao').value.trim();
+  const classificacao = document.getElementById('classificacao_gestao').value;
+  const descricao = document.getElementById('descricao_gestao').value.trim();
+  const dataRetorno = document.getElementById('dataRetorno_gestao').value || null;
+  const date = document.getElementById('data_gestao').value || new Date().toISOString().split('T')[0];
+
+  if(!aluno || !serie || !professor || !disciplina || !classificacao || !descricao){ alert('Preencha todos os campos obrigatórios.'); return; }
+  if(classificacao === 'SUSPENSÃO' && !dataRetorno){ alert('Informe data de retorno para suspensão.'); return; }
+
+  const payload = {
+    sheet: SHEET_GEST,
+    startRow: 2,
+    date: date,
+    professor: professor,
+    studentClass: serie,
+    student: aluno,
+    irregularities: classificacao + (dataRetorno ? (' - retorno: ' + dataRetorno) : ''),
+    description: descricao
+  };
+
+  try{
+    const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if(!resp.ok){
+      const text = await resp.text();
+      console.error('Resposta não OK do servidor (gestao):', resp.status, text);
+      alert('Erro ao comunicar com o servidor. Veja console para detalhes (status '+resp.status+').');
+      return;
+    }
+
+    const j = await resp.json();
+    if(j && j.status === 'success'){
+      document.getElementById('successGestao').style.display='block';
+      setTimeout(()=>document.getElementById('successGestao').style.display='none',2200);
+      // limpar
+      document.getElementById('aluno_gestao').value=''; document.getElementById('turma_gestao').value=''; document.getElementById('ra_gestao').value=''; document.getElementById('professor_gestao').value=''; document.getElementById('disciplina_gestao').value=''; document.getElementById('classificacao_gestao').value=''; document.getElementById('descricao_gestao').value=''; document.getElementById('suspensionRow_gestao').style.display='none';
+      carregarHistoricoGestao();
+    } else {
+      console.error('Resposta JSON inesperada (gestao):', j);
+      alert('Erro ao registrar: resposta inesperada (ver console).');
+    }
+  }catch(err){
+    console.error('Erro POST ocorrencia (gestao):', err);
+    alert('Erro ao comunicar com o servidor (ver console). Possíveis causas: URL errada, Web App não implantado com permissão "Anyone", ou doPost não implementado no backend.');
+  }
+}
+
+/*******************************
+ * POST registrar ocorrência (professor)
+ *******************************/
+async function registrarOcorrenciaProfessor(){
+  const professor = document.getElementById('professor_select').value;
+  const turma = document.getElementById('turma_select').value;
+  const dataOc = document.getElementById('data_prof').value;
+  const descricao = document.getElementById('descricao_prof').value.trim();
+  if(!professor || !turma || !dataOc || alunosSelecionados.length === 0){ alert('Preencha todos os campos obrigatórios e selecione ao menos um aluno.'); return; }
+  const irregs = Array.from(document.querySelectorAll('input[name=\"irreg\"]:checked')).map(x=>x.value);
+
+  const payload = {
+    sheet: SHEET_PRO,
+    startRow: 2,
+    date: dataOc,
+    professor: professor,
+    studentClass: turma,
+    student: alunosSelecionados.join(', '),
+    irregularities: irregs.join(', '),
+    description: descricao
+  };
+
+  try{
+    const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences`, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
+    });
+    if(!resp.ok){
+      const text = await resp.text();
+      console.error('Resposta não OK do servidor (professor):', resp.status, text);
+      alert('Erro ao comunicar com o servidor. Veja console (status '+resp.status+').');
+      return;
+    }
+    const j = await resp.json();
+    if(j && j.status === 'success'){
+      document.getElementById('successProfessor').style.display='block';
+      setTimeout(()=>document.getElementById('successProfessor').style.display='none',2200);
+      clearProfessorForm();
+      carregarHistoricoProfessor();
+    } else {
+      console.error('Resposta JSON inesperada (professor):', j);
+      alert('Erro ao registrar: resposta inesperada (ver console).');
+    }
+  }catch(err){
+    console.error('Erro POST ocorrencia (professor):', err);
+    alert('Erro ao comunicar com o servidor (ver console). Verifique o Web App.');
+  }
+}
+function clearProfessorForm(){
+  document.getElementById('professor_select').value=''; document.getElementById('turma_select').value=''; document.getElementById('alunos_selected_input').value=''; document.getElementById('selectedPills').innerHTML=''; document.getElementById('descricao_prof').value=''; alunosSelecionados=[]; Array.from(document.querySelectorAll('input[name=\"irreg\"]')).forEach(cb=>cb.checked=false); document.getElementById('data_prof').value=new Date().toISOString().split('T')[0];
+}
+
+/*******************************
+ * Histórico: GET occurrences
+ *******************************/
+async function carregarHistoricoGestao(){
+  const container = document.getElementById('historyListGestao');
+  container.innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div class="loader"></div><div class="muted">Carregando histórico...</div></div>`;
+  try{
+    const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences`);
+    if(!resp.ok){ const text = await resp.text(); console.error('carregarHistoricoGestao não OK', resp.status, text); container.innerHTML='<div class=\"muted\">Erro ao carregar histórico (ver console).</div>'; return; }
+    const json = await resp.json();
+    const ocorrs = json.occurrences || json.data || [];
+    container.innerHTML = '';
+    if(!ocorrs || ocorrs.length===0){ container.innerHTML = '<div class=\"muted\">Nenhuma ocorrência encontrada.</div>'; return; }
+    ocorrs.slice().reverse().forEach(r=>{
+      const id = r.id || r.ID || r.Id || '';
+      const date = r.date || r.DATA || '';
+      const prof = r.professor || r.PROFESSOR || '';
+      const turma = r.studentClass || r.TURMA || '';
+      const aluno = r.student || r.ALUNO || '';
+      const irreg = r.irregularities || r.IRREGULARIDADES || '';
+      const desc = r.description || r.DESCRICAO || '';
+
+      const div = document.createElement('div'); div.className='historyItem';
+      const meta = document.createElement('div'); meta.className='meta';
+      meta.innerHTML = `<div><strong>${date}</strong> — <span class=\"muted\">${prof}</span></div>`;
+      const controls = document.createElement('div');
+      const pdfBtn = document.createElement('button'); pdfBtn.className='btn-success'; pdfBtn.style.fontSize='12px'; pdfBtn.textContent='Gerar PDF (template)'; pdfBtn.onclick = ()=>generatePdfFromBackend(id);
+      const delBtn = document.createElement('button'); delBtn.className='btn-danger'; delBtn.style.fontSize='12px'; delBtn.textContent='Excluir'; delBtn.onclick = ()=>deleteOccurrence(id);
+      controls.appendChild(pdfBtn); controls.appendChild(delBtn);
+      meta.appendChild(controls);
+
+      const ddesc = document.createElement('div'); ddesc.className='desc';
+      ddesc.innerHTML = `<strong>Aluno(s):</strong> ${aluno || 'N/A'}<br/><strong>Turma:</strong> ${turma || 'N/A'}<br/><strong>Irregularidades:</strong> ${irreg || 'N/A'}<br/><em>${desc || ''}</em>`;
+      const idLine = document.createElement('div'); idLine.style.marginTop='8px'; idLine.style.fontSize='12px'; idLine.style.opacity='0.9'; idLine.innerHTML = `ID: <span class="qnum">${id}</span>`;
+
+      div.appendChild(meta); div.appendChild(ddesc); div.appendChild(idLine);
+      container.appendChild(div);
+    });
+  }catch(err){ console.error('Erro carregarHistoricoGestao:', err); container.innerHTML = '<div class=\"muted\">Erro ao carregar histórico (ver console).</div>'; }
+}
+
+async function carregarHistoricoProfessor(){
+  const container = document.getElementById('historyListProfessor');
+  container.innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div class="loader"></div><div class="muted">Carregando histórico...</div></div>`;
+  try{
+    const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences`);
+    if(!resp.ok){ const text = await resp.text(); console.error('carregarHistoricoProfessor não OK', resp.status, text); container.innerHTML='<div class=\"muted\">Erro ao carregar histórico (ver console).</div>'; return; }
+    const json = await resp.json();
+    const ocorrs = json.occurrences || json.data || [];
+    container.innerHTML = '';
+    if(!ocorrs || ocorrs.length===0){ container.innerHTML = '<div class=\"muted\">Nenhuma ocorrência encontrada.</div>'; return; }
+    ocorrs.slice().reverse().forEach(r=>{
+      const date = r.date || r.DATA || '';
+      const prof = r.professor || r.PROFESSOR || '';
+      const turma = r.studentClass || r.TURMA || '';
+      const aluno = r.student || r.ALUNO || '';
+      const irreg = r.irregularities || r.IRREGULARIDADES || '';
+      const desc = r.description || r.DESCRICAO || '';
+
+      const div = document.createElement('div'); div.className='historyItem';
+      const meta = document.createElement('div'); meta.className='meta';
+      meta.innerHTML = `<div><strong>${date}</strong> — <span class=\"muted\">${prof}</span></div>`;
+      const ddesc = document.createElement('div'); ddesc.className='desc';
+      ddesc.innerHTML = `<strong>Aluno(s):</strong> ${aluno || 'N/A'}<br/><strong>Turma:</strong> ${turma || 'N/A'}<br/><strong>Irregularidades:</strong> ${irreg || 'N/A'}<br/><em>${desc || ''}</em>`;
+      div.appendChild(meta); div.appendChild(ddesc);
+      container.appendChild(div);
+    });
+  }catch(err){ console.error('Erro carregarHistoricoProfessor:', err); container.innerHTML = '<div class=\"muted\">Erro ao carregar histórico (ver console).</div>'; }
+}
+
+/*******************************
+ * delete / generate pdf (backend)
+ *******************************/
+async function deleteOccurrence(id){
+  if(!id){ alert('ID inválido para exclusão.'); return; }
+  if(!confirm('Confirmar exclusão (ID '+id+')?')) return;
+  try{
+    const resp = await fetch(`${SCRIPT_URL}?endpoint=delete-occurrence`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ occurrenceId: id, sheet: SHEET_PRO }) });
+    if(!resp.ok){ const t=await resp.text(); console.error('deleteOccurrence não OK',resp.status,t); alert('Erro ao excluir (ver console).'); return; }
+    const j = await resp.json();
+    if(j && j.status==='success'){ alert('Ocorrência excluída.'); carregarHistoricoGestao(); } else { alert('Erro ao excluir: ' + (j && j.message ? j.message : 'Resposta inesperada')); }
+  }catch(err){ console.error('Erro deleteOccurrence:', err); alert('Erro ao comunicar com o servidor (ver console).'); }
+}
+
+async function generatePdfFromBackend(occurrenceId){
+  if(!occurrenceId){ alert('ID inválido para gerar PDF.'); return; }
+  try{
+    const resp = await fetch(`${SCRIPT_URL}?endpoint=generate-pdf`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ occurrenceId, sheet: SHEET_PRO }) });
+    if(!resp.ok){ const t=await resp.text(); console.error('generatePdfFromBackend não OK',resp.status,t); alert('Erro ao pedir geração de PDF (ver console).'); return; }
+    const j = await resp.json();
+    if(j && j.status==='success' && j.pdfUrl){ window.open(j.pdfUrl, '_blank'); } else { alert('Servidor não retornou URL do PDF. Veja console.'); }
+  }catch(err){ console.error('Erro generatePdfFromBackend:', err); alert('Erro ao comunicar com o servidor (ver console).'); }
+}
+
+/*******************************
+ * fallback: gerar PDF local
+ *******************************/
+function generatePDFLocal(){
+  try{
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text('Registro de Ocorrência', 14, 20);
+    const aluno = document.getElementById('aluno_gestao').value || '';
+    const turma = document.getElementById('turma_gestao').value || '';
+    const prof = document.getElementById('professor_gestao').value || '';
+    const desc = document.getElementById('descricao_gestao').value || '';
+    let y = 36;
+    if(aluno){ doc.text(`Aluno: ${aluno}`, 14, y); y+=8 }
+    if(turma){ doc.text(`Turma: ${turma}`, 14, y); y+=8 }
+    if(prof){ doc.text(`Professor: ${prof}`, 14, y); y+=8 }
+    doc.text('Descrição:', 14, y); y+=8;
+    doc.text(doc.splitTextToSize(desc || 'Sem descrição', 180), 14, y);
+    doc.save(`ocorrencia_${Date.now()}.pdf`);
+  }catch(err){ console.error('Erro gerar PDF local:', err); alert('Erro ao gerar PDF local (ver console).'); }
+}
+
+/*******************************
+ * utilitários / fallbacks
+ *******************************/
+function _getClassRanges(){ return {
+  "6° ANO A MANHA":"C3:C46","6° ANO B MANHA":"H3:H46","6° ANO C MANHA":"M3:M46","6° ANO D MANHA":"R3:R46",
+  "6° ANO E TARDE":"W3:W46","6° ANO F TARDE":"AB3:AB46","7° ANO A TARDE":"AG3:AG46","7° ANO B TARDE":"AL3:AL46",
+  "7° ANO C TARDE":"AQ3:AQ46","7° ANO D TARDE":"AV3:AV46","7° ANO E TARDE":"BA3:BA46","7° ANO F TARDE":"BF3:BF46",
+  "8° ANO A TARDE":"BK3:BK46","8° ANO B TARDE":"BP3:BP46","8° ANO C TARDE":"BU3:BU46","8° ANO D TARDE":"BZ3:BZ46",
+  "9° ANO A TARDE":"CE3:CE46","9° ANO B TARDE":"CJ3:CJ46","9° ANO C TARDE":"CO3:CO46","9° ANO D TARDE":"CT3:CT46",
+  "1ª SERIE A MANHA":"CY3:CY46","1ª SERIE B MANHA":"DD3:DD46","1ª SERIE C MANHA":"DI3:DI46","1ª SERIE D MANHA":"DN3:DN46",
+  "1ª SERIE E MANHA":"DS3:DS46","1ª SERIE F MANHA":"DX3:DX46","1ª SERIE G TARDE":"EC3:EC46","1ª SERIE H NOITE":"EH3:EH46",
+  "1ª SERIE I NOITE":"EM3:EM46","2ª SERIE A MANHA":"ER3:ER46","2ª SERIE B MANHA":"EW3:EW46","2ª SERIE C MANHA":"FB3:FB46",
+  "2ª SERIE D MANHA":"FG3:FG46","2ª SERIE E MANHA":"FL3:FL46","2ª SERIE F NOITE":"FQ3:FQ46","2ª SERIE G NOITE":"FV3:FV46",
+  "2ª SERIE H NOITE":"GA3:GA46","3ª SERIE A MANHA":"GK3:GK46","3ª SERIE B MANHA":"GP3:GP46","3ª SERIE C MANHA":"GU3:GU46",
+  "3ª SERIE D NOITE":"GZ3:GZ46","3ª SERIE E NOITE":"HE3:HE46","3ª SERIE F NOITE":"HJ3:HJ46"
+};}
+
+function getFallbackProfessores(){ return [
+  "ALEX LUTH PEREIRA MARANHAO","ALEXSANDRA PAULA VARELLA DE SOUZA","ALISON VASCONCELOS BESERRA","AMAURI TEODORO DE OLIVEIRA",
+  "ANA PAULA DOS SANTOS","ANDREIA DOS SANTOS FREITAS","ANDREIA MADUREIRA REIS","ANTONIO CARLOS DE OLIVEIRA",
+  "ANTONIO RAMOS DE ARAUJO","ANTONIO WILTON WANDERLEY CABRAL","AUGUSTO LINO PESSOA NETO","AUREA MARIA DE JESUS MARQUES",
+  "CAROLINA PERNOMIAN PARUSSOLOLO","CASSIA OLIVEIRA ANTONIAZI","CLAUDINEIA DE AGUIAR LIMA","DANIEL DE FREITAS ALMEIDA",
+  "DANIEL LOPES BARBOSA","DANIELA FERREIRA LIMA","DANIELLE LUCIA BATISTA DE ALMEIDA","EDIANE VIEIRA DA SILVA",
+  "EDILEUSA NUNES PEREIRA","EDUARDO HENRIQUE DA FONSECA","ELIANE SANTOS SILVA","ELIAS MONTEIRO DA SILVA",
+  "ELISABETE APARECIDA PIRES","ELZA DE FARIA PEREIRA","EMERSON GABLER DE ALMEIDA","EUZELI ARAUJO DE OLIVEIRA",
+  "FABIANO AUGUSTO PIEDADE","FABIO CAMILO","FERNANDO JOSE DA SILVA FILHO","FLAVIA CRISTINA APARECIDA BICHLER",
+  "FLAVIO CARDOSO FLEURY","FRANCISCA EDIVANIA DE MORAIS COSTA","GABRIELA SERIGHELLI DE MELO","GELSON DE ALMEIDA BATISTA",
+  "GENILTON DE OLIVEIRA SILVA","GIANI CRISTINA DO PRADO","INGRYD CAROLINA SUGUIMOTO VIEIRA","IVANILDES DOS SANTOS OSHIKAWA",
+  "JANINA DOS PASSOS BRAGA DE ALMEIDA","JOSE APARECIDO DA SILVA","JUAREZ GOMES DE MAGALHAES FILHO","JUREMA SOLEDADE FURINI SANTOS",
+  "KATIUSCIA ALVES BOMFIM","LUANA CAROLINE ALVES LIMA","LUANA DE FREITAS SILVA","LUCIANA NOVAIS CORREIA SANTOS",
+  "LUCIANO MOREIRA DE AZEVEDO","MARCIEL DA SILVA","MARIA HELENA CUNHA MORO","MARIA QUITÉRIA FERREIRA DOS SANTOS",
+  "MARINA DA CONCEICAO FRANCISCO SILVA","MAURICIO DE BARROS SANTOS","MICHELE DE PINHO MORAES","MOISES ANTONIO DE BARROS",
+  "PAULA ARMANI VILA","PAULO ROBERTO DA SILVA ITO","PEDRO ZANOTTI FILHO","RAUL PEREIRA VILERA JUNIOR",
+  "REGIANE CURTI DE SOUZA OLIVEIRA","REGINA DA SILSA CASTRO","RICARDO AMERICO DA SILVA","ROBERTO SALGADO",
+  "RODRIGO VIEIRA","ROSANGELA CAFASSO MOREIRA","ROSIMERY DE SOUZA PESSOA","ROSMARA DA SILSA CARDOSO",
+  "SANDRA CRISTINA MACEDO MORAES","SELMA GOMES DA SILSA","SERGIO AGRIPINO VILLA NOVA","SOLANGE ALMEIDA DA SILSA",
+  "SUZINEIDE SILSA DE FREITAS","THIAGO FABIANO BRITO","TITTO AUGUSTO NASCIMENTO SILSA","VANDERSON HYPPOLITO",
+  "VANESSA IVETE GOMES DOS SANTOS","VANIA PENHA DE BARROS","VIVIANE LEAL CAMERA DE MORAES","WILSON RODRIGUES MOTA"
+];}
+</script>
+</body>
+</html>
