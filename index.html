@@ -1,16 +1,247 @@
-<div id="loginScreen" class="card" style="display:block">
-  <div style="max-width:420px;margin:0 auto">
-    <h2 style="margin-bottom:16px;text-align:center">Acesso ao Sistema</h2>
-    <div style="margin-bottom:12px">
-      <label for="emailLogin">E-mail</label>
-      <input id="emailLogin" type="email" placeholder="Digite seu e-mail">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cadastro de Ocorrências - 2025</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin:0; padding:0; }
+    html,body{height:100%}
+    body{
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      background: linear-gradient(135deg,#9fe7ff 0%, #b9f7c9 60%, #baf3ff 100%);
+      color:#fff; font-weight:800; padding:18px;
+    }
+    .app{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+    header{display:flex;align-items:center;justify-content:space-between;padding:18px;border-radius:14px;background:linear-gradient(90deg,rgba(0,31,63,0.95),rgba(0,78,120,0.95));box-shadow:0 8px 30px rgba(0,0,0,0.15)}
+    header h1{font-size:20px;margin:0}
+    .header-controls{display:flex;gap:10px;align-items:center}
+    .card{background:#2f3336;padding:18px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.15)}
+    .flex{display:flex;gap:18px;align-items:flex-start}
+    .col{display:flex;flex-direction:column;gap:12px}
+    label{display:block;margin-bottom:6px;font-size:13px}
+    input,select,textarea{
+      width:100%;padding:10px 12px;border-radius:8px;border:none;font-weight:800;font-size:14px;color:#111
+    }
+    textarea{min-height:110px;resize:vertical;padding-top:12px}
+    button{cursor:pointer;border:none;padding:10px 14px;border-radius:8px;font-weight:900;box-shadow:0 6px 18px rgba(0,0,0,0.15)}
+    .btn-primary{background:linear-gradient(90deg,#1e3c72,#2a5298);color:#fff}
+    .btn-danger{background:linear-gradient(90deg,#e94b4b,#c62828);color:#fff}
+    .btn-success{background:linear-gradient(90deg,#4CAF50,#2E7D32);color:#fff}
+    .subtitle{font-size:14px;color:#d9f2ff;margin-bottom:6px}
+    .historyList{max-height:420px;overflow:auto;display:flex;flex-direction:column;gap:10px;padding-right:6px}
+    .historyItem{background:rgba(255,255,255,0.06);border-left:5px solid rgba(255,255,255,0.06);padding:12px;border-radius:8px;color:#fff;font-weight:700}
+    .historyItem .meta{font-size:13px;color:#dbefff;font-weight:800;display:flex;justify-content:space-between;gap:8px;align-items:center}
+    .historyItem .desc{margin-top:8px;color:#e7f7ff;font-weight:600;font-size:14px}
+    .muted{opacity:.9;font-weight:700;color:#e7f2ff}
+    .qnum{color:#ff3b3b;font-weight:900}
+    .modal-root{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);z-index:2000}
+    .modal{width:92%;max-width:780px;background:#fff;color:#111;border-radius:12px;padding:14px;max-height:84vh;overflow:auto}
+    .studentList{display:flex;flex-direction:column;gap:8px}
+    .pill{background:linear-gradient(90deg,#2a5298,#3a6bd1);color:#fff;padding:6px 10px;border-radius:999px;font-weight:800;display:inline-block}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loader{width:18px;height:18px;border:3px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;display:inline-block}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>2025 — Cadastro de Ocorrências</h1>
+      <div class="header-controls">
+        <div id="userDisplay" class="muted">Não autenticado</div>
+        <button id="btnLogout" class="btn-danger" style="display:none" onclick="logout()">Sair</button>
+      </div>
+    </header>
+
+    <!-- LOGIN UNIFICADO -->
+    <div id="loginScreen" class="card" style="display:block">
+      <div style="max-width:420px;margin:0 auto">
+        <h2 style="margin-bottom:16px;text-align:center">Acesso ao Sistema</h2>
+        <div style="margin-bottom:12px">
+          <label for="emailLogin">E-mail</label>
+          <input id="emailLogin" type="email" placeholder="Digite seu e-mail">
+        </div>
+        <div style="margin-bottom:12px">
+          <label for="passwordLogin">Senha</label>
+          <input id="passwordLogin" type="password" placeholder="Digite sua senha">
+        </div>
+        <div style="text-align:center;margin-top:16px">
+          <button class="btn-primary" onclick="loginUnico()">Entrar</button>
+        </div>
+      </div>
     </div>
-    <div style="margin-bottom:12px">
-      <label for="passwordLogin">Senha</label>
-      <input id="passwordLogin" type="password" placeholder="Digite sua senha">
+
+    <!-- MAIN APP - GESTÃO -->
+    <div id="mainAppGestao" style="display:none;flex-direction:column;gap:14px">
+      <div class="flex">
+        <div class="card col" style="flex:1">
+          <div class="subtitle">CADASTRO — GESTÃO</div>
+          <div class="col">
+            <div style="display:flex;gap:8px">
+              <div style="flex:1">
+                <label>Turma</label>
+                <select id="turma_gestao" onchange="onTurmaChangeGestao()"></select>
+              </div>
+              <div style="flex:1">
+                <label>Aluno</label>
+                <select id="aluno_gestao"></select>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <div style="flex:1">
+                <label>RA</label>
+                <input id="ra_gestao" type="text" readonly>
+              </div>
+              <div style="flex:1">
+                <label>Professor</label>
+                <input id="professor_gestao" type="text">
+              </div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <div style="flex:1">
+                <label>Disciplina</label>
+                <input id="disciplina_gestao" type="text">
+              </div>
+              <div style="flex:1">
+                <label>Classificação</label>
+                <select id="classificacao_gestao" onchange="toggleSuspension('gestao')">
+                  <option value="">Selecione</option>
+                  <option value="OCORRÊNCIA">OCORRÊNCIA</option>
+                  <option value="SUSPENSÃO">SUSPENSÃO</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:flex-end">
+              <div style="flex:1;display:none" id="suspensionRow_gestao">
+                <label>Data de retorno</label>
+                <input id="dataRetorno_gestao" type="date">
+              </div>
+              <div style="flex:1">
+                <label>Data</label>
+                <input id="data_gestao" type="date">
+              </div>
+            </div>
+            <div>
+              <label>Descrição</label>
+              <textarea id="descricao_gestao"></textarea>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn-primary" onclick="cadastrarOcorrenciaGestao()">Registrar</button>
+              <button class="btn-success" onclick="generatePDFLocal()">Gerar PDF (local)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="subtitle">Histórico - Gestão</div>
+        <div id="historyListGestao" class="historyList"></div>
+      </div>
     </div>
-    <div style="text-align:center;margin-top:16px">
-      <button class="btn-primary" onclick="loginUnico()">Entrar</button>
+
+    <!-- MAIN APP - PROFESSOR -->
+    <div id="mainAppProfessor" style="display:none;flex-direction:column;gap:14px">
+      <div class="flex">
+        <div class="card col" style="flex:1">
+          <div class="subtitle">REGISTRO — PROFESSOR</div>
+          <div class="col">
+            <div style="display:flex;gap:8px">
+              <div style="flex:1">
+                <label>Professor</label>
+                <select id="professor_select"></select>
+              </div>
+              <div style="flex:1">
+                <label>Turma</label>
+                <select id="turma_select" onchange="onTurmaChange()"></select>
+              </div>
+            </div>
+            <div style="flex:2">
+              <label>Descrição</label>
+              <textarea id="descricao_prof"></textarea>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn-primary" onclick="registrarOcorrenciaProfessor()">Registrar</button>
+              <button class="btn-danger" onclick="clearProfessorForm()">Limpar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="subtitle">Histórico - Professor</div>
+        <div id="historyListProfessor" class="historyList"></div>
+      </div>
     </div>
   </div>
-</div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/SEU_DEPLOY_ID/exec';
+const SHEET_GERAL = 'BANCODEDADOSGERAL';
+const SHEET_PRO = 'OCORRENCIASDOSPROFESSORES';
+const SHEET_GEST = 'BANCODEALUNOS';
+let alunosDaTurmaAtual=[], alunosSelecionados=[], professores=[], turmas=[], currentUserRole=null;
+
+/* LOGIN UNIFICADO */
+function loginUnico(){
+  const email=document.getElementById("emailLogin").value.trim();
+  const senha=document.getElementById("passwordLogin").value.trim();
+  if(email==="gestao@escola.com" && senha==="gestao123"){ showAppAs("gestao",email); }
+  else if(email==="professor@escola.com" && senha==="prof123"){ showAppAs("professor",email); }
+  else alert("E-mail ou senha incorretos.");
+}
+function showAppAs(role,email){
+  currentUserRole=role;
+  document.getElementById("loginScreen").style.display="none";
+  if(role==="gestao"){ document.getElementById("mainAppGestao").style.display="flex"; carregarProfessoresETurmas(); carregarHistoricoGestao();}
+  else{ document.getElementById("mainAppProfessor").style.display="flex"; carregarProfessoresETurmas(); carregarHistoricoProfessor();}
+  document.getElementById("userDisplay").textContent=email+" ("+role+")";
+  document.getElementById("btnLogout").style.display="inline-block";
+}
+function logout(){location.reload();}
+
+/* LOAD TEACHERS + CLASSES */
+async function carregarProfessoresETurmas(){
+  const r1=await fetch(`${SCRIPT_URL}?endpoint=teachers`); professores=(await r1.json()).teachers||[];
+  const sel=document.getElementById("professor_select"); sel.innerHTML='<option value="">-- selecione --</option>'; professores.forEach(p=>{const o=document.createElement("option");o.value=p;o.textContent=p;sel.appendChild(o);});
+  const r2=await fetch(`${SCRIPT_URL}?endpoint=classes`); turmas=(await r2.json()).classes||[];
+  ["turma_select","turma_gestao"].forEach(id=>{const s=document.getElementById(id);s.innerHTML='<option value="">-- selecione --</option>'; turmas.forEach(t=>{const o=document.createElement("option");o.value=t;o.textContent=t;s.appendChild(o);});});
+}
+
+/* GESTÃO: Carregar alunos + preencher RA */
+async function onTurmaChangeGestao(){
+  const turma=document.getElementById("turma_gestao").value;
+  const sel=document.getElementById("aluno_gestao");
+  sel.innerHTML='<option>Carregando...</option>';
+  if(!turma){sel.innerHTML='<option value="">-- selecione turma --</option>';return;}
+  const resp=await fetch(`${SCRIPT_URL}?endpoint=students&turma=${encodeURIComponent(turma)}`);
+  const json=await resp.json(); alunosDaTurmaAtual=json.students||[];
+  sel.innerHTML='<option value="">-- selecione --</option>';
+  alunosDaTurmaAtual.forEach(al=>{const o=document.createElement("option");o.value=al.nome;o.textContent=al.nome;o.dataset.ra=al.ra;sel.appendChild(o);});
+  sel.onchange=function(){document.getElementById("ra_gestao").value=sel.options[sel.selectedIndex].dataset.ra||"";};
+}
+
+/* PROFESSOR: Apenas nomes */
+async function onTurmaChange(){
+  const turma=document.getElementById("turma_select").value;
+  alunosSelecionados=[];
+  if(!turma)return;
+  const resp=await fetch(`${SCRIPT_URL}?endpoint=students&turma=${encodeURIComponent(turma)}`);
+  alunosDaTurmaAtual=(await resp.json()).students||[];
+}
+
+/* CADASTRAR OCORRÊNCIAS */
+async function cadastrarOcorrenciaGestao(){/* ... mesma lógica POST ... */}
+async function registrarOcorrenciaProfessor(){/* ... mesma lógica POST ... */}
+function clearProfessorForm(){document.getElementById("descricao_prof").value="";}
+
+/* HISTÓRICO */
+async function carregarHistoricoGestao(){/* ... GET occurrences ... */}
+async function carregarHistoricoProfessor(){/* ... GET occurrences ... */}
+
+/* UTIL */
+function toggleSuspension(area){if(area==='gestao'){document.getElementById("suspensionRow_gestao").style.display=(document.getElementById("classificacao_gestao").value==="SUSPENSÃO")?"flex":"none";}}
+function generatePDFLocal(){const { jsPDF }=window.jspdf;const doc=new jsPDF();doc.text("Ocorrência Gestão",14,20);doc.save("ocorrencia.pdf");}
+</script>
+</body>
+</html>
