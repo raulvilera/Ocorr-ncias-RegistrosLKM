@@ -43,11 +43,7 @@
     .pill{background:linear-gradient(90deg,#2a5298,#3a6bd1);color:#fff;padding:6px 10px;border-radius:999px;font-weight:800;display:inline-block}
     .muted{opacity:.9;font-weight:700;color:#e7f2ff}
     .qnum{color:#ff3b3b;font-weight:900}
-    .login-options {display: flex; gap: 12px; margin-bottom: 18px;}
-    .login-option {flex: 1; text-align: center; padding: 12px; border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.1);}
-    .login-option.active {background: linear-gradient(90deg, rgba(0,78,120,0.8), rgba(0,120,120,0.8));}
-    .access-area {display: none;}
-    @media(max-width:980px){.flex{flex-direction:column}header{flex-direction:column;gap:8px;align-items:flex-start} .login-options {flex-direction: column;}}
+    @media(max-width:980px){.flex{flex-direction:column}header{flex-direction:column;gap:8px;align-items:flex-start}}
     @keyframes spin{to{transform:rotate(360deg)}}
     .loader{width:18px;height:18px;border:3px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;display:inline-block}
     .small { font-weight:700; font-size:12px; opacity:0.95; }
@@ -63,46 +59,21 @@
       </div>
     </header>
 
-    <!-- LOGIN -->
+    <!-- LOGIN UNIFICADO -->
     <div id="loginScreen" class="card" style="display:block">
-      <div style="max-width:480px;margin:0 auto">
-        <div class="subtitle">Selecione o tipo de acesso</div>
+      <div style="max-width:420px;margin:0 auto">
+        <div class="subtitle">Login</div>
 
-        <div class="login-options">
-          <div class="login-option active" id="optionGestao" onclick="selectLoginOption('gestao')">Acesso Gestão</div>
-          <div class="login-option" id="optionProfessor" onclick="selectLoginOption('professor')">Acesso Professor</div>
+        <div style="margin-bottom:8px">
+          <label for="inputEmail">E-mail</label>
+          <input id="inputEmail" type="email" placeholder="">
         </div>
-
-        <div id="loginFormGestao" class="access-area">
-          <div style="margin-bottom:8px">
-            <label for="emailGestao">E-mail Gestão</label>
-            <input id="emailGestao" type="email" placeholder="gestao@escola.com">
-          </div>
-          <div style="margin-bottom:8px">
-            <label for="passwordGestao">Senha</label>
-            <input id="passwordGestao" type="password" placeholder="senha">
-          </div>
-          <div style="display:flex;gap:8px">
-            <button class="btn-primary" onclick="login('gestao')">Entrar como Gestão</button>
-            <button class="btn-danger" onclick="fillDemo('gestao')">Demo Gestão</button>
-          </div>
-          <p class="muted small" style="margin-top:10px">Use <strong>gestao@escola.com / gestao123</strong></p>
+        <div style="margin-bottom:8px">
+          <label for="inputPassword">Senha</label>
+          <input id="inputPassword" type="password" placeholder="">
         </div>
-
-        <div id="loginFormProfessor" class="access-area">
-          <div style="margin-bottom:8px">
-            <label for="emailProfessor">E-mail Professor</label>
-            <input id="emailProfessor" type="email" placeholder="professor@escola.com">
-          </div>
-          <div style="margin-bottom:8px">
-            <label for="passwordProfessor">Senha</label>
-            <input id="passwordProfessor" type="password" placeholder="senha">
-          </div>
-          <div style="display:flex;gap:8px">
-            <button class="btn-primary" onclick="login('professor')">Entrar como Professor</button>
-            <button class="btn-danger" onclick="fillDemo('professor')">Demo Professor</button>
-          </div>
-          <p class="muted small" style="margin-top:10px">Use <strong>professor@escola.com / prof123</strong></p>
+        <div style="display:flex;gap:8px">
+          <button class="btn-primary" onclick="handleLogin()">Entrar</button>
         </div>
       </div>
     </div>
@@ -124,7 +95,7 @@
               </div>
               <div style="flex:1">
                 <label>Aluno</label>
-                <select id="aluno_gestao">
+                <select id="aluno_gestao" onchange="onAlunoSelectGestao()">
                   <option value="">-- selecione turma --</option>
                 </select>
               </div>
@@ -286,19 +257,17 @@
 
 <script>
 /*******************************
- * CONFIGURAÇÃO: substitua pelo URL do seu Web App (Apps Script)
+ * CONFIGURAÇÃO: URL do seu Web App (Apps Script)
  *******************************/
-// Use o URL do deployment (Deploy > New deployment > Web app) - exemplo funcional que você mencionou:
-// const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec';
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxoLAhDMn_ZlxAXGk941cohy_z2IZQKIsqUAi7k0S2dDoUc53VNLVw-33Mlzy6Ep682/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyepY4Hw-ABC-akVr0UPoTkyVluUqBc_vWrwdnGxqv3R3P_h5aKsKYbRtCP1Jveep9G/exec';
 
-/* Planilhas/abas */
+/* Planilhas/abas (usadas apenas para enviar no payload) */
 const SHEET_GERAL = 'BANCODEDADOSGERAL';
 const SHEET_PRO = 'OCORRENCIASDOSPROFESSORES';
 const SHEET_GEST = 'BANCODEALUNOS';
 
 /* estado */
-let alunosDaTurmaAtual = [];
+let alunosDaTurmaAtual = []; // itens: { nome, ra }  (fallback pode ser strings)
 let alunosSelecionados = [];
 let professores = [];
 let turmas = [];
@@ -308,37 +277,52 @@ let currentUserRole = null;
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('data_prof').value = new Date().toISOString().split('T')[0];
   document.getElementById('data_gestao').value = new Date().toISOString().split('T')[0];
-  selectLoginOption('gestao');
+  // mostrar login
+  document.getElementById('loginScreen').style.display = 'block';
 });
 
-/* UI: login switch */
-function selectLoginOption(role){
-  document.querySelectorAll('.login-option').forEach(opt => opt.classList.remove('active'));
-  document.getElementById(`option${role.charAt(0).toUpperCase()+role.slice(1)}`).classList.add('active');
-  document.querySelectorAll('.access-area').forEach(a=>a.style.display='none');
-  document.getElementById(`loginForm${role.charAt(0).toUpperCase()+role.slice(1)}`).style.display='block';
+/* ---------------------------
+   LOGIN UNIFICADO
+   - Um único campo email + senha
+   - Redireciona para 'gestao' ou 'professor' conforme credenciais
+   - Troque a verificação abaixo para integrar com seu backend/autenticação real
+   --------------------------- */
+function handleLogin(){
+  const email = document.getElementById('inputEmail').value.trim();
+  const pass = document.getElementById('inputPassword').value.trim();
+  if(!email || !pass){ alert('Informe e-mail e senha.'); return; }
+
+  // ATENÇÃO: credenciais hardcoded para demo local; trocar por verificação real se desejar.
+  if(email.toLowerCase() === 'gestao@escola.com' && pass === 'gestao123'){
+    showAppAs('gestao', email);
+    return;
+  }
+  if(email.toLowerCase() === 'professor@escola.com' && pass === 'prof123'){
+    showAppAs('professor', email);
+    return;
+  }
+
+  alert('E-mail ou senha incorretos.');
 }
 
-/* login demo */
-function login(role){
-  let email = role==='gestao' ? document.getElementById('emailGestao').value.trim() : document.getElementById('emailProfessor').value.trim();
-  let pass  = role==='gestao' ? document.getElementById('passwordGestao').value.trim() : document.getElementById('passwordProfessor').value.trim();
-  if(role==='gestao' && email==='gestao@escola.com' && pass==='gestao123'){ showAppAs(role,email); }
-  else if(role==='professor' && email==='professor@escola.com' && pass==='prof123'){ showAppAs(role,email); }
-  else alert('E-mail ou senha incorretos.');
-}
-function fillDemo(role){
-  if(role==='gestao'){ document.getElementById('emailGestao').value='gestao@escola.com'; document.getElementById('passwordGestao').value='gestao123'; }
-  else { document.getElementById('emailProfessor').value='professor@escola.com'; document.getElementById('passwordProfessor').value='prof123'; }
-}
 function showAppAs(role,email){
   currentUserRole = role;
-  document.getElementById('loginScreen').style.display='none';
-  if(role==='gestao'){ document.getElementById('mainAppGestao').style.display='flex'; document.getElementById('mainAppProfessor').style.display='none'; carregarProfessoresETurmas(); carregarHistoricoGestao(); }
-  else { document.getElementById('mainAppGestao').style.display='none'; document.getElementById('mainAppProfessor').style.display='flex'; carregarProfessoresETurmas(); carregarHistoricoProfessor(); }
+  document.getElementById('loginScreen').style.display = 'none';
+  if(role==='gestao'){
+    document.getElementById('mainAppGestao').style.display = 'flex';
+    document.getElementById('mainAppProfessor').style.display = 'none';
+    carregarProfessoresETurmas();
+    carregarHistoricoGestao();
+  } else {
+    document.getElementById('mainAppGestao').style.display = 'none';
+    document.getElementById('mainAppProfessor').style.display = 'flex';
+    carregarProfessoresETurmas();
+    carregarHistoricoProfessor();
+  }
   document.getElementById('userDisplay').textContent = email + (role==='gestao'?' (Gestão)':' (Professor)');
-  document.getElementById('btnLogout').style.display='inline-block';
+  document.getElementById('btnLogout').style.display = 'inline-block';
 }
+
 function logout(){
   currentUserRole=null;
   document.getElementById('loginScreen').style.display='block';
@@ -347,6 +331,8 @@ function logout(){
   document.getElementById('userDisplay').textContent='Não autenticado';
   document.getElementById('btnLogout').style.display='none';
   alunosDaTurmaAtual=[]; alunosSelecionados=[]; document.getElementById('selectedPills').innerHTML='';
+  // limpar campos
+  document.getElementById('inputEmail').value=''; document.getElementById('inputPassword').value='';
 }
 
 /*******************************
@@ -360,9 +346,12 @@ async function carregarProfessoresETurmas(){
     const j1 = await r1.json();
     professores = (j1 && j1.status==='success' && Array.isArray(j1.teachers)) ? j1.teachers : getFallbackProfessores();
 
-    // populate professor select (professor area)
+    // popular select de professores
     const profSel = document.getElementById('professor_select');
-    if(profSel){ profSel.innerHTML = '<option value=\"\">-- selecione --</option>'; professores.forEach(p=>{const o=document.createElement('option'); o.value=p; o.textContent=p; profSel.appendChild(o);}); }
+    if(profSel){
+      profSel.innerHTML = '<option value=\"\">-- selecione --</option>';
+      professores.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; profSel.appendChild(o); });
+    }
 
     // classes
     const r2 = await fetch(`${SCRIPT_URL}?endpoint=classes&sheet=${encodeURIComponent(SHEET_GERAL)}`);
@@ -370,7 +359,7 @@ async function carregarProfessoresETurmas(){
     const j2 = await r2.json();
     turmas = (j2 && j2.status==='success' && Array.isArray(j2.classes)) ? j2.classes : Object.keys(_getClassRanges());
 
-    // populate turma selects (both)
+    // popular selects de turmas
     ['turma_select','turma_gestao'].forEach(id=>{
       const sel = document.getElementById(id);
       if(!sel) return;
@@ -380,10 +369,13 @@ async function carregarProfessoresETurmas(){
 
   }catch(err){
     console.error('Erro carregarProfessoresETurmas:', err);
-    // fallback
+    // fallback local
     professores = getFallbackProfessores();
     const profSel = document.getElementById('professor_select');
-    if(profSel){ profSel.innerHTML = '<option value=\"\">-- selecione --</option>'; professores.forEach(p=>{const o=document.createElement('option'); o.value=p; o.textContent=p; profSel.appendChild(o);}); }
+    if(profSel){
+      profSel.innerHTML = '<option value=\"\">-- selecione --</option>';
+      professores.forEach(p => { const o=document.createElement('option'); o.value = p; o.textContent = p; profSel.appendChild(o); });
+    }
     turmas = Object.keys(_getClassRanges());
     ['turma_select','turma_gestao'].forEach(id=>{
       const sel = document.getElementById(id);
@@ -396,23 +388,59 @@ async function carregarProfessoresETurmas(){
 
 /*******************************
  * GET students by class
+ * Expect backend to return either:
+ *  - array of strings ['Nome A','Nome B']
+ *  - or array of objects [{nome:'Nome A', ra:'123'}, ...]
+ * We normalize to [{nome, ra}]
  *******************************/
 async function carregarAlunosPorTurma(turma){
+  alunosDaTurmaAtual = [];
+  if(!turma) return;
   try{
     const resp = await fetch(`${SCRIPT_URL}?endpoint=students&sheet=${encodeURIComponent(SHEET_GERAL)}&turma=${encodeURIComponent(turma)}`);
     if(!resp.ok){
       const body = await resp.text();
       console.warn('carregarAlunosPorTurma não OK:', resp.status, body);
-      alunosDaTurmaAtual = [];
+      // fallback para ranges locais
+      preencherAlunosDoRangeLocal(turma);
       return;
     }
     const json = await resp.json();
-    alunosDaTurmaAtual = json.students || json.studentsList || [];
-    if(!Array.isArray(alunosDaTurmaAtual)) alunosDaTurmaAtual = [];
+    let raw = json.students || json.studentsList || json.data || [];
+    if(!Array.isArray(raw)) raw = [];
+
+    // normalize
+    alunosDaTurmaAtual = raw.map(item => {
+      if(typeof item === 'string') return { nome: item, ra: '' };
+      if(item && item.nome) return { nome: item.nome, ra: item.ra || '' };
+      // if backend returns array of arrays or rows, try to map first column as nome, second as ra
+      if(Array.isArray(item)) return { nome: item[0] || '', ra: item[1] || '' };
+      return null;
+    }).filter(x => x && String(x.nome).trim() !== '');
+
   }catch(err){
     console.error('Erro carregarAlunosPorTurma:', err);
-    alunosDaTurmaAtual = [];
+    preencherAlunosDoRangeLocal(turma);
   }
+}
+
+/* Fallback: ler do mapa local _getClassRanges e extrair nomes/ras das ranges definidas (usar quando backend não responde) */
+function preencherAlunosDoRangeLocal(turma){
+  alunosDaTurmaAtual = [];
+  try {
+    const ranges = _getClassRanges();
+    if(!ranges[turma]) return;
+    // ranges[turma] pode ter { nameRange, raRange } ou string
+    const r = ranges[turma];
+    if(typeof r === 'string'){
+      // apenas nomes (intervalo string). Não conseguimos ler planilha do frontend; deixamos vazio.
+      alunosDaTurmaAtual = [];
+    } else {
+      // se o backend não responde, ainda não conseguimos ler spreadsheet do client — portanto apenas colocamos nomes vazios.
+      // Ideal: backend deve retornar students; este fallback serve apenas para evitar que o cliente quebre.
+      alunosDaTurmaAtual = [];
+    }
+  } catch(e){ alunosDaTurmaAtual = []; }
 }
 
 /* professor area: quando turma muda */
@@ -428,11 +456,23 @@ async function onTurmaChangeGestao(){
   const turma = document.getElementById('turma_gestao').value;
   const sel = document.getElementById('aluno_gestao');
   sel.innerHTML = '<option>Carregando...</option>';
-  if(!turma){ alunosDaTurmaAtual=[]; sel.innerHTML='<option value=\"\">-- selecione turma --</option>'; return; }
+  if(!turma){ alunosDaTurmaAtual=[]; sel.innerHTML='<option value=\"\">-- selecione turma --</option>'; document.getElementById('ra_gestao').value=''; return; }
   await carregarAlunosPorTurma(turma);
   sel.innerHTML = '<option value=\"\">-- selecione --</option>';
-  alunosDaTurmaAtual.forEach(nome => { const o=document.createElement('option'); o.value=nome; o.textContent=nome; sel.appendChild(o); });
+  alunosDaTurmaAtual.forEach(item => {
+    const nome = (typeof item === 'object') ? item.nome : String(item);
+    const o = document.createElement('option'); o.value = nome; o.textContent = nome;
+    sel.appendChild(o);
+  });
   document.getElementById('ra_gestao').value = '';
+}
+
+/* quando selecionar aluno (gestão) preencher RA se disponível */
+function onAlunoSelectGestao(){
+  const nome = document.getElementById('aluno_gestao').value;
+  const match = alunosDaTurmaAtual.find(it => (typeof it === 'object' ? it.nome : String(it)) === nome);
+  if(match && match.ra) document.getElementById('ra_gestao').value = match.ra;
+  else document.getElementById('ra_gestao').value = '';
 }
 
 /*******************************
@@ -440,11 +480,12 @@ async function onTurmaChangeGestao(){
  *******************************/
 function renderStudentList(list){
   const container = document.getElementById('studentList'); container.innerHTML='';
-  list.forEach(nome => {
+  list.forEach(item => {
+    const nome = (typeof item === 'object') ? item.nome : String(item);
     const row = document.createElement('div'); row.style.display='flex';row.style.justifyContent='space-between';row.style.alignItems='center';row.style.padding='8px';row.style.borderBottom='1px solid #eee';
     const lbl = document.createElement('div'); lbl.textContent = nome;
     const cb = document.createElement('input'); cb.type='checkbox'; cb.value = nome; cb.checked = alunosSelecionados.includes(nome);
-    cb.onchange = (e) => { if(e.target.checked){ if(!alunosSelecionados.includes(nome)) alunosSelecionados.push(nome); } else alumnosSelecionados = alunosSelecionados.filter(x=>x!==nome); };
+    cb.onchange = (e) => { if(e.target.checked){ if(!alunosSelecionados.includes(nome)) alunosSelecionados.push(nome); } else alunosSelecionados = alunosSelecionados.filter(x=>x!==nome); };
     row.appendChild(lbl); row.appendChild(cb); container.appendChild(row);
   });
 }
@@ -455,7 +496,7 @@ function openStudentsModal(){
   document.getElementById('studentSearch').value='';
 }
 function closeStudentsModal(){ document.getElementById('modalRoot').style.display='none'; }
-function filterStudentList(){ const q=document.getElementById('studentSearch').value.toLowerCase(); renderStudentList(alunosDaTurmaAtual.filter(s=>s.toLowerCase().includes(q))); }
+function filterStudentList(){ const q=document.getElementById('studentSearch').value.toLowerCase(); renderStudentList(alunosDaTurmaAtual.filter(s=> ( (typeof s==='object'?s.nome:s).toLowerCase().includes(q) ))); }
 function confirmStudents(){ document.getElementById('alunos_selected_input').value = alunosSelecionados.join(', '); const pills=document.getElementById('selectedPills'); pills.innerHTML=''; alunosSelecionados.forEach(a=>{const el=document.createElement('div');el.className='pill';el.textContent=a;pills.appendChild(el);}); closeStudentsModal(); }
 
 /*******************************
@@ -530,7 +571,7 @@ async function registrarOcorrenciaProfessor(){
   const dataOc = document.getElementById('data_prof').value;
   const descricao = document.getElementById('descricao_prof').value.trim();
   if(!professor || !turma || !dataOc || alunosSelecionados.length === 0){ alert('Preencha todos os campos obrigatórios e selecione ao menos um aluno.'); return; }
-  const irregs = Array.from(document.querySelectorAll('input[name=\"irreg\"]:checked')).map(x=>x.value);
+  const irregs = Array.from(document.querySelectorAll('input[name="irreg"]:checked')).map(x=>x.value);
 
   const payload = {
     sheet: SHEET_PRO,
@@ -569,7 +610,7 @@ async function registrarOcorrenciaProfessor(){
   }
 }
 function clearProfessorForm(){
-  document.getElementById('professor_select').value=''; document.getElementById('turma_select').value=''; document.getElementById('alunos_selected_input').value=''; document.getElementById('selectedPills').innerHTML=''; document.getElementById('descricao_prof').value=''; alunosSelecionados=[]; Array.from(document.querySelectorAll('input[name=\"irreg\"]')).forEach(cb=>cb.checked=false); document.getElementById('data_prof').value=new Date().toISOString().split('T')[0];
+  document.getElementById('professor_select').value=''; document.getElementById('turma_select').value=''; document.getElementById('alunos_selected_input').value=''; document.getElementById('selectedPills').innerHTML=''; document.getElementById('descricao_prof').value=''; alunosSelecionados=[]; Array.from(document.querySelectorAll('input[name="irreg"]')).forEach(cb=>cb.checked=false); document.getElementById('data_prof').value=new Date().toISOString().split('T')[0];
 }
 
 /*******************************
@@ -691,21 +732,62 @@ function generatePDFLocal(){
 
 /*******************************
  * utilitários / fallbacks
+ * Aqui definimos o mapa de turmas -> { nameRange, raRange } (fallback local)
  *******************************/
-function _getClassRanges(){ return {
-  "6° ANO A MANHA":"C3:C46","6° ANO B MANHA":"H3:H46","6° ANO C MANHA":"M3:M46","6° ANO D MANHA":"R3:R46",
-  "6° ANO E TARDE":"W3:W46","6° ANO F TARDE":"AB3:AB46","7° ANO A TARDE":"AG3:AG46","7° ANO B TARDE":"AL3:AL46",
-  "7° ANO C TARDE":"AQ3:AQ46","7° ANO D TARDE":"AV3:AV46","7° ANO E TARDE":"BA3:BA46","7° ANO F TARDE":"BF3:BF46",
-  "8° ANO A TARDE":"BK3:BK46","8° ANO B TARDE":"BP3:BP46","8° ANO C TARDE":"BU3:BU46","8° ANO D TARDE":"BZ3:BZ46",
-  "9° ANO A TARDE":"CE3:CE46","9° ANO B TARDE":"CJ3:CJ46","9° ANO C TARDE":"CO3:CO46","9° ANO D TARDE":"CT3:CT46",
-  "1ª SERIE A MANHA":"CY3:CY46","1ª SERIE B MANHA":"DD3:DD46","1ª SERIE C MANHA":"DI3:DI46","1ª SERIE D MANHA":"DN3:DN46",
-  "1ª SERIE E MANHA":"DS3:DS46","1ª SERIE F MANHA":"DX3:DX46","1ª SERIE G TARDE":"EC3:EC46","1ª SERIE H NOITE":"EH3:EH46",
-  "1ª SERIE I NOITE":"EM3:EM46","2ª SERIE A MANHA":"ER3:ER46","2ª SERIE B MANHA":"EW3:EW46","2ª SERIE C MANHA":"FB3:FB46",
-  "2ª SERIE D MANHA":"FG3:FG46","2ª SERIE E MANHA":"FL3:FL46","2ª SERIE F NOITE":"FQ3:FQ46","2ª SERIE G NOITE":"FV3:FV46",
-  "2ª SERIE H NOITE":"GA3:GA46","3ª SERIE A MANHA":"GK3:GK46","3ª SERIE B MANHA":"GP3:GP46","3ª SERIE C MANHA":"GU3:GU46",
-  "3ª SERIE D NOITE":"GZ3:GZ46","3ª SERIE E NOITE":"HE3:HE46","3ª SERIE F NOITE":"HJ3:HJ46"
-};}
+function _getClassRanges(){
+  return {
+    "6° ANO A MANHA":   { nameRange: "C3:C46",  raRange: "F3:F46" },
+    "6° ANO B MANHA":   { nameRange: "H3:H46",  raRange: "K3:K46" },
+    "6° ANO C MANHA":   { nameRange: "M3:M46",  raRange: "P3:P46" },
+    "6° ANO D MANHA":   { nameRange: "R3:R46",  raRange: "U3:U46" },
+    "6° ANO E TARDE":   { nameRange: "W3:W46",  raRange: "W3:W46" }, // RA fornecido igual (W3:W)
+    "6° ANO F TARDE":   { nameRange: "AB3:AB46", raRange: "AE3:AE46" },
+    "7° ANO A TARDE":   { nameRange: "AG3:AG46", raRange: "AJ3:AJ46" },
+    "7° ANO B TARDE":   { nameRange: "AL3:AL46", raRange: "AO3:AO46" },
+    "7° ANO C TARDE":   { nameRange: "AQ3:AQ46", raRange: "AT3:AT46" },
+    "7° ANO D TARDE":   { nameRange: "AV3:AV46", raRange: "AY3:AY46" },
+    "7° ANO E TARDE":   { nameRange: "BA3:BA46", raRange: "AD3:AD46" },
+    "7° ANO F TARDE":   { nameRange: "BF3:BF46", raRange: "BF3:BF46" },
+    "8° ANO A TARDE":   { nameRange: "BK3:BK46", raRange: "BN3:BN46" },
+    "8° ANO B TARDE":   { nameRange: "BP3:BP46", raRange: "BS3:BS46" },
+    "8° ANO C TARDE":   { nameRange: "BU3:BU46", raRange: "BX3:BX46" },
+    "8° ANO D TARDE":   { nameRange: "BZ3:BZ46", raRange: "CC3:CC46" },
+    "8° ANO E TARDE":   { nameRange: "CE3:CE46", raRange: "CH3:CH46" }, // CE3:CE + CH3:CH
+    "9° ANO A TARDE":   { nameRange: "CE3:CE46", raRange: "CM3:CM46" },
+    "9° ANO B TARDE":   { nameRange: "CJ3:CJ46", raRange: "CR3:CR46" },
+    "9° ANO C TARDE":   { nameRange: "CO3:CO46", raRange: "CW3:CW46" },
+    "9° ANO D TARDE":   { nameRange: "CT3:CT46", raRange: "DB3:DB46" },
 
+    "1ª SERIE A MANHA": { nameRange: "CY3:CY46", raRange: "DG3:DG46" },
+    "1ª SERIE B MANHA": { nameRange: "DD3:DD46", raRange: "DL3:DL46" },
+    "1ª SERIE C MANHA": { nameRange: "DI3:DI46", raRange: "DQ3:DQ46" },
+    "1ª SERIE D MANHA": { nameRange: "DN3:DN46", raRange: "DV3:DV46" },
+    "1ª SERIE E MANHA": { nameRange: "DS3:DS46", raRange: "EA3:EA46" },
+    "1ª SERIE F MANHA": { nameRange: "DX3:DX46", raRange: "EF3:EF46" },
+    "1ª SERIE G TARDE": { nameRange: "EC3:EC46", raRange: "EK3:EK46" },
+    "1ª SERIE H NOITE": { nameRange: "EH3:EH46", raRange: "EP3:EP46" },
+    "1ª SERIE I NOITE": { nameRange: "EM3:EM46", raRange: "EU3:EU46" },
+
+    "2ª SERIE A MANHA": { nameRange: "ER3:ER46", raRange: "EZ3:EZ46" },
+    "2ª SERIE B MANHA": { nameRange: "EW3:EW46", raRange: "FE3:FE46" },
+    "2ª SERIE C MANHA": { nameRange: "FB3:FB46", raRange: "FJ3:FJ46" },
+    "2ª SERIE D MANHA": { nameRange: "FG3:FG46", raRange: "FO3:FO46" },
+    "2ª SERIE E MANHA": { nameRange: "FL3:FL46", raRange: "FT3:FT46" },
+    "2ª SERIE F NOITE": { nameRange: "FQ3:FQ46", raRange: "GD3:GD46" }, // mapeamento fornecido
+    "2ª SERIE G NOITE": { nameRange: "FV3:FV46", raRange: "GS3:GS46" },
+    "2ª SERIE H NOITE": { nameRange: "GA3:GA46", raRange: "GX3:GX46" },
+
+    "3ª SERIE A MANHA": { nameRange: "GK3:GK46", raRange: "HC3:HC46" },
+    "3ª SERIE B MANHA": { nameRange: "GP3:GP46", raRange: "HH3:HH46" },
+    "3ª SERIE C MANHA": { nameRange: "GU3:GU46", raRange: "HM3:HM46" },
+    "3ª SERIE D NOITE": { nameRange: "GZ3:GZ46", raRange: "HR3:HR46" },
+    "3ª SERIE E NOITE": { nameRange: "HE3:HE46", raRange: "HW3:HW46" },
+    "3ª SERIE F NOITE": { nameRange: "HJ3:HJ46", raRange: "HT3:HT46" }, // exemplo: HT3:HT for ras
+    "3ª SERIE G NOITE": { nameRange: "HT3:HT46", raRange: "HW3:HW46" } // conforme sua última nota
+  };
+}
+
+/* Lista completa de professores (fallback) */
 function getFallbackProfessores(){ return [
   "ALEX LUTH PEREIRA MARANHAO","ALEXSANDRA PAULA VARELLA DE SOUZA","ALISON VASCONCELOS BESERRA","AMAURI TEODORO DE OLIVEIRA",
   "ANA PAULA DOS SANTOS","ANDREIA DOS SANTOS FREITAS","ANDREIA MADUREIRA REIS","ANTONIO CARLOS DE OLIVEIRA",
